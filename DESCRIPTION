@@ -1,0 +1,17 @@
+Package: spc
+Title: Statistical Process Control
+Version: 0.1
+Date: 2004-02-12
+Author: Sven Knoth, ...
+Maintainer: Sven Knoth <knoth@euv-ffo.de>
+Description: Evaluation of control charts by means of
+        the zero-state, steady-state ARL (Average Run Length).
+        Setting up control charts for given in-control ARL
+        and plotting of the related figures. The control charts
+        under consideration are one- and two-sided EWMA and
+        CUSUM charts for monitoring the mean of normally
+        distributed independent data. Other charts and
+        parameters are in preparation. Further SPC areas will
+        be covered as well (sampling plans, capability indices ...).
+Depends: R (>= 1.4.0)
+License: GPL

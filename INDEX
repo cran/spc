@@ -1,0 +1,5 @@
+xcusum.ad               Compute steady-state ARLs of CUSUM control
+                        charts
+xcusum.arl              Compute ARLs of CUSUM control charts
+xcusum.crit             Compute decision intervals of CUSUM control
+                        charts
