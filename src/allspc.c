@@ -20,6 +20,8 @@
 #define sven 5
 #define fink 6
 
+#define FINALeps 1e-8
+
 /* export */
 
 double xc_crit(int ctyp, double k, double L0, double hs, double m0, int N);
@@ -44,6 +46,12 @@ double xe2_iglad (double l, double c, double mu0, double mu1, int N);
 double xe2_arlm(double l, double c, double hs, int q, double mu0, double mu1, 
                 int mode, int N, int nmax);
 
+double seU_iglarl(double l, double cu, double hs, double sigma, int df, 
+                  int N, int qm);
+
+double kww(int n, double q, double a);
+double tl_factor(int n, double q, double a, int m);
+
 /* internal functions etc. */
 
 static void gausslegendre(int n, double x1, double x2, double *x, double *w);
@@ -59,6 +67,12 @@ double *matrix(long m, long n);
 
 double phi(double x, double mu);
 double PHI(double x, double mu);
+double qPHI(double p);
+double chi(double s, int df);
+double CHI(double s, int df);
+double qCHI(double p, int df);
+
+double Tn(double z, int n); /* Chebyshev polynomials */
 
 double rho0;
 
@@ -79,18 +93,46 @@ double *matrix(long m, long n)
   return (double *) Calloc( m*n, double );
 }
 
-/* normal density */
+/* normal density (pdf) */
 
 double phi(double x, double mu)
 {
  return dnorm(x,mu,1.,LOG);
 }
 
-/* normal cumulative distribution function */
+/* normal cumulative distribution function (cdf) */
 
 double PHI(double x, double mu)
 {
  return pnorm(x,mu,1.,TAIL,LOG);
+}
+
+/* qf of normal rv */
+
+double qPHI(double p)
+{
+ return qnorm(p,0.,1.,TAIL,LOG);
+}
+
+/* pdf of chisquare rv */
+
+double chi(double s, int df)
+{
+ return dchisq(s,(double)df,LOG);
+}
+
+/* cdf of chisquare rv */
+
+double CHI(double s, int df)
+{
+ return pchisq(s,(double)df,TAIL,LOG);
+}
+
+/* qf of chisquare rv */
+
+double qCHI(double p, int df)
+{
+ return qchisq(p,(double)df,TAIL,LOG);
 }
 
 /* roots and abscissae of Gauﬂ-Legendre quadrature */
@@ -954,6 +996,177 @@ double xc2_igladR (double k, double h, double mu0, double mu1, int r)
 
   return ad;
 }
+
+/* variance control charts */
+
+/* -------------- Chebyshev polynomials on [-1,1] ----------------- */
+
+double Tn(double z, int n)
+{ double result=1.;
+
+ if (fabs(z)<1-1e-12) {
+   switch (n) {
+     case 0: result = 1.; break;
+     case 1: result = z; break;
+     case 2: result = 2.*z*z-1.; break;
+     case 3: result = 4.*z*z*z-3.*z; break;
+     case 4: result = 8.*pow(z,4.)-8.*z*z+1.; break;
+     case 5: result = 16.*pow(z,5.)-20.*z*z*z+5.*z; break;
+   }
+   if (n>5) result = cos( (double)(n)*acos(z) );
+ }
+ else { if (z<0. && (n % 2 == 1)) result = -1.; else result = 1.; }
+ return result;
+}
+
+
+double seU_iglarl(double l, double cu, double hs, double sigma, int df,
+                  int N, int qm)
+{ double *a, d, *g, *w, *z, arl, Hij, xi, xl, za, xu, dN, ddf, s2;
+  int i, j, k;
+
+ s2 = sigma*sigma;
+ ddf = (double)df;
+ dN = (double)N;
+
+ a = matrix(N,N);
+ g = vector(N);
+ w = vector(qm);
+ z = vector(qm);
+
+ for (i=0;i<N;i++) {
+   xi = cu/2.*(1.+cos(PI*(2.*(i+1.)-1.)/2./dN));
+
+   za = (1.-l)*xi;
+
+   if (df==2) { xl = za; xu = cu; }
+   else       { xl = 0.; xu = sqrt(cu-za); }
+
+   gausslegendre(qm,xl,xu,z,w);
+
+   if (df==2) a[i*N] = exp(-(cu-za)/s2/l);
+   else       a[i*N] = 1. - CHI( ddf/s2*(cu-za)/l, df);
+
+   for (j=1;j<N;j++) {
+     Hij = 0.;
+     for (k=0;k<qm;k++) {
+       if (df==2)
+         Hij += w[k] * Tn( (2.*z[k]-cu)/cu, j) * exp((za-z[k])/s2/l);
+       if (df!=2)
+         Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-cu)/cu ,j)
+                * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+     }
+     if (df==2) Hij /= s2*l;
+     else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+
+     a[i*N+j] = Tn( (2.*xi-cu)/cu ,j) - Hij;
+   }
+ }
+
+ for (j=0;j<N;j++) g[j] = 1.;
+ LU_solve(a,g,N);
+
+ arl = g[0];
+ for (j=1;j<N;j++)
+   arl += g[j] * Tn( (2.*hs-cu)/cu ,j);
+
+ Free(z);
+ Free(w);
+ Free(g);
+ Free(a);
+
+ return arl;
+}
+
+
+/* 2-sided tolerance limits factors */
+
+/* Wald & Wolfowitz */
+
+double r_Fww (int n, double r)
+{ double x1, x2;
+ x1 = 1./sqrt(n*1.) - r; x2 = x1 + 2.*r;
+ return ( PHI(x2,0.) - PHI(x1,0.) );
+}
+
+double r_fww (int n, double r)
+{ return(
+   exp(-(1./n+r*r)/2.)*(exp(-r/sqrt(n*1.))+exp(r/sqrt(n*1.)))/sqrt(2.*PI)
+  );
+}
+
+double rww(int n, double p)
+{ double r;
+ r = .5;
+ do r = r - (r_Fww(n,r)-p)/r_fww(n,r);
+ while ( fabs(r_Fww(n,r)-p) > 1e-8 );
+ return r;
+}
+
+double kww(int n, double p, double a)
+{ double k;
+ k = rww(n,p);
+ k *= sqrt( (n-1.) );
+ k /= sqrt( qCHI(a,n-1) );
+ return k;
+}
+
+/* exact by Gauﬂ-Legendre quadrature */
+
+double tl_rx_f(double x, double r)
+{ return ( PHI(x+r,0.) - PHI(x-r,0.) );
+}
+
+double tl_rx(double x, double p)
+{ double r1, r2, r3, f1, f2, f3;
+ r1 = 1.; f1 = tl_rx_f(x,r1);
+ r2 = .8; f2 = tl_rx_f(x,r2);
+ do {
+   r3 = r1 - (f1-p)*(r2-r1)/(f2-f1);
+   f3 = tl_rx_f(x,r3);
+   if (f3<p) { r1 = r3; f1 = f3; }
+   else      { r2 = r3; f2 = f3; }
+ } while ( (fabs(f3-p)>1e-8) && (fabs(r1-r2)>1e-8) ); 
+ return r3;
+}
+
+double tl_niveau(int n, double p, double k, int m)
+{ double ni, xmax, *w, *z, dn, rxi;
+  int i;
+ ni = 0.; 
+ dn = (double) n;
+ xmax = qPHI(1.-(1e-10)/2.)/sqrt(dn);
+ w = vector(m);
+ z = vector(m);
+ gausslegendre(m,0.,xmax,z,w);
+ for (i=0;i<m;i++) {
+   rxi = tl_rx (z[i],p);
+   ni += 2. * w[i] * (1-CHI((dn-1.)*rxi*rxi/k/k,n-1))
+         * sqrt(dn)*phi(sqrt(dn)*z[i],0.);
+ }
+ Free(z);
+ Free(w);
+ return ni;
+}
+
+double tl_factor (int n, double p, double a, int m)
+{ double k0, k1, k2, n0, n1, n2, dk;
+
+ k1 = kww(n,p,a);
+ k0 = k1 - .2; k1 += .2;
+ n0 = tl_niveau(n,p,k0,m); 
+ n1 = tl_niveau(n,p,k1,m);
+
+ do {
+   k2 = k0 + ( (1.-a) - n0 )/( n1 - n0 ) * ( k1 - k0);
+   n2 = tl_niveau(n,p,k2,m);
+/* Regula falsi */
+   if ( n2 < (1.-a) ) { dk = k2-k0; k0 = k2; n0 = n2; }
+   else               { dk = k1-k0; k1 = k2; n1 = n2; }
+ } while ( ( fabs((1.-a)-n2) > 1e-8 ) && ( fabs(dk) > 1e-7 ) );
+ return k2;
+}
+
 
 /* solution of Ax = b with nxn matrix A and and n-dim vectors x and b */
 /* by means of LU decomposition etc.                                  */
