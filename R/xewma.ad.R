@@ -17,7 +17,7 @@ xewma.ad <- function(l,c,mu1,mu0=0,zr=0,sided="one",limits="fix",r=40) {
   ad <- .C("xewma_ad",as.integer(ctyp),as.double(l),
            as.double(c),as.double(zr),as.double(mu0),as.double(mu1),
            as.integer(ltyp),as.integer(r),
-           ans=double(length=1),,PACKAGE="spc")$ans 
+           ans=double(length=1),PACKAGE="spc")$ans 
   names(ad) <- "ad"
   return (ad)
 }

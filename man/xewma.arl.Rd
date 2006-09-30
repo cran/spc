@@ -60,7 +60,7 @@ EWMA schemes with non-homogeneous transition kernels,
 
 S. Knoth (2004), 
 Fast initial response features for EWMA Control Charts, 
-\emph{forthcoming in Statistical Papers}.
+\emph{Statistical Papers 46}, 47-64.
 }
 \author{Sven Knoth}
 \seealso{
