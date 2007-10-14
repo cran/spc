@@ -1,5 +1,7 @@
 sewma.arl               Compute ARLs of EWMA control charts (variance
                         charts)
+sewma.crit              Compute critical values of EWMA control charts (variance
+                        charts)
 tol.lim.fac             Two-sided tolerance limit factors
 xcusum.ad               Compute steady-state ARLs of CUSUM control
                         charts

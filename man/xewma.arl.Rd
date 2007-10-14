@@ -22,7 +22,7 @@ equation system is equal to \code{r+1} (one-sided) or \code{r}
 In case of the two-sided chart with fixed control limits and
 of the one-sided chart,
 \code{xewma.arl} determines the Average Run Length (ARL) by numerically
-solving the related ARL integral equation by means of the Nyström method
+solving the related ARL integral equation by means of the Nystroem method
 based on Gauss-Legendre quadrature.
 Otherwise, for the two-sided chart with varying limits the method
 presented in Knoth (2003) is utilized.

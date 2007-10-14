@@ -13,7 +13,8 @@ xewma.arl <- function(l,c,mu,zr=0,hs=0,sided="one",limits="fix",r=40) {
   ctyp <- pmatch(sided, c("one", "two")) - 1
   if (is.na(ctyp)) 
     stop("invalid ewma type")
-  ltyp <- pmatch(limits, c("fix","vacl","fir","both","Steiner","Knoth")) - 1
+  ltyp <- -1 + pmatch(limits, 
+          c("fix","vacl","fir","both","Steiner","Knoth","fink","fixW","fixC"))
   if (is.na(ltyp)) 
     stop("invalid limits type")
   arl <- .C("xewma_arl",as.integer(ctyp),as.double(l),

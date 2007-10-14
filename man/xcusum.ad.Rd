@@ -19,7 +19,7 @@ equation system is equal to \code{r+1} (one-, two-sided) or \code{2r+1}
 \details{
 \code{xcusum.ad} determines the steady-state Average Run Length (ARL)
 by numerically solving the related ARL integral equation by means
-of the Nyström method based on Gauss-Legendre quadrature
+of the Nystroem method based on Gauss-Legendre quadrature
 and using the power method for deriving the largest in magnitude
 eigenvalue and the related left eigenfunction.
 }

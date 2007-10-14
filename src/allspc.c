@@ -20,7 +20,9 @@
 #define sven 5
 #define fink 6
 
-#define FINALeps 1e-8
+#define FINALeps 1e-12
+
+#define lmEPS 1e-4
 
 /* export */
 
@@ -45,9 +47,49 @@ double xe2_iglarl(double l, double c, double hs, double mu, int N);
 double xe2_iglad (double l, double c, double mu0, double mu1, int N);
 double xe2_arlm(double l, double c, double hs, int q, double mu0, double mu1, 
                 int mode, int N, int nmax);
+double xe2_Warl(double l, double c, double hs, double mu, int N, int nmax);
+double xe2_Carl(double l, double c, double hs, double mu, int N, int qm);
 
 double seU_iglarl(double l, double cu, double hs, double sigma, int df, 
-                  int N, int qm);
+                  int N, int qm, int s_squared);
+double se2_iglarl(double l, double cl, double cu, double hs, double sigma, 
+                  int df, int N, int qm);
+double seUR_iglarl(double l, double cl, double cu, double hs, double sigma,
+                   int df, int N, int qm);
+
+double seU_crit(double l, double L0, double hs, double sigma,
+   int df, int N, int qm, int s_squared);
+double se2lu_crit(double l, double L0, double cl, double hs, double sigma,
+   int df, int N, int qm);
+double se2fu_crit(double l, double L0, double cu, double hs, double sigma,
+   int df, int N, int qm);
+int se2_crit(double l, double L0, double *cl, double *cu, double hs, 
+   double sigma, int df, int N, int qm);
+
+double xseU_arl
+  (double lx, double ls, double cx, double cs, double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm);
+double xse2_arl
+  (double lx, double ls, double cx, double csl, double csu, double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm);
+
+int xseU_crit
+  (double lx, double ls, double L0, double *cx, double *cs,
+   double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm);
+int xse2lu_crit
+  (double lx, double ls, double L0, double *cx, double csl, double *csu, 
+   double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm);
+int xse2fu_crit
+  (double lx, double ls, double L0, double *cx, double *csl, double csu, 
+   double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm);
+int xse2_crit
+  (double lx, double ls, double L0, double *cx, double *csl, double *csu, 
+   double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm);
+
 
 double kww(int n, double q, double a);
 double tl_factor(int n, double q, double a, int m);
@@ -56,7 +98,9 @@ double tl_factor(int n, double q, double a, int m);
 
 static void gausslegendre(int n, double x1, double x2, double *x, double *w);
 
+int LU_decompose(double *a, int *ps, int n);
 void LU_solve(double *a, double *b, int n);
+void LU_solve2(double *a, double *b, int *ps, int n);
 
 void pmethod(int n, double *p, int *status, double *lambda,
              double x_[], int *noofit);
@@ -135,7 +179,7 @@ double qCHI(double p, int df)
  return qchisq(p,(double)df,TAIL,LOG);
 }
 
-/* roots and abscissae of Gauß-Legendre quadrature */
+/* roots and abscissae of Gauï¿½Legendre quadrature */
 
 #define GLeps 3e-11
 
@@ -484,6 +528,7 @@ double xe1_iglarl(double l, double c, double zr, double hs, double mu, int N)
  return arl;
 }
 
+
 double xe2_iglarl(double l, double c, double hs, double mu, int N)
 { double *a, d, *g, *w, *z, h, arl;
   int i, j;
@@ -517,6 +562,127 @@ double xe2_iglarl(double l, double c, double hs, double mu, int N)
 
  return arl;
 }
+
+
+double xe2_Warl(double l, double c, double hs, double mu, int N, int nmax)
+{ double *Sm, *Pn, *w, *z, *p0, q,
+         arl_minus=0., arl=1., arl_plus=0., mn_minus=1., mn_plus=0.;
+  int i, j, n;
+
+ c  *= sqrt( l/(2.-l) );
+ hs *= sqrt( l/(2.-l) );
+
+ Sm = matrix(N,N);
+ w  = vector(N);
+ z  = vector(N);
+ Pn = matrix(nmax,N);
+ p0 = vector(nmax);
+
+ gausslegendre(N,-c,c,z,w);
+
+ for (i=0;i<N;i++)
+   for (j=0;j<N;j++)
+     Sm[i*N+j] = w[j]/l * phi( (z[j]-(1.-l)*z[i])/l, mu);
+
+ arl = 1.;
+/*
+ printf("n\tp0_x\tarl-\tarl+\n");
+*/
+ for (n=1;n<=nmax;n++) {
+
+   if (n==1)
+     for (i=0;i<N;i++)
+       Pn[i] = PHI( (c-(1.-l)*z[i])/l, mu) - PHI( (-c-(1.-l)*z[i])/l, mu);
+   else
+     for (i=0;i<N;i++) {
+       Pn[(n-1)*N+i] = 0.;
+       for (j=0;j<N;j++)
+         Pn[(n-1)*N+i] += Sm[i*N+j] * Pn[(n-2)*N+j];
+     }
+
+   p0[n-1] = 0.;
+   if (n==1)
+     p0[0] = PHI( (c-(1.-l)*hs)/l, mu) - PHI( (-c-(1.-l)*hs)/l, mu);
+   else
+     for (j=0;j<N;j++)
+       p0[n-1] += w[j]/l * phi( (z[j]-(1.-l)*hs)/l, mu) * Pn[(n-2)*N+j];
+
+   mn_minus = 1.; mn_plus = 0.;
+   if (n>1) {
+     for (i=0;i<N;i++) {
+       if (Pn[(n-2)*N+i]==0)
+         if (Pn[(n-1)*N+i]==0) q = 0.;
+         else q = 1.;
+       else q = Pn[(n-1)*N+i]/Pn[(n-2)*N+i];
+      if ( q<mn_minus ) mn_minus = q;
+      if ( q>mn_plus ) mn_plus = q;
+     }
+
+     arl_minus = arl + p0[n-1]/(1.-mn_minus);
+     arl_plus = arl + p0[n-1]/(1.-mn_plus);
+   }
+   arl += p0[n-1];
+/*
+   printf("%3d\t%.4f\t%.4f\t%.4f\n",
+          n, p0[n-1], arl_minus, arl_plus);
+*/
+   if ( fabs( (arl_plus-arl_minus)/arl_minus )<FINALeps ) n = nmax+1;
+ }
+
+ Free(p0);
+ Free(Pn);
+ Free(z);
+ Free(w);
+ Free(Sm);
+
+ return (arl_plus+arl_minus)/2.;
+}
+
+
+double xe2_Carl(double l, double c, double hs, double mu, int N, int qm)
+{ double *a, d, *g, *w, *z, arl, Hij, zi, lzi, dN;
+  int i, j, k;
+
+ c  *= sqrt( l/(2.-l) );
+ hs *= sqrt( l/(2.-l) );
+
+ dN = (double)N;
+
+ a = matrix(N,N);
+ g = vector(N);
+ w = vector(qm);
+ z = vector(qm);
+
+ gausslegendre(qm,-c,c,z,w);
+
+ for (i=0;i<N;i++) {
+   zi = c * cos( (2.*(i+1.)-1.)*PI/2./dN );
+   lzi = (1.-l)*zi;
+
+   a[i*N] = 1 - ( PHI( (c-lzi)/l, mu) - PHI( (-c-lzi)/l, mu) );
+
+   for (j=1;j<N;j++) {
+     Hij = 0.;
+     for (k=0;k<qm;k++) 
+       Hij += w[k]/l * Tn( z[k]/c, j) * phi( (z[k]-lzi)/l, mu);
+     a[i*N+j] = Tn( zi/c, j) - Hij;
+   }
+ }
+
+ for (j=0;j<N;j++) g[j] = 1.;
+ LU_solve(a,g,N);
+
+ arl = g[0];
+ for (j=1;j<N;j++) arl += g[j] * Tn( hs/c, j);
+
+ Free(z);
+ Free(w);
+ Free(g);
+ Free(a);
+
+ return arl;
+}
+
 
 double xc1_iglad (double k, double h, double mu0, double mu1, int N)
 { double *a, d, *w, *z, *arl, *psi, rho, ad, norm;
@@ -1021,8 +1187,8 @@ double Tn(double z, int n)
 
 
 double seU_iglarl(double l, double cu, double hs, double sigma, int df,
-                  int N, int qm)
-{ double *a, d, *g, *w, *z, arl, Hij, xi, xl, za, xu, dN, ddf, s2;
+                  int N, int qm, int s_squared)
+{ double *a, d, *g, *w, *z, arl, Hij, xi, xl, za, xu, dN, ddf, s2, v;
   int i, j, k;
 
  s2 = sigma*sigma;
@@ -1039,25 +1205,44 @@ double seU_iglarl(double l, double cu, double hs, double sigma, int df,
 
    za = (1.-l)*xi;
 
-   if (df==2) { xl = za; xu = cu; }
-   else       { xl = 0.; xu = sqrt(cu-za); }
+   xl = za; 
+   xu = cu;
+   if (df!=2 && s_squared) { 
+     xl = 0.; 
+     xu = sqrt(cu-za); 
+   }
 
    gausslegendre(qm,xl,xu,z,w);
 
-   if (df==2) a[i*N] = exp(-(cu-za)/s2/l);
-   else       a[i*N] = 1. - CHI( ddf/s2*(cu-za)/l, df);
+   v = (cu - za) / l;
+   if (s_squared) {
+     if (df==2) a[i*N] = exp(-v/s2);
+     else       a[i*N] = 1. - CHI( ddf/s2*v, df);
+   } else {
+     a[i*N] = 1. - CHI( ddf/s2*v*v, df);
+   }
 
    for (j=1;j<N;j++) {
      Hij = 0.;
      for (k=0;k<qm;k++) {
-       if (df==2)
-         Hij += w[k] * Tn( (2.*z[k]-cu)/cu, j) * exp((za-z[k])/s2/l);
-       if (df!=2)
-         Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-cu)/cu ,j)
-                * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+       v = (z[k] - za) / l;
+       if (s_squared) {
+         if (df==2)
+           Hij += w[k] * Tn( (2.*z[k]-cu)/cu, j) * exp(-v/s2);
+         if (df!=2)
+           Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-cu)/cu ,j)
+                  * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+       } else {
+         Hij += w[k] * Tn( (2.*z[k]-cu)/cu ,j)
+                * pow(v,ddf-1.)*exp(-ddf/2./s2*v*v);
+       }
      }
-     if (df==2) Hij /= s2*l;
-     else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+     if (s_squared) {
+       if (df==2) Hij /= s2*l;
+       else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+     } else {
+       Hij *= 2./l/gammafn(ddf/2.)/pow(2.*s2/ddf,ddf/2.);
+     }
 
      a[i*N+j] = Tn( (2.*xi-cu)/cu ,j) - Hij;
    }
@@ -1076,6 +1261,1103 @@ double seU_iglarl(double l, double cu, double hs, double sigma, int df,
  Free(a);
 
  return arl;
+}
+
+
+double seU_crit (double l, double L0, double hs, double sigma,
+                 int df, int N, int qm, int s_squared)
+{ double s1, s2, s3, ds, L1, L2, L3;
+
+ s2 = hs;
+ do {
+   s2 += .2;
+   L2 = seU_iglarl(l,s2,hs,sigma,df,N,qm,s_squared);
+/*   printf("%.6f : %10.5f\n", s2, L2);*/
+ } while (L2<L0);
+
+ s1 = s2 - .2;
+ L1 = seU_iglarl(l,s1,hs,sigma,df,N,qm,s_squared);
+/* printf("%.6f : %10.5f\n", s1, L1);*/
+
+ do {
+   s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
+   L3 = seU_iglarl(l,s3,hs,sigma,df,N,qm,s_squared);
+/*   printf("%.6f : %10.5f\n", s3, L3);*/
+   ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
+ } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-7 );
+
+ return s3;
+}
+
+
+double se2lu_crit(double l, double L0, double cl, double hs, double sigma,
+                  int df, int N, int qm)
+{ double s1, s2, s3, ds, L1, L2, L3;
+
+ s2 = 0.;
+ do {
+   s2 += .2;
+   L2 = se2_iglarl(l,cl,s2,hs,sigma,df,N,qm);
+/*   printf("%.6f : %10.5f\n", s2, L2);*/
+ } while (L2>L0);
+
+ s1 = s2 - .2;
+ L1 = se2_iglarl(l,cl,s1,hs,sigma,df,N,qm);
+/* printf("%.6f : %10.5f\n", s1, L1);*/
+
+ do {
+   s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
+   L3 = se2_iglarl(l,cl,s3,hs,sigma,df,N,qm);
+/*   printf("%.6f : %10.5f\n", s3, L3);*/
+   ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
+ } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-7 );
+
+ return s3;
+}
+
+
+double se2fu_crit(double l, double L0, double cu, double hs, double sigma,
+                  int df, int N, int qm)
+{ double s1, s2, s3, ds, L1, L2, L3;
+
+ s2 = 0.;
+ do {
+   s2 += .2;
+   L2 = se2_iglarl(l,s2,cu,hs,sigma,df,N,qm);
+/*   printf("(i)\t(%.6f,%.6f) : %10.5f\n", s2, cu, L2);*/
+ } while (L2>L0);
+
+ s1 = s2 - .2;
+ L1 = se2_iglarl(l,s1,cu,hs,sigma,df,N,qm);
+/* printf("(ii)\t%.6f : %10.5f\n", s1, L1);*/
+
+ do {
+   s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
+   L3 = se2_iglarl(l,s3,cu,hs,sigma,df,N,qm);
+/*   printf("(iii)\t%.6f : %10.5f\n", s3, L3);*/
+   ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
+ } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-7 );
+
+ return s3;
+}
+
+
+int se2_crit
+  (double l, double L0, double *cl, double *cu, double hs, double sigma,
+   int df, int N, int qm)
+{ double s1, s2, s3, ds, sl1, sl2, sl3, csl, Lm, Lp;
+  int s_squared=1;
+
+ s1 = seU_crit(l,L0,hs,sigma,df,N,qm,s_squared);
+ csl = 0.;
+ Lm = seU_iglarl(l,s1,hs,sigma-lmEPS,df,N,qm,s_squared);
+ Lp = seU_iglarl(l,s1,hs,sigma+lmEPS,df,N,qm,s_squared);
+ sl1 = (Lp-Lm)/(2.*lmEPS);
+/* printf("1.\t(%.6f,%.6f) : %.4f,%.4f -> %.6f\n", csl, s1, Lm, Lp, sl1);*/
+
+ s2 = s1 + .05;
+ csl = se2fu_crit(l,L0,s2,hs,sigma,df,N,qm);
+ Lm = se2_iglarl(l,csl,s2,hs,sigma-lmEPS,df,N,qm);
+ Lp = se2_iglarl(l,csl,s2,hs,sigma+lmEPS,df,N,qm);
+ sl2 = (Lp-Lm)/(2.*lmEPS);
+/* printf("2.\t(%.6f,%.6f) : %.4f,%.4f -> %.6f\n", csl, s2, Lm, Lp, sl2);*/
+
+ do {
+   s3 = s1 - sl1/(sl2-sl1) * (s2-s1);
+   csl = se2fu_crit(l,L0,s3,hs,sigma,df,N,qm);
+   Lm = se2_iglarl(l,csl,s3,hs,sigma-lmEPS,df,N,qm);
+   Lp = se2_iglarl(l,csl,s3,hs,sigma+lmEPS,df,N,qm);
+   sl3 = (Lp-Lm)/(2.*lmEPS);
+/*   printf("3.\t(%.6f,%.6f) : %.4f,%.4f -> %.6f\n", csl, s3, Lm, Lp, sl3);*/
+   ds = s3-s2; s1 = s2; sl1 = sl2; s2 = s3; sl2 = sl3;
+ } while ( fabs(sl3)>1e-6 && fabs(ds)>1e-7 );
+
+ *cl = csl; *cu = s3;
+
+ return 0;
+}
+
+
+double se2_iglarl(double l, double cl, double cu, double hs, double sigma, 
+                  int df, int N, int qm)
+{ double *a, d, *g, *w, *z, *t, h, arl, Hij, xi, xl, za, xu, dN, ddf, s2,
+         t0, t1, x0, x1;
+  int i, j, k, qi, qj, M, Ntilde, NN, ii, it, jj;
+  FILE *ausgabe;
+
+ M = ceil( (log(cl)-log(cu))/log(1.-l) );
+ Ntilde = ceil( (double)N/(double)M );
+ NN = M*Ntilde;
+ s2 = sigma*sigma;
+ ddf = (double)df;
+ dN = (double)Ntilde - 1.; 
+
+ a = matrix(NN,NN);
+ g = vector(NN);
+ t = vector(NN);
+ w = vector(qm);
+ z = vector(qm);
+
+ for(i=0;i<M;i++) {
+   t0 = cl/pow(1.-l,(double)(i));
+   t1 = t0/(1.-l);
+   if (t1>cu) t1 = cu;
+
+   for (j=1;j<Ntilde;j++) { /* node_i,Ntilde-1 = node_i+1,0 */
+     h = cos( PI/dN *(dN-j) );
+     t[i*(Ntilde-1)+j] = t0 + (h+1.)/2.*(t1-t0);
+     /* Chebyshev Gauss-Lobatto nodes on [t0,t1] */
+   }
+ }
+ t[0] = cl;
+
+ for (i=0;i<M;i++) {
+   for (j=1;j<=Ntilde;j++) {
+     ii = i*Ntilde + j-1;
+     it = i*(Ntilde-1) + j-1;
+
+     za = (1.-l)*t[it];
+     if (za<cl) xl = cl; else xl = za;
+
+     for (qi=0;qi<i-1;qi++)
+       for (qj=1;qj<=Ntilde;qj++) {
+         jj = qi*Ntilde + qj-1;
+         a[ii*NN+jj] = 0.;
+       }
+
+     if (i>0) {
+       qi = i-1;
+       t0 = cl/pow(1.-l,(double)qi);
+       t1 = t0/(1.-l);
+       if (t1>cu) t1 = cu;
+       if (t0<xl) x0 = xl; else x0 = t0;
+       if (df==2)
+         x1 = t1;
+       else {
+         if (x0-za>1e-10) x0 = sqrt(x0-za); else x0 = 0.;
+         if (t1-za>1e-10) x1 = sqrt(t1-za); else x1 = 0.;
+       }
+
+       for (qj=1;qj<=Ntilde;qj++) {
+         jj = qi*Ntilde + qj-1;
+
+         if (j==1) a[ii*NN+jj] = - Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1);
+         else {
+           if (fabs(t1-x0)>1e-8) {
+             gausslegendre(qm,x0,x1,z,w);
+             Hij = 0.;
+             for (k=0;k<qm;k++) {
+               if (df==2)
+                 Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) * 
+                        exp((za-z[k])/s2/l);
+               if (df!=2)
+                 Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) *
+                        2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+             }
+             if (df==2) Hij /= s2*l;
+             else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+             a[ii*NN+jj] = -Hij;
+           }
+           else a[ii*NN+jj] = 0.;
+         }
+       }
+     }
+
+     for (qi=i;qi<M;qi++) {
+       t0 = cl/pow(1.-l,(double)qi);
+       t1 = t0/(1.-l);
+       if (t1>cu) t1 = cu;
+       if (t0<xl) x0 = xl; else x0 = t0;
+       if (df==2)
+         x1 = t1;
+       else {
+        if (x0-za>1e-10) x0 = sqrt(x0-za); else x0 = 0.;
+        if (t1-za>1e-10) x1 = sqrt(t1-za); else x1 = 0.;
+       }
+
+       if (i>0 && j==1 && qi==i) {
+         for (qj=1;qj<=Ntilde;qj++) {
+           jj = qi*Ntilde + qj-1;
+           a[ii*NN+jj] = Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1);
+         }
+       }
+
+       if (i>0 && j==1 && qi>i) {
+         for (qj=1;qj<=Ntilde;qj++) {
+           jj = qi*Ntilde + qj-1;
+           a[ii*NN+jj] = 0.;
+         }
+       }
+
+       if (i==0 || j>1) {
+         for (qj=1;qj<=Ntilde;qj++) {
+           jj = qi*Ntilde + qj-1;
+           gausslegendre(qm,x0,x1,z,w);
+           Hij = 0.;
+           for (k=0;k<qm;k++) {
+             if (df==2)
+               Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) * 
+                      exp((za-z[k])/s2/l);
+             if (df!=2)
+               Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0),qj-1) *
+                      2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+           }
+           if (df==2) Hij /= s2*l;
+           else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+           if (qi==i) a[ii*NN+jj] = Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1) - 
+                                        Hij;
+           else a[ii*NN+jj] = -Hij;
+         }
+       }
+     }
+   }
+ }
+
+ for (j=0;j<NN;j++) g[j] = 1.;
+ for (j=1;j<M;j++) g[Ntilde*j] = 0.;
+
+ LU_solve(a,g,NN);
+
+ arl = 0.;
+ for (i=0;i<M;i++) {
+   t0 = cl/pow(1.-l,(double)i);
+   t1 = t0/(1.-l);
+   if (t1>cu) t1 = cu;
+
+   if (t0<=hs && hs<t1)
+     for (j=1;j<=Ntilde;j++) {
+        ii = i*Ntilde + j-1;
+        arl += g[ii] * Tn((2.*hs-t0-t1)/(t1-t0),j-1);
+     }
+ }
+
+ Free(z);
+ Free(w);
+ Free(t);
+ Free(g);
+ Free(a);
+
+ return arl;
+}
+
+
+
+double seUR_iglarl(double l, double cl, double cu, double hs, double sigma,
+                  int df, int N, int qm)
+{ double *a, d, *g, *w, *z, *t, h, arl, Hij, xi, xl, za, xu, dN, ddf, s2,
+         t0, t1, x0, x1, dummy;
+  int i, j, k, qi, qj, M, Ntilde, NN, ii, it, jj;
+  FILE *ausgabe;
+
+ M = ceil( (log(cl)-log(cu))/log(1.-l) );
+ Ntilde = ceil( (double)N/(double)M );
+ NN = M*Ntilde;
+ s2 = sigma*sigma;
+ ddf = (double)df;
+ dN = (double)Ntilde - 1.;
+
+ a = matrix(NN,NN);
+ g = vector(NN);
+ t = vector(NN);
+ w = vector(qm);
+ z = vector(qm);
+
+ for(i=0;i<M;i++) {
+   t0 = cl/pow(1.-l,(double)(i));
+   t1 = t0/(1.-l);
+   if (t1>cu) t1 = cu;
+
+   for (j=1;j<Ntilde;j++) { /* node_i,Ntilde-1 = node_i+1,0 */
+     h = cos( PI/dN *(dN-j) );
+     t[i*(Ntilde-1)+j] = t0 + (h+1.)/2.*(t1-t0);
+     /* Chebyshev Gauss-Lobatto nodes on [t0,t1] */
+   }
+ }
+ t[0] = cl;
+
+ for (i=0;i<M;i++) {
+   for (j=1;j<=Ntilde;j++) {
+     ii = i*Ntilde + j-1;
+     it = i*(Ntilde-1) + j-1;
+
+     za = (1.-l)*t[it];
+     if (za<cl) xl = cl; else xl = za;
+
+     for (qi=0;qi<i-1;qi++)
+       for (qj=1;qj<=Ntilde;qj++) {
+         jj = qi*Ntilde + qj-1;
+         a[ii*NN+jj] = 0.;
+       }
+
+     if (i>0) {
+       qi = i-1;
+       t0 = cl/pow(1.-l,(double)qi);
+       t1 = t0/(1.-l);
+       if (t1>cu) t1 = cu;
+       if (t0<xl) x0 = xl; else x0 = t0;
+       if (df==2)
+         x1 = t1;
+       else {
+         if (x0-za>1e-10) x0 = sqrt(x0-za); else x0 = 0.;
+         if (t1-za>1e-10) x1 = sqrt(t1-za); else x1 = 0.;
+       }
+
+       for (qj=1;qj<=Ntilde;qj++) {
+         jj = qi*Ntilde + qj-1;
+
+         if (j==1) a[ii*NN+jj] = - Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1);
+         else {
+           if (fabs(t1-x0)>1e-8) {
+             gausslegendre(qm,x0,x1,z,w);
+             Hij = 0.;
+             for (k=0;k<qm;k++) {
+               if (df==2)
+                 Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) *
+                        exp((za-z[k])/s2/l);
+               if (df!=2)
+                 Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) *
+                        2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+             }
+             if (df==2) Hij /= s2*l;
+             else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+             a[ii*NN+jj] = -Hij;
+           }
+           else a[ii*NN+jj] = 0.;
+         }
+       }
+     }
+
+     for (qi=i;qi<M;qi++) {
+       t0 = cl/pow(1.-l,(double)qi);
+       t1 = t0/(1.-l);
+       if (t1>cu) t1 = cu;
+       if (t0<xl) x0 = xl; else x0 = t0;
+       if (df==2)
+         x1 = t1;
+       else {
+        if (x0-za>1e-10) x0 = sqrt(x0-za); else x0 = 0.;
+        if (t1-za>1e-10) x1 = sqrt(t1-za); else x1 = 0.;
+       }
+
+       if (i>0 && j==1 && qi==i) {
+         for (qj=1;qj<=Ntilde;qj++) {
+           jj = qi*Ntilde + qj-1;
+           a[ii*NN+jj] = Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1);
+         }
+       }
+
+       if (i>0 && j==1 && qi>i) {
+         for (qj=1;qj<=Ntilde;qj++) {
+           jj = qi*Ntilde + qj-1;
+           a[ii*NN+jj] = 0.;
+         }
+       }
+
+       if (i==0 || j>1) {
+         for (qj=1;qj<=Ntilde;qj++) {
+           jj = qi*Ntilde + qj-1;
+           gausslegendre(qm,x0,x1,z,w);
+           Hij = 0.;
+           for (k=0;k<qm;k++) {
+             if (df==2)
+               Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) *
+                      exp((za-z[k])/s2/l);
+             if (df!=2)
+               Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0),qj-1) *
+                      2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+           }
+           if (df==2) Hij /= s2*l;
+           else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+           if (qi==i) a[ii*NN+jj] = Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1) -
+                                        Hij;
+           else a[ii*NN+jj] = -Hij;
+         }
+       }
+     }
+     if (i==0) {
+       t0 = cl;
+       t1 = t0/(1.-l);
+       if (t1>cu) t1 = cu;
+
+       for (qj=1;qj<=Ntilde;qj++) {
+         dummy = (cl-za)/l/s2;
+         if (dummy>0.) { 
+           if (df==1) dummy = 2.*PHI( sqrt(dummy), 0. ) - 1.;
+           if (df==2) dummy = 1. - exp( -dummy );
+           if (df>2)  dummy = CHI( df*dummy, df);
+         }
+         else dummy = 0.;
+
+         a[ii*NN+qj-1] -= dummy * Tn((2.*cl-t0-t1)/(t1-t0),qj-1);
+       }
+     }
+   }
+ }
+
+ for (j=0;j<NN;j++) g[j] = 1.;
+ for (j=1;j<M;j++) g[Ntilde*j] = 0.;
+
+ LU_solve(a,g,NN);
+
+ arl = 0.;
+ for (i=0;i<M;i++) {
+   t0 = cl/pow(1.-l,(double)i);
+   t1 = t0/(1.-l);
+   if (t1>cu) t1 = cu;
+
+   if (t0<=hs && hs<t1)
+     for (j=1;j<=Ntilde;j++) {
+        ii = i*Ntilde + j-1;
+        arl += g[ii] * Tn((2.*hs-t0-t1)/(t1-t0),j-1);
+     }
+ }
+
+ Free(z);
+ Free(w);
+ Free(t);
+ Free(g);
+ Free(a);
+
+ return arl;
+}
+
+
+double xseU_arl
+  (double lx, double ls, double cx, double cs, double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm)
+{ double *Sx, *Pnx, *wx, *zx, *p0x, *p0,
+         *S1s, *S2s, *Pns, *ws, *zs, *p0s, q, *zch, *rside,
+         d, za=0., s2,
+         arl_minus=0., arl, arl_plus=0., mn_minus=1., mn_plus=0.,
+         mn_minusx, mn_minuss, mn_plusx, mn_pluss, ddf, xl, xu,
+         oben, unten;
+  int i, j, k, n, *ps;
+
+ cx  *= sqrt( lx/(2.-lx) ); 
+ hsx *= sqrt( lx/(2.-lx) );
+
+ s2 = sigma*sigma;
+ ddf = (double)df;
+
+ Sx  = matrix(Nx,Nx);
+ wx  = vector(Nx);
+ zx  = vector(Nx);
+ Pnx = matrix(nmax,Nx);
+ p0x = vector(nmax);
+
+ S1s = matrix(Ns,Ns);
+ S2s = matrix(Ns,Ns);
+ ps = ivector(Ns);
+ zch = vector(Ns);
+ rside = vector(Ns);
+ ws  = vector(qm);
+ zs  = vector(qm);
+ Pns = matrix(nmax,Ns);
+ p0s = vector(nmax);
+
+ p0  = vector(nmax);
+
+ gausslegendre(Nx,-cx,cx,zx,wx);
+
+ for (i=0;i<Nx;i++) {
+   za = (1.-lx)*zx[i];
+   for (j=0;j<Nx;j++)
+     Sx[i*Nx+j] = wx[j]/lx*phi( ((zx[j]-za)/lx-mu)/sigma, 0.)/sigma;
+ }  
+
+/* Chebyshev nodes on [0,cs] */
+ for (i=0;i<Ns;i++) 
+   zch[i] = cs/2.*(1.+cos(PI*(2.*(i+1.)-1.)/2./(double)Ns) );
+
+/* P(L>1)(zch[i]) */
+ for (i=0;i<Ns;i++)
+   rside[i] = CHI( ddf/s2*(cs-(1.-ls)*zch[i])/ls, df);
+
+ for (i=0;i<Ns;i++) {
+   za = (1.-ls)*zch[i];
+   if (df==2) { xl = za; xu = cs; }
+   else       { xl = 0.; xu = sqrt(cs-za); }
+   gausslegendre(qm,xl,xu,zs,ws);
+   for (j=0;j<Ns;j++) {
+     S1s[i*Ns+j] = 0.;
+     for (k=0;k<qm;k++)
+       if (df==2)
+         S1s[i*Ns+j] += ws[k]*Tn((2.*zs[k]-cs)/cs, j) * exp((za-zs[k])/s2/ls); 
+       else
+         S1s[i*Ns+j] += ws[k]*Tn((2.*(zs[k]*zs[k]+za)-cs)/cs, j)
+                      *2.*pow(zs[k], ddf-1.) * exp(-ddf*zs[k]*zs[k]/2./s2/ls);
+     if (df==2) S1s[i*Ns+j] /= s2*ls;
+     else       S1s[i*Ns+j] /= gammafn(ddf/2.) * pow(2.*s2*ls/ddf,ddf/2.);
+   }
+ }
+
+ for (i=0;i<Ns;i++)
+   for (j=0;j<Ns;j++) S2s[i*Ns+j] = Tn( (2.*zch[i]-cs)/cs, j);
+
+ LU_decompose(S2s,ps,Ns);
+
+ arl = 1.;
+/*
+ printf("n\tp0_x\tp0_s\tp0\tarl-\tarl+\n");
+*/
+ for (n=1;n<=nmax;n++) {
+
+   if (n==1)
+     for (i=0;i<Nx;i++)
+       Pnx[i] = PHI( (( cx-(1.-lx)*zx[i])/lx-mu)/sigma, 0.) - 
+                PHI( ((-cx-(1.-lx)*zx[i])/lx-mu)/sigma, 0.);
+   else
+     for (i=0;i<Nx;i++) {
+       Pnx[(n-1)*Nx+i] = 0.;
+       for (j=0;j<Nx;j++)
+         Pnx[(n-1)*Nx+i] += Sx[i*Nx+j] * Pnx[(n-2)*Nx+j];
+     }
+
+   p0x[n-1] = 0.;
+   if (n==1)
+     p0x[0] = PHI( (( cx-(1.-lx)*hsx)/lx-mu)/sigma, 0.) - 
+              PHI( ((-cx-(1.-lx)*hsx)/lx-mu)/sigma, 0.);
+   else
+     for (j=0;j<Nx;j++)
+       p0x[n-1] += wx[j]/lx * phi( ((zx[j]-(1.-lx)*hsx)/lx-mu)/sigma, 0.)/sigma 
+                   * Pnx[(n-2)*Nx+j];
+
+
+   if (n==1)
+     for (i=0;i<Ns;i++) {
+       Pns[i] = 0.;
+       for (j=0;j<Ns;j++)
+         Pns[i] += 2./Ns * Tn( (2.*zch[j]-cs)/cs, i) * rside[j];
+       if (i==0) Pns[i] /= 2.;
+     }
+   else {
+     for (i=0;i<Ns;i++) {
+       rside[i] = 0.;
+       for (j=0;j<Ns;j++) rside[i] += S1s[i*Ns+j] * Pns[(n-2)*Ns+j];
+     }
+     LU_solve2(S2s,rside,ps,Ns);
+     for (i=0;i<Ns;i++) Pns[(n-1)*Ns+i] = rside[i];
+   }
+
+   p0s[n-1] = 0.;
+   if (n==1)
+     p0s[0] = CHI(ddf/s2*(cs-(1.-ls)*hss)/ls, df);
+   else
+     for (j=0;j<Ns;j++)
+       p0s[n-1] += Pns[(n-1)*Ns+j] * Tn( (2.*hss-cs)/cs, j);
+
+
+   p0[n-1] = p0x[n-1] * p0s[n-1];
+
+   mn_minusx = 1.; mn_plusx = 0.;
+   mn_minuss = 1.; mn_pluss = 0.;
+   if (n>1) {
+     for (i=0;i<Nx;i++) {
+       if (Pnx[(n-1)*Nx+i]==0)
+         if (Pnx[(n-1)*Nx+i]==0) q = 0.;
+         else q = 1.;
+       else q = Pnx[(n-1)*Nx+i]/Pnx[(n-2)*Nx+i];
+      if ( q<mn_minusx ) mn_minusx = q;
+      if ( q>mn_plusx ) mn_plusx = q;
+     }
+
+     for (i=0;i<Ns;i++) {
+       oben = 0.; unten = 0.;
+       for (j=0;j<Ns;j++) {
+         oben += Pns[(n-1)*Ns+j] * Tn( (2.*zch[i]-cs)/cs, j);
+         unten+= Pns[(n-2)*Ns+j] * Tn( (2.*zch[i]-cs)/cs, j);
+       }
+       if (fabs(unten)<1e-16)
+         if (fabs(oben)<1e-16) q = 0.;
+         else q = 1.;
+       else q = oben/unten;
+      if ( q<mn_minuss ) mn_minuss = q;
+      if ( q>mn_pluss ) mn_pluss = q;
+     }
+
+     mn_minus = mn_minusx * mn_minuss;
+     mn_plus  = mn_plusx * mn_pluss;
+
+     arl_minus = arl + p0[n-1]/(1.-mn_minus);
+     arl_plus = arl + p0[n-1]/(1.-mn_plus);
+   }
+   arl += p0[n-1];
+/*
+   printf("%3d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\n",
+          n, p0x[n-1], p0s[n-1], p0[n-1], arl_minus, arl, arl_plus);
+*/
+   if ( fabs( (arl_plus-arl_minus)/arl_minus )<FINALeps ) n = nmax+1;
+ }
+
+ Free(p0);
+
+ Free(p0s);
+ Free(Pns);
+ Free(zs);
+ Free(ws);
+ Free(rside);
+ Free(zch);
+ Free(ps);
+ Free(S2s);
+ Free(S1s);
+ 
+ Free(p0x);
+ Free(Pnx);
+ Free(zx);
+ Free(wx);
+ Free(Sx);
+
+ return (arl_plus+arl_minus)/2.;
+}
+
+
+int xseU_crit
+  (double lx, double ls, double L0, double *cx, double *cs,
+   double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm)
+{ double x1, x2, x3, dx, s1, s2, s3, ds,
+         xARL1, xARL2, sARL1, sARL2, xsARL22, xsARL12, xsARL21,
+         f11, f22, f21, f12, d11, d22, d21, d12, nenner, zr=0.;
+  int s_squared=1;
+
+ x1 = xe_crit(ewma2,lx,2.*L0,zr,hsx,mu,fix,Nx) - .1;
+ x2 = x1 + .1;
+ s1 = seU_crit(ls,2.*L0,hss,sigma,df,Ns,qm,s_squared);
+ s2 = s1 + .05;
+
+ xARL2 = xe2_iglarl(lx,x2,hsx,mu,Nx);
+ sARL2 = seU_iglarl(ls,s2,hss,sigma,df,Ns,qm,s_squared);
+ xsARL22 = xseU_arl(lx,ls,x2,s2,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+/*
+ printf("%.6f,%.6f : %10.5f,%10.5f,%10.5f\n", x2, s2, xARL2, sARL2, xsARL22);
+*/
+ do {
+   xARL1 = xe2_iglarl(lx,x1,hsx,mu,Nx);
+   sARL1 = seU_iglarl(ls,s1,hss,sigma,df,Ns,qm,s_squared);
+   xsARL21 = xseU_arl(lx,ls,x2,s1,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+   xsARL12 = xseU_arl(lx,ls,x1,s2,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+
+   /* Differenzenquotient */
+
+   f11 = (xsARL22 - xsARL12)/(x2-x1); f12 = (xsARL22 - xsARL21)/(s2-s1);
+   f21 = (xARL2   -   xARL1)/(x2-x1); f22 = (sARL1   -   sARL2)/(s2-s1);
+
+   /* Inverse des Differenzenquotienten */
+
+   nenner = f11*f22 - f12*f21;
+   d11 =  f22/nenner;  d12 = -f12/nenner;
+   d21 = -f21/nenner;  d22 =  f11/nenner;
+
+   dx = d11*(xsARL22-L0) + d12*(xARL2-sARL2);
+   ds = d21*(xsARL22-L0) + d22*(xARL2-sARL2);
+
+   x1 = x2;   s1 = s2;
+   x2 -= dx;  s2 -= ds;
+
+   xARL2 = xe2_iglarl(lx,x2,hsx,mu,Nx);
+   sARL2 = seU_iglarl(ls,s2,hss,sigma,df,Ns,qm,s_squared);
+   xsARL22 = xseU_arl(lx,ls,x2,s2,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+/*
+   printf("%.6f,%.6f : %10.5f,%10.5f,%10.5f\n", x2, s2, xARL2, sARL2, xsARL22);
+*/
+ } while ( (fabs(L0-xsARL22)>1e-6 || fabs(xARL2-sARL2)>1e-6)
+        && (fabs(x2-x1)>1e-8 || fabs(s2-s1)>1e-8)             );
+
+ *cx = x2; *cs = s2;
+
+ return 0;
+}
+
+
+double xse2_arl
+  (double lx, double ls, double cx, double csl, double csu, double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm)
+{ double *Sx, *Pnx, *wx, *zx, *p0x, *p0,
+         *S1s, *S2s, *Pns, *ws, *zs, *p0s, q, *zch, *rside, *b,
+         d, za=0., s2, dN, Hij, test,
+         arl_minus=0., arl, arl_plus=0., mn_minus=1., mn_plus=0.,
+         mn_minusx, mn_minuss, mn_plusx, mn_pluss, ddf, xl, xu,
+         oben, unten;
+  int i, j, k, n, *ps, Ntilde, ihs, M, NN, ii, jj;
+
+ cx  *= sqrt( lx/(2.-lx) ); 
+ hsx *= sqrt( lx/(2.-lx) );
+
+ M = ceil( (log(csl)-log(csu))/log(1.-ls) );
+ Ntilde = ceil( (double)Ns/(double)M );
+ NN = M*Ntilde;
+ s2 = sigma*sigma;
+ ddf = (double)df;
+ dN = (double)Ntilde;
+
+ ihs = floor( (log(csl)-log(hss))/log(1.-ls) );
+ if (ihs<0) ihs = 0;
+
+ Sx  = matrix(Nx,Nx);
+ wx  = vector(Nx);
+ zx  = vector(Nx);
+ Pnx = matrix(nmax,Nx);
+ p0x = vector(nmax); 
+
+ S1s = matrix(NN,NN);
+ S2s = matrix(NN,NN);
+ ps = ivector(NN);
+ zch = matrix(M,Ntilde);
+ rside = vector(NN);
+ b   = vector(M+1);
+ ws  = vector(qm);
+ zs  = vector(qm);
+ Pns = matrix(nmax,NN);
+ p0s = vector(nmax);
+
+ p0  = vector(nmax);
+
+ gausslegendre(Nx,-cx,cx,zx,wx);
+
+ for (i=0;i<Nx;i++) {
+   za = (1.-lx)*zx[i];
+   for (j=0;j<Nx;j++)
+     Sx[i*Nx+j] = wx[j]/lx*phi( ((zx[j]-za)/lx-mu)/sigma, 0.)/sigma;
+ }  
+
+/* interval borders b_i = cl/(1-l)^i */
+ for (i=0;i<M;i++) b[i] = csl/pow(1.-ls, (double)(i));
+ b[M] = csu;
+
+ /* Chebyshev nodes on [b_0,b_1],[b_1,b_2],...,[b_M-1,cu] */
+ for (i=0;i<M;i++)
+   for (j=0;j<Ntilde;j++) {
+     zch[ i*Ntilde+j ] = b[i] + (b[i+1]-b[i])/2.*(1.+cos(PI*(2.*j+1.)/2./dN));
+   }
+
+ /* P(L>1)(zch[i,j]) */
+ for (i=0;i<M;i++)
+   for (j=0;j<Ntilde;j++) {
+     rside[ i*Ntilde+j ] =  CHI( ddf/s2*(csu-(1.-ls)*zch[ i*Ntilde+j ])/ls, df)
+                          - CHI( ddf/s2*(csl-(1.-ls)*zch[ i*Ntilde+j ])/ls, df);
+   }
+
+ for (i=0;i<M;i++)
+   for (j=0;j<Ntilde;j++) {
+     za = (1.-ls)*zch[ i*Ntilde+j ];
+     for (ii=0;ii<M;ii++)
+       for (jj=0;jj<Ntilde;jj++) {
+         if (b[ii+1]<za) S1s[ (i*Ntilde+j)*NN + ii*Ntilde+jj ] = 0.;
+         else {
+           if (za<b[ii]) xl = b[ii]; else xl = za;
+           xu = b[ii+1];
+           if (df!=2) {
+             xl = sqrt(xl-za);
+             xu = sqrt(xu-za);
+           }
+           gausslegendre(qm,xl,xu,zs,ws);
+           Hij = 0.;
+           for (k=0;k<qm;k++)
+             if (df==2)
+               Hij += ws[k]*Tn( (2.*zs[k]-b[ii+1]-b[ii])/(b[ii+1]-b[ii]), jj)
+                      * exp(-zs[k]/s2/ls);
+             else
+               Hij +=
+            ws[k]*Tn( (2.*(zs[k]*zs[k]+za)-b[ii+1]-b[ii])/(b[ii+1]-b[ii]), jj)
+                 * 2. * pow(zs[k], ddf-1.) * exp(-ddf*zs[k]*zs[k]/2./s2/ls);
+
+           if (df==2) Hij *= exp(za/s2/ls)/s2/ls;
+           else       Hij /= gammafn(ddf/2.) * pow(2.*s2*ls/ddf, ddf/2.);
+           S1s[ (i*Ntilde+j)*NN + ii*Ntilde+jj ] = Hij;
+         }
+       }
+   }
+
+ for (i=0;i<NN;i++)
+   for (j=0;j<NN;j++) S2s[i*NN+j] = 0.;
+
+ for (i=0;i<M;i++)
+   for (j=0;j<Ntilde;j++)
+     for (jj=0;jj<Ntilde;jj++)
+       S2s[ (i*Ntilde+j)*NN + i*Ntilde+jj ] =
+         Tn( (2.*zch[ i*Ntilde+j ]-b[i+1]-b[i])/(b[i+1]-b[i]), jj); 
+
+ LU_decompose(S2s,ps,NN);
+
+ arl = 1.;
+/*
+ printf("n\tp0_x\tp0_s\tp0\tarl-\tarl+\n");
+*/
+ for (n=1;n<=nmax;n++) {
+
+   if (n==1)
+     for (i=0;i<Nx;i++)
+       Pnx[i] = PHI( (( cx-(1.-lx)*zx[i])/lx-mu)/sigma, 0.) - 
+                PHI( ((-cx-(1.-lx)*zx[i])/lx-mu)/sigma, 0.);
+   else
+     for (i=0;i<Nx;i++) {
+       Pnx[(n-1)*Nx+i] = 0.;
+       for (j=0;j<Nx;j++)
+         Pnx[(n-1)*Nx+i] += Sx[i*Nx+j] * Pnx[(n-2)*Nx+j];
+     }
+
+   p0x[n-1] = 0.;
+   if (n==1)
+     p0x[0] = PHI( (( cx-(1.-lx)*hsx)/lx-mu)/sigma, 0.) - 
+              PHI( ((-cx-(1.-lx)*hsx)/lx-mu)/sigma, 0.);
+   else
+     for (j=0;j<Nx;j++)
+       p0x[n-1] += wx[j]/lx * phi( ((zx[j]-(1.-lx)*hsx)/lx-mu)/sigma, 0.)/sigma 
+                   * Pnx[(n-2)*Nx+j];
+
+   if (n==1)
+     for (i=0;i<M;i++)
+       for (j=0;j<Ntilde;j++) {
+         Pns[ i*Ntilde+j ] = 0.;
+         for (jj=0;jj<Ntilde;jj++)
+           Pns[ i*Ntilde+j ] += /*  usual Chebyshev approximation  */
+             2./Ntilde * Tn( (2.*zch[i*Ntilde+jj]-b[i+1]-b[i])/(b[i+1]-b[i]), j)
+                  * rside[ i*Ntilde+jj ];
+         if (j==0) Pns[ i*Ntilde+j ] /= 2.;
+       }
+   else {
+     for (i=0;i<NN;i++) {
+       rside[i] = 0.;
+       for (j=0;j<NN;j++) rside[i] += S1s[ i*NN+j ] * Pns[ (n-2)*NN+j ];
+     }
+     LU_solve2(S2s,rside,ps,NN);
+     for (i=0;i<NN;i++) Pns[ (n-1)*NN+i ] = rside[i];
+   }
+
+   p0s[n-1] = 0.;
+   if (n==1)
+     p0s[0] =  CHI( ddf/s2*(csu-(1.-ls)*hss)/ls, df)
+             - CHI( ddf/s2*(csl-(1.-ls)*hss)/ls, df);
+   else
+     for (j=0;j<Ntilde;j++)
+       p0s[n-1] += Pns[ (n-1)*NN + ihs*Ntilde+j ]
+                * Tn( (2.*hss-b[ihs+1]-b[ihs])/(b[ihs+1]-b[ihs]), j);
+
+
+   p0[n-1] = p0x[n-1] * p0s[n-1];
+
+   mn_minusx = 1.; mn_plusx = 0.;
+   mn_minuss = 1.; mn_pluss = 0.;
+   if (n>1) {
+     for (i=0;i<Nx;i++) {
+       if (Pnx[(n-1)*Nx+i]==0)
+         if (Pnx[(n-1)*Nx+i]==0) q = 0.;
+         else q = 1.;
+       else q = Pnx[(n-1)*Nx+i]/Pnx[(n-2)*Nx+i];
+      if ( q<mn_minusx ) mn_minusx = q;
+      if ( q>mn_plusx ) mn_plusx = q;
+     }
+
+     for (i=0;i<M;i++)
+       for (j=0;j<Ntilde;j++) {
+         oben = 0.;
+         unten = 0.;
+         for (jj=0;jj<Ntilde;jj++) {
+           oben += Pns[ (n-1)*NN + i*Ntilde+jj ]
+                 * Tn((2.*zch[i*Ntilde+j]-b[i+1]-b[i])/(b[i+1]-b[i]), jj);
+           unten+= Pns[ (n-2)*NN + i*Ntilde+jj ]
+                 * Tn((2.*zch[i*Ntilde+j]-b[i+1]-b[i])/(b[i+1]-b[i]), jj);
+         }
+         if (fabs(unten)<1e-16)
+           if (fabs(oben)<1e-16) q = 0.;
+           else q = 1.;
+         else q = oben/unten;
+         if ( q<mn_minuss ) mn_minuss = q;
+         if ( q>mn_pluss ) mn_pluss = q;
+       }
+
+     mn_minus = mn_minusx * mn_minuss;
+     mn_plus  = mn_plusx * mn_pluss;
+
+     arl_minus = arl + p0[n-1]/(1.-mn_minus);
+     arl_plus = arl + p0[n-1]/(1.-mn_plus);
+   }
+   arl += p0[n-1];
+/*
+   printf("%3d\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\t%.4f\n",
+          n, p0x[n-1], p0s[n-1], p0[n-1], arl_minus, arl, arl_plus);
+*/
+   if ( fabs( (arl_plus-arl_minus)/arl_minus )<FINALeps ) n = nmax+1;
+ }
+
+ Free(p0);
+
+ Free(p0s);
+ Free(Pns);
+ Free(zs);
+ Free(ws);
+ Free(b);
+ Free(rside);
+ Free(zch);
+ Free(ps);
+ Free(S2s);
+ Free(S1s);
+ 
+ Free(p0x);
+ Free(Pnx);
+ Free(zx);
+ Free(wx);
+ Free(Sx);
+
+ return (arl_plus+arl_minus)/2.;
+}
+
+
+int xse2lu_crit
+  (double lx, double ls, double L0, double *cx, double csl, double *csu, 
+   double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm)
+{ double x1, x2, x3, dx, s1, s2, s3, ds, 
+         xARL1, xARL2, sARL1, sARL2, xsARL22, xsARL12, xsARL21, 
+         ls1, ls2, ls3,
+         f11, f22, f21, f12, d11, d22, d21, d12, nenner, zr=0;
+
+ x1 = xe_crit(ewma2,lx,2.*L0,zr,hsx,mu,fix,Nx) - .1;
+ x2 = x1 + .2;
+ s1 = se2lu_crit(ls,2.*L0,csl,hss,sigma,df,Ns,qm) - .1;
+ s2 = s1 + .2;
+
+ xARL2 = xe2_iglarl(lx,x2,hsx,mu,Nx);
+ sARL2 = se2_iglarl(ls,csl,s2,hss,sigma,df,Ns,qm);
+ xsARL22 = xse2_arl(lx,ls,x2,csl,s2,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+/* 
+ printf("(%.6f)(%.6f) : %10.5f,%10.5f,%10.5f\n", x2, s2, xARL2, sARL2, xsARL22);
+*/
+ do {
+   xARL1 = xe2_iglarl(lx,x1,hsx,mu,Nx);
+   sARL1 = se2_iglarl(ls,csl,s1,hss,sigma,df,Ns,qm);
+   xsARL21 = xse2_arl(lx,ls,x2,csl,s1,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+   xsARL12 = xse2_arl(lx,ls,x1,csl,s2,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+
+   /* Differenzenquotient */
+
+   f11 = (xsARL22 - xsARL12)/(x2-x1); f12 = (xsARL22 - xsARL21)/(s2-s1);
+   f21 = (xARL2   -   xARL1)/(x2-x1); f22 = (sARL1   -   sARL2)/(s2-s1);
+
+   /* Inverse des Differenzenquotienten */
+
+   nenner = f11*f22 - f12*f21;
+   d11 =  f22/nenner;  d12 = -f12/nenner;
+   d21 = -f21/nenner;  d22 =  f11/nenner;
+
+   dx = d11*(xsARL22-L0) + d12*(xARL2-sARL2);
+   ds = d21*(xsARL22-L0) + d22*(xARL2-sARL2);
+
+   x1 = x2;   s1 = s2;
+   x2 -= dx;  s2 -= ds;
+
+   xARL2 = xe2_iglarl(lx,x2,hsx,mu,Nx);
+   sARL2 = se2_iglarl(ls,csl,s2,hss,sigma,df,Ns,qm);
+   xsARL22 = xse2_arl(lx,ls,x2,csl,s2,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+/*
+   printf("(%.6f)(%.6f) : %10.5f,%10.5f,%10.5f\n", x2, s2, xARL2, sARL2, xsARL22);
+*/
+ } while ( (fabs(L0-xsARL22)>1e-6 || fabs(xARL2-sARL2)>1e-6)
+        && (fabs(x2-x1)>1e-7 || fabs(s2-s1)>1e-7)             );
+
+ *cx = x2; *csu = s2;
+
+ return 0;
+}
+
+
+int xse2fu_crit
+  (double lx, double ls, double L0, double *cx, double *csl, double csu, 
+   double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm)
+{ double x1, x2, x3, dx, s1, s2, s3, ds, 
+         xARL1, xARL2, sARL1, sARL2, xsARL22, xsARL12, xsARL21, 
+         ls1, ls2, ls3,
+         f11, f22, f21, f12, d11, d22, d21, d12, nenner, zr=0;
+
+ x1 = xe_crit(ewma2,lx,2.*L0,zr,hsx,mu,fix,Nx) - .1;
+ x2 = x1 + .2;
+ s1 = se2fu_crit(ls,2.*L0,csu,hss,sigma,df,Ns,qm) - .1;
+ s2 = s1 + .2;
+
+ xARL2 = xe2_iglarl(lx,x2,hsx,mu,Nx);
+ sARL2 = se2_iglarl(ls,s2,csu,hss,sigma,df,Ns,qm);
+ xsARL22 = xse2_arl(lx,ls,x2,s2,csu,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+/* 
+ printf("(%.6f)(%.6f) : %10.5f,%10.5f,%10.5f\n", x2, s2, xARL2, sARL2, xsARL22);
+*/
+ do {
+   xARL1 = xe2_iglarl(lx,x1,hsx,mu,Nx);
+   sARL1 = se2_iglarl(ls,s1,csu,hss,sigma,df,Ns,qm);
+   xsARL21 = xse2_arl(lx,ls,x2,s1,csu,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+   xsARL12 = xse2_arl(lx,ls,x1,s2,csu,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+
+   /* Differenzenquotient */
+
+   f11 = (xsARL22 - xsARL12)/(x2-x1); f12 = (xsARL22 - xsARL21)/(s2-s1);
+   f21 = (xARL2   -   xARL1)/(x2-x1); f22 = (sARL1   -   sARL2)/(s2-s1);
+
+   /* Inverse des Differenzenquotienten */
+
+   nenner = f11*f22 - f12*f21;
+   d11 =  f22/nenner;  d12 = -f12/nenner;
+   d21 = -f21/nenner;  d22 =  f11/nenner;
+
+   dx = d11*(xsARL22-L0) + d12*(xARL2-sARL2);
+   ds = d21*(xsARL22-L0) + d22*(xARL2-sARL2);
+
+   x1 = x2;   s1 = s2;
+   x2 -= dx;  s2 -= ds;
+
+   xARL2 = xe2_iglarl(lx,x2,hsx,mu,Nx);
+   sARL2 = se2_iglarl(ls,s2,csu,hss,sigma,df,Ns,qm);
+   xsARL22 = xse2_arl(lx,ls,x2,s2,csu,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+/*
+   printf("(%.6f)(%.6f) : %10.5f,%10.5f,%10.5f\n", x2, s2, xARL2, sARL2, xsARL22);
+*/
+ } while ( (fabs(L0-xsARL22)>1e-6 || fabs(xARL2-sARL2)>1e-6)
+        && (fabs(x2-x1)>1e-8 || fabs(s2-s1)>1e-8)             );
+
+ *cx = x2; *csl = s2;
+
+ return 0;
+}
+
+
+int xse2_crit
+  (double lx, double ls, double L0, double *cx, double *csl, double *csu, 
+   double hsx, double hss,
+   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm)
+{ double s1, s2, s3, ds, sl1, sl2, sl3, Lm, Lp, x, cl;
+  int flag;
+
+ cl = 0.;
+ flag = xseU_crit(lx,ls,L0,&x,&s1,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+
+ Lm = xseU_arl(lx,ls,x,s1,hsx,hss,mu,sigma-lmEPS,df,Nx,Ns,nmax,qm);
+ Lp = xseU_arl(lx,ls,x,s1,hsx,hss,mu,sigma+lmEPS,df,Nx,Ns,nmax,qm);
+ sl1 = (Lp-Lm)/(2.*lmEPS);
+/*
+ printf("(%.6f)(%.6f,%.6f) : %.4f,%.4f -> %.6f\n", x, cl, s1, Lm, Lp, sl1);
+*/
+ s2 = s1 + .15;
+ flag = xse2fu_crit(lx,ls,L0,&x,&cl,s2,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+ Lm = xse2_arl(lx,ls,x,cl,s2,hsx,hss,mu,sigma-lmEPS,df,Nx,Ns,nmax,qm);
+ Lp = xse2_arl(lx,ls,x,cl,s2,hsx,hss,mu,sigma+lmEPS,df,Nx,Ns,nmax,qm);
+ sl2 = (Lp-Lm)/(2.*lmEPS);
+/*
+ printf("(%.6f)(%.6f,%.6f) : %.4f,%.4f -> %.6f\n", x, cl, s2, Lm, Lp, sl2);
+*/
+ do {
+   s3 = s1 - sl1/(sl2-sl1) * (s2-s1);
+   flag = xse2fu_crit(lx,ls,L0,&x,&cl,s3,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+   Lm = xse2_arl(lx,ls,x,cl,s3,hsx,hss,mu,sigma-lmEPS,df,Nx,Ns,nmax,qm);
+   Lp = xse2_arl(lx,ls,x,cl,s3,hsx,hss,mu,sigma+lmEPS,df,Nx,Ns,nmax,qm);
+   sl3 = (Lp-Lm)/(2.*lmEPS);
+/*
+  printf("(%.6f)(%.6f,%.6f) : %.4f,%.4f -> %.6f\n", x, cl, s3, Lm, Lp, sl3);
+*/
+   ds = s3-s2; s1 = s2; sl1 = sl2; s2 = s3; sl2 = sl3;
+ } while ( fabs(sl3)>1e-6 && fabs(ds)>1e-7 );
+
+ *cx = x; *csl = cl; *csu = s3;
+
+ return 0;
 }
 
 
@@ -1111,7 +2393,7 @@ double kww(int n, double p, double a)
  return k;
 }
 
-/* exact by Gauß-Legendre quadrature */
+/* exact by Gauss-Legendre quadrature */
 
 double tl_rx_f(double x, double r)
 { return ( PHI(x+r,0.) - PHI(x-r,0.) );
@@ -1253,3 +2535,30 @@ void LU_solve(double *a, double *b, int n)
 
   Free(x); Free(ps);
 }
+
+
+void LU_solve2(double *a, double *b, int *ps, int n)
+{ int i, j;
+  double dot, *x;
+
+  x = vector(n);
+
+  for (i=0;i<n;i++) {
+    dot = 0.;
+    for (j=0;j<i;j++)
+      dot += a[ps[i]*n+j] * x[j];
+    x[i] = b[ps[i]] - dot;
+  }
+
+  for (i=n-1;i>=0;i--) {
+    dot = 0.;
+    for (j=i+1;j<n;j++)
+      dot += a[ps[i]*n+j] * x[j];
+    x[i] = (x[i] - dot) / a[ps[i]*n+i];
+  }
+
+  for (i=0;i<n;i++) b[i] = x[i];
+
+  Free(x); 
+}
+

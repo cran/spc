@@ -5,13 +5,14 @@
 for different types of EWMA control charts 
 (based on the sample variance \eqn{S^2})
 monitoring normal variance.}
-\usage{sewma.arl(l,cl,cu,sigma,df,hs=1,sided="upper",r=40,qm=30)}
+\usage{sewma.arl(l,cl,cu,sigma,df,s2.on=TRUE,hs=1,sided="upper",r=40,qm=30)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{cl}{lower control limit of the EWMA control chart.}
 \item{cu}{upper control limit of the EWMA control chart.}
 \item{sigma}{true standard deviation.}
 \item{df}{actual degrees of freedom, corresponds to batch size.}
+\item{s2.on}{distinguish between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
 \item{hs}{so-called headstart (give fast initial response).}
 \item{sided}{distinguish between one- and two-sided 
 two-sided EWMA-\eqn{S^2}{S^2} control charts 
@@ -21,9 +22,7 @@ without reflection at \code{cl} -- the actual value of
 \code{"Rupper"} (upper chart with reflection at \code{cl}),
 \code{"Rlower"} (lower chart with reflection at \code{cu}),
 and \code{"two"} (two-sided chart), 
-respectively. 
-In the current version (0.2), there is only \code{"upper"} supported!
-The remaining values will be added soon.}
+respectively.} 
 \item{r}{dimension of the resulting linear equation system.}
 \item{qm}{number of quadrature nodes.}
 }

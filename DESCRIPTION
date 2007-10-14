@@ -1,7 +1,7 @@
 Package: spc
 Title: Statistical Process Control
-Version: 0.2
-Date: 2004-09-30
+Version: 0.2.1
+Date: 2007-10-14
 Author: Sven Knoth, ...
 Maintainer: Sven Knoth <Sven.Knoth@gmx.de>
 Description: Evaluation of control charts by means of
@@ -11,12 +11,10 @@ Description: Evaluation of control charts by means of
         under consideration are one- and two-sided EWMA and
         CUSUM charts for monitoring the mean of normally
         distributed independent data. Now, the ARL calculation
-        of EWMA-S^2 control charts is added. Moreover,
-        with a further new function so-called tolerance limits
-        factors could be determined.
+        of EWMA-S^2 control charts is added. 
         Other charts and
         parameters are in preparation. Further SPC areas will
         be covered as well (sampling plans, capability indices ...).
 Depends: R (>= 1.4.0)
 License: GPL
-Packaged: Sat Sep 30 11:00:50 2006; sven
+Packaged: 2009-05-13 10:31:57 UTC; hornik
