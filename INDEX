@@ -1,14 +1,21 @@
-sewma.arl               Compute ARLs of EWMA control charts (variance
-                        charts)
-sewma.crit              Compute critical values of EWMA control charts (variance
-                        charts)
+sewma.arl               Compute ARLs of EWMA control charts (variance charts)
+sewma.crit              Compute critical values of EWMA control charts (variance charts)
 tol.lim.fac             Two-sided tolerance limit factors
-xcusum.ad               Compute steady-state ARLs of CUSUM control
-                        charts
+xcusum.ad               Compute steady-state ARLs of CUSUM control charts
 xcusum.arl              Compute ARLs of CUSUM control charts
-xcusum.crit             Compute decision intervals of CUSUM control
-                        charts
-xewma.ad                Compute steady-state ARLs of EWMA control
-                        charts
+xcusum.crit             Compute decision intervals of CUSUM control charts
+xDcusum.arl             Compute ARLs of CUSUM control charts under drift
+xDewma.arl              Compute ARLs of EWMA control charts under drift
+xDgrsr.arl              Compute ARLs of Shiryaev-Roberts schemes under drift
+xDshewhartrunsrules.arl Compute ARLs of Shewhart control charts with runs rules under drift
+xewma.ad                Compute steady-state ARLs of EWMA control charts
 xewma.arl               Compute ARLs of EWMA control charts
 xewma.crit              Compute critical values of EWMA control charts
+xgrsr.ad                Compute steady-state ARLs of Shiryaev-Roberts schemes
+xgrsr.arl               Compute ARLs of Shiryaev-Roberts schemes
+xgrsr.crit              Compute critical values of Shiryaev-Roberts schemes
+xsewma.arl              Compute ARLs of simultaneous EWMA control charts
+xsewma.crit             Compute critical values of simultaneous EWMA control charts
+xshewhartrunsrules.ad   Compute steady-state ARLs of Shewhart control charts with runs rules
+xshewhartrunsrules.arl  Compute ARLs of Shewhart control charts with runs rules
+xshewhartrunsrules.crit Compute critical values of Shewhart control charts with runs rules

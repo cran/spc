@@ -35,6 +35,10 @@ collocation (Chebyshev polynomials).}
 S. Knoth (2005),
 Accurate ARL computation for EWMA-\eqn{S^2}{S^2} control charts,
 \emph{Statistics and Computing 15}, 341-352.
+
+S. Knoth (2006),
+Computation of the ARL for CUSUM-\eqn{S^2}{S^2} schemes,
+\emph{Computational Statistics & Data Analysis 51}, 499-512.
 }
 \author{Sven Knoth}
 \seealso{
@@ -47,7 +51,53 @@ for monitoring normal mean.
 ## Monte Carlo with 10^9 replicates: 249.9892 +/- 0.008
 l <- .025
 df <- 1
-cu <- 1 + 1.661865*sqrt(l/(2-l))*sqrt(2/df) 
+cu <- 1 + 1.661865*sqrt(l/(2-l))*sqrt(2/df)
 sewma.arl(l,0,cu,1,df)
+
+## ARL values for upper and lower EWMA charts with reflecting barriers
+## (reflection at in-control level sigma0 = 1)
+## examples from Knoth (2006), Tables 4 and 5
+
+Ssewma.arl <- Vectorize("sewma.arl", "sigma")
+
+## upper chart with reflection at sigma0=1 in Table 4
+## original entries are
+# sigma   ARL
+# 1       100.0
+# 1.01    85.3
+# 1.02    73.4
+# 1.03    63.5
+# 1.04    55.4
+# 1.05    48.7
+# 1.1     27.9
+# 1.2     12.9
+# 1.3     7.86
+# 1.4     5.57
+# 1.5     4.30
+# 2       2.11
+
+l <- 0.15
+df <- 4
+cu <- 1 + 2.4831*sqrt(l/(2-l))*sqrt(2/df)
+sigmas <- c(1 + (0:5)/100, 1 + (1:5)/10, 2)
+arls <- round(Ssewma.arl(l, 1, cu, sigmas, df, sided="Rupper", r=100), digits=2)
+data.frame(sigmas, arls)
+
+
+## lower chart with reflection at sigma0=1 in Table 5
+## original entries are
+# sigma   ARL
+# 1       200.04
+# 0.9     38.47
+# 0.8     14.63
+# 0.7     8.65
+# 0.6     6.31
+
+l <- 0.115
+df <- 5
+cl <- 1 - 2.0613*sqrt(l/(2-l))*sqrt(2/df)
+sigmas <- c((10:6)/10)
+arls <- round(Ssewma.arl(l, cl, 1, sigmas, df, sided="Rlower", r=100), digits=2)
+data.frame(sigmas, arls)
 }
 \keyword{ts}
