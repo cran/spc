@@ -3,22 +3,17 @@
 \title{Compute ARLs of EWMA control charts}
 \description{Computation of the (zero-state) Average Run Length (ARL)
 for different types of EWMA control charts monitoring normal mean.}
-\usage{xewma.arl(l,c,mu,zr=0,hs=0,sided="one",limits="fix",q=1,r=40)}
+\usage{xewma.arl(l,c,mu,zr=0,hs=0,sided="one",limits="fix",r=40)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{c}{critical value (similar to alarm limit) of the EWMA control chart.}
 \item{mu}{true mean.}
 \item{zr}{reflection border for the one-sided chart.}
 \item{hs}{so-called headstart (give fast initial response).}
-\item{sided}{distinguish between one- and two-sided EWMA control chart 
-by choosing \code{"one"} and \code{"two"}, respectively.}
+\item{sided}{distinguish between one- and two-sided 
+two-sided EWMA control chart by choosing \code{"one"} and \code{"two"},
+respectively.}
 \item{limits}{distinguish between different control limits behavior.}
-\item{q}{change point position. For \eqn{q=1} and
-\eqn{\mu=\mu_0} and \eqn{\mu=\mu_1}, the usual
-zero-state ARLs for the in-control and out-of-control case, respectively,
-are calculated. For \eqn{q>1} and \eqn{\mu!=0} conditional delays, that is,
-\eqn{E_q(L-q+1|L\geq)}, will be determined.
-Note that mu0=0 is implicitely fixed.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}
@@ -29,12 +24,8 @@ of the one-sided chart,
 \code{xewma.arl} determines the Average Run Length (ARL) by numerically
 solving the related ARL integral equation by means of the Nystroem method
 based on Gauss-Legendre quadrature.
-If \code{limits} is not \code{"fix"}, then the method presented in Knoth (2003) is utilized.
-Note that for one-sided EWMA charts (\code{sided}=\code{"one"}), only
-\code{"vacl"} and \code{"stat"} are deployed, while for two-sided ones
-(\code{sided}=\code{"two"}) also \code{"fir"}, \code{"both"}
-(combination of \code{"fir"} and \code{"vacl"}), and \code{"Steiner"} are implemented.
-For details see Knoth (2004).
+Otherwise, for the two-sided chart with varying limits the method
+presented in Knoth (2003) is utilized.
 }
 \value{Returns a single value which resembles the ARL.}
 \references{
@@ -59,7 +50,7 @@ T. R. Rhoads, D. C. Montgomery, C. M. Mastrangelo (1996),
 Fast initial response scheme for exponentially weighted moving average
 control chart, \emph{Quality Engineering 9}, 317-327.
 
-S. H. Steiner (1999),
+S. H. Steiner (1999), 
 EWMA control charts with time-varying control limits and fast initial response, 
 \emph{Journal of Quality Technology 31}, 75-86.
 
@@ -67,8 +58,8 @@ S. Knoth (2003),
 EWMA schemes with non-homogeneous transition kernels,
 \emph{Sequential Analysis 22}, 241-255.
 
-S. Knoth (2004),
-Fast initial response features for EWMA Control Charts,
+S. Knoth (2004), 
+Fast initial response features for EWMA Control Charts, 
 \emph{Statistical Papers 46}, 47-64.
 }
 \author{Sven Knoth}
@@ -288,47 +279,5 @@ mu <- 1
 print(xewma.arl(l,c,mu,sided="two"),digits=11)
 
 # original value is 11.154267016.
-
-## Some recent examples for one-sided EWMA charts
-## with varying limits and in the so-called stationary mode
-
-# 1. varying limits = "vacl"
-
-lambda <- .1
-L0 <- 500
-
-## Monte Carlo results (10^9 replicates)
-# mu    ARL      s.e.
-# 0     500.00   0.0160
-# 0.5   21.637   0.0006
-# 1     6.7596   0.0001
-# 1.5   3.5398   0.0001
-# 2     2.3038   0.0000
-# 2.5   1.7004   0.0000
-# 3     1.3675   0.0000
-
-zr <- -6
-r <- 50
-c <- xewma.crit(lambda, L0, zr=zr, limits="vacl", r=r)
-Mxewma.arl <- Vectorize(xewma.arl, "mu")
-mus <- (0:6)/2
-arls <- round(Mxewma.arl(lambda, c, mus, zr=zr, limits="vacl", r=r), digits=4)
-data.frame(mus, arls)
-
-# 2. stationary mode, i. e. limits = "stat"
-
-## Monte Carlo results (10^9 replicates)
-# mu    ARL      s.e.
-# 0     500.00   0.0159
-# 0.5   22.313   0.0006
-# 1     7.2920   0.0001
-# 1.5   3.9064   0.0001
-# 2     2.5131   0.0000
-# 2.5   1.7983   0.0000
-# 3     1.4029   0.0000
-
-c <- xewma.crit(lambda, L0, zr=zr, limits="stat", r=r)
-arls <- round(Mxewma.arl(lambda, c, mus, zr=zr, limits="stat", r=r), digits=4)
-data.frame(mus, arls)
 }
 \keyword{ts}
