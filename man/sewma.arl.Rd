@@ -5,13 +5,14 @@
 for different types of EWMA control charts 
 (based on the sample variance \eqn{S^2})
 monitoring normal variance.}
-\usage{sewma.arl(l,cl,cu,sigma,df,hs=1,sided="upper",r=40,qm=30)}
+\usage{sewma.arl(l,cl,cu,sigma,df,s2.on=TRUE,hs=1,sided="upper",r=40,qm=30)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{cl}{lower control limit of the EWMA control chart.}
 \item{cu}{upper control limit of the EWMA control chart.}
 \item{sigma}{true standard deviation.}
 \item{df}{actual degrees of freedom, corresponds to batch size.}
+\item{s2.on}{distinguish between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
 \item{hs}{so-called headstart (give fast initial response).}
 \item{sided}{distinguish between one- and two-sided 
 two-sided EWMA-\eqn{S^2}{S^2} control charts 
@@ -21,9 +22,7 @@ without reflection at \code{cl} -- the actual value of
 \code{"Rupper"} (upper chart with reflection at \code{cl}),
 \code{"Rlower"} (lower chart with reflection at \code{cu}),
 and \code{"two"} (two-sided chart), 
-respectively. 
-In the current version (0.2), there is only \code{"upper"} supported!
-The remaining values will be added soon.}
+respectively.} 
 \item{r}{dimension of the resulting linear equation system.}
 \item{qm}{number of quadrature nodes.}
 }
@@ -36,6 +35,10 @@ collocation (Chebyshev polynomials).}
 S. Knoth (2005),
 Accurate ARL computation for EWMA-\eqn{S^2}{S^2} control charts,
 \emph{Statistics and Computing 15}, 341-352.
+
+S. Knoth (2006),
+Computation of the ARL for CUSUM-\eqn{S^2}{S^2} schemes,
+\emph{Computational Statistics & Data Analysis 51}, 499-512.
 }
 \author{Sven Knoth}
 \seealso{
@@ -48,7 +51,53 @@ for monitoring normal mean.
 ## Monte Carlo with 10^9 replicates: 249.9892 +/- 0.008
 l <- .025
 df <- 1
-cu <- 1 + 1.661865*sqrt(l/(2-l))*sqrt(2/df) 
+cu <- 1 + 1.661865*sqrt(l/(2-l))*sqrt(2/df)
 sewma.arl(l,0,cu,1,df)
+
+## ARL values for upper and lower EWMA charts with reflecting barriers
+## (reflection at in-control level sigma0 = 1)
+## examples from Knoth (2006), Tables 4 and 5
+
+Ssewma.arl <- Vectorize("sewma.arl", "sigma")
+
+## upper chart with reflection at sigma0=1 in Table 4
+## original entries are
+# sigma   ARL
+# 1       100.0
+# 1.01    85.3
+# 1.02    73.4
+# 1.03    63.5
+# 1.04    55.4
+# 1.05    48.7
+# 1.1     27.9
+# 1.2     12.9
+# 1.3     7.86
+# 1.4     5.57
+# 1.5     4.30
+# 2       2.11
+
+l <- 0.15
+df <- 4
+cu <- 1 + 2.4831*sqrt(l/(2-l))*sqrt(2/df)
+sigmas <- c(1 + (0:5)/100, 1 + (1:5)/10, 2)
+arls <- round(Ssewma.arl(l, 1, cu, sigmas, df, sided="Rupper", r=100), digits=2)
+data.frame(sigmas, arls)
+
+
+## lower chart with reflection at sigma0=1 in Table 5
+## original entries are
+# sigma   ARL
+# 1       200.04
+# 0.9     38.47
+# 0.8     14.63
+# 0.7     8.65
+# 0.6     6.31
+
+l <- 0.115
+df <- 5
+cl <- 1 - 2.0613*sqrt(l/(2-l))*sqrt(2/df)
+sigmas <- c((10:6)/10)
+arls <- round(Ssewma.arl(l, cl, 1, sigmas, df, sided="Rlower", r=100), digits=2)
+data.frame(sigmas, arls)
 }
 \keyword{ts}

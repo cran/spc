@@ -18,7 +18,7 @@ equation system is equal to \code{r+1} (one-, two-sided) or \code{2r+1}
 }
 \details{
 \code{xcusum.arl} determines the Average Run Length (ARL) by numerically
-solving the related ARL integral equation by means of the Nyström method
+solving the related ARL integral equation by means of the Nystroem method
 based on Gauss-Legendre quadrature.
 }
 \value{Returns a single value which resembles the ARL.}
@@ -87,7 +87,7 @@ round(cbind(mu,arl1,arl2),digits=2)
 ## 5.00   1.31   1.01.
 
 ## Vance (1986), one-sided CUSUM
-## The first paper on using Nyström method and Gauss-Legendre quadrature
+## The first paper on using Nystroem method and Gauss-Legendre quadrature
 ## for solving the ARL integral equation (see as well Goel/Wu, 1971)
 
 k <- 0
