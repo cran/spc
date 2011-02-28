@@ -31,7 +31,7 @@ void xsewma_crit
 ( int *ctyp, int *ltyp,
       double *lx, double *ls, double *L0, double *cu0, double *hsx, double *hss,
       double *mu, double *sigma, int *df,
-      int *Nx, int *Ns, int *nmax, int *qm, double *c_values)
+      int *Nx, int *Ns, int *qm, double *c_values)
 { int result;
   double cx, cl, cu;
  cx = -1.;
@@ -39,14 +39,14 @@ void xsewma_crit
  cu = -1.;
 
  if (*ctyp==ewmaU) 
-   result = xseU_crit(*lx,*ls,*L0,&cx,&cu,*hsx,*hss,*mu,*sigma,*df,*Nx,*Ns,*nmax,*qm);
+   result = xseU_crit(*lx,*ls,*L0,&cx,&cu,*hsx,*hss,*mu,*sigma,*df,*Nx,*Ns,10000,*qm);
  if (*ctyp==ewma2) {
    if (*ltyp==fixed) {
-     result = xse2fu_crit(*lx,*ls,*L0,&cx,&cl,*cu0,*hsx,*hss,*mu,*sigma,*df,*Nx,*Ns,*nmax,*qm);
+     result = xse2fu_crit(*lx,*ls,*L0,&cx,&cl,*cu0,*hsx,*hss,*mu,*sigma,*df,*Nx,*Ns,10000,*qm);
      cu = *cu0;
    }
    if (*ltyp==unbiased)
-     result = xse2_crit(*lx,*ls,*L0,&cx,&cl,&cu,*hsx,*hss,*mu,*sigma,*df,*Nx,*Ns,*nmax,*qm);
+     result = xse2_crit(*lx,*ls,*L0,&cx,&cl,&cu,*hsx,*hss,*mu,*sigma,*df,*Nx,*Ns,10000,*qm);
  }
 
  c_values[0] = cx;
