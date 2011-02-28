@@ -3,7 +3,7 @@
 \title{Compute critical values of EWMA control charts}
 \description{Computation of the critical values (similar to alarm limits)
 for different types of EWMA control charts monitoring normal mean.}
-\usage{xewma.crit(l,L0,mu0=0,zr=0,hs=0,sided="one",limits="fix",r=40)}
+\usage{xewma.crit(l,L0,mu0=0,zr=0,hs=0,sided="one",limits="fix",r=40,c0=NULL)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{L0}{in-control ARL.}
@@ -17,6 +17,7 @@ respectively.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}
+\item{c0}{starting value for iteration rule.}
 }
 \details{
 \code{xewma.crit} determines the critical values (similar to alarm limits)
@@ -34,7 +35,7 @@ schemes, \emph{Journal of Quality Technology 21}, 155-162.
 \examples{
 l <- .1
 incontrolARL <- c(500,5000,50000)
-sapply(incontrolARL,l=l,sided="two",xewma.crit,r=30) # accuracy with 30 nodes
+sapply(incontrolARL,l=l,sided="two",xewma.crit,r=35) # accuracy with 35 nodes
 sapply(incontrolARL,l=l,sided="two",xewma.crit)      # accuracy with 40 nodes
 sapply(incontrolARL,l=l,sided="two",xewma.crit,r=50) # accuracy with 50 nodes
 

@@ -17,7 +17,7 @@ xDewma.arl <- function(l, c, delta, zr=0, hs=0, sided="one", limits="fix", mode=
           c("fix","vacl","fir","both","Steiner","Knoth","fink","fixW","fixC"))
   if (is.na(ltyp))
     stop("invalid limits type")
-  cmode <- pmatch(mode, c("Gan", "Knoth")) - 1
+  cmode <- pmatch(mode, c("Gan", "Knoth", "Waldmann")) - 1
   if (is.na(cmode))
     stop("invalid algorithm mode")
   if ( is.null(m) ) {
