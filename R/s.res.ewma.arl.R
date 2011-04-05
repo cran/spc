@@ -6,8 +6,6 @@ s.res.ewma.arl <- function(l,cu,sigma,mu=0,alpha=0,n=5,hs=1,r=40,qm=30) {
     warning("usually, cu has to be positive")
   if ( sigma <= 0 )
     stop("sigma must be positive")
-  if ( n < 1 )
-    stop("n must be larger than or equal to 1")
   if ( abs(alpha) > 1 )
     warning("nonstationary AR(1) process")
   if ( n < 2 )

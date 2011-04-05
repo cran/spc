@@ -1,7 +1,7 @@
 Package: spc
 Title: Statistical Process Control
-Version: 0.4.0
-Date: 2011-02-28
+Version: 0.4.1
+Date: 2011-04-05
 Author: Sven Knoth, ...
 Maintainer: Sven Knoth <Sven.Knoth@gmx.de>
 Description: Evaluation of control charts by means of the zero-state,
@@ -16,6 +16,6 @@ Description: Evaluation of control charts by means of the zero-state,
         capability indices ...).
 Depends: R (>= 1.4.0)
 License: GPL
-Packaged: 2011-02-28 12:11:35 UTC; knoth
+Packaged: 2012-10-29 08:59:48 UTC; ripley
 Repository: CRAN
-Date/Publication: 2011-02-28 12:52:58
+Date/Publication: 2012-10-29 08:59:48
