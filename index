@@ -1,3 +1,6 @@
+phat.ewma.arl                  Compute ARLs of EWMA phat control charts
+phat.ewma.crit                 Compute upper control limits of EWMA phat control charts
+phat.ewma.lambda               Compute optimal lambda of EWMA phat control charts
 sewma.arl                      Compute ARLs of EWMA control charts (variance charts)
 sewma.crit                     Compute critical values of EWMA control charts (variance charts)
 s.res.ewma.arl                 Compute ARLs of EWMA residual control charts (variance charts) 
