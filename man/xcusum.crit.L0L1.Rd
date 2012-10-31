@@ -8,8 +8,8 @@ the out-of-control L1 are given.}
 \arguments{
 \item{L0}{in-control ARL.}
 \item{L1}{out-of-control ARL.}
-\item{hs}{so-called headstart (give fast initial response).}
-\item{sided}{distinguish between one-, two-sided and Crosier's modified
+\item{hs}{so-called headstart (enables fast initial response).}
+\item{sided}{distinguishes between one-, two-sided and Crosier's modified
 two-sided CUSUM schemoosing \code{"one"}, \code{"two"}, and \code{"Crosier"}, respectively.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-, two-sided) or \code{2r+1} (Crosier).}
@@ -24,7 +24,7 @@ These CUSUM design rules were firstly (and quite rarely afterwards) used by Ewan
 }
 \value{Returns two values which resemble the reference value \code{k} and the threshold \code{h}.}
 \references{
-W. D. Ewan, K. W. Kemp (1960),
+W. D. Ewan and K. W. Kemp (1960),
 Sampling inspection of continuous processes with no autocorrelation between successive results,
 \emph{Biometrika 47}, 363-380.
 
@@ -58,7 +58,6 @@ for ( L0 in L0.set ) {
 # two confirmation runs
 xcusum.arl(0.54, 3.51, 0) # Ewan/Kemp
 xcusum.arl(result[1], result[2], 0) # here
-# one confirmation run
 xcusum.arl(0.54, 3.51, 2*0.54) # Ewan/Kemp
 xcusum.arl(result[1], result[2], 2*result[1]) # here
 #
@@ -85,12 +84,6 @@ for ( L1 in L1.set ) {
   }
   cat("\n")
 }
-#
-# two confirmation runs
-xcusum.arl(0.52, 5, 0, sided="two") # Kemp
-xcusum.arl(result[1], result[2], 0, sided="two") # here
-xcusum.arl(0.52, 5, 2*0.52, sided="two") # Kemp
-xcusum.arl(result[1], result[2], 2*result[1], sided="two") # here
 #
 }
 \keyword{ts}

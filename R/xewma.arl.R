@@ -14,7 +14,7 @@ xewma.arl <- function(l, c, mu, zr=0, hs=0, sided="one", limits="fix", q=1, r=40
   if (is.na(ctyp))
     stop("invalid ewma type")
   ltyp <- -1 + pmatch(limits,
-          c("fix","vacl","fir","both","Steiner","stat","fink","limit","fixW","fixC"))
+          c("fix", "vacl", "fir", "both", "Steiner", "stat", "fink", "limit", "fixW", "fixC"))
   if (is.na(ltyp))
     stop("invalid limits type")
   if ( (sided=="one") & !(limits %in% c("fix", "vacl", "stat", "limit", "fixW")) )

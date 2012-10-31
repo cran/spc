@@ -16,7 +16,7 @@ phat.ewma.lambda(L0, mu, n, z0, sigma=1, max_l=1, min_l=.001, LSL=-3, USL=3, qm=
 \item{ucl}{upper control limit of the EWMA phat control chart.}
 \item{L0}{pre-defined in-control ARL (Average Run Length).}
 \item{mu}{true mean or mean where the ARL should be minimized (then the in-control mean is simply 0).}
-\item{n}{Batch size.}
+\item{n}{batch size.}
 \item{z0}{so-called headstart (give fast initial response).}
 \item{sigma}{actual standard deviation of the data -- the in-control value is 1.}
 \item{max_l, min_l}{maximal and minimal value for optimal lambda search.}
@@ -25,19 +25,51 @@ phat.ewma.lambda(L0, mu, n, z0, sigma=1, max_l=1, min_l=.001, LSL=-3, USL=3, qm=
 \item{qm}{number of nodes for collocation quadratures.}
 }
 \details{
-More details will follow.
+The three implemented functions allow to apply a new type control chart. Basically, lower and upper specification limits are given. The monitoring
+vehicle then is the empirical probability that an item will not follow these specification given the sequence of sample means. If
+the related EWMA sequence violates the control limits, then the alarm indicates a significant process deterioration. For details see the
+paper mentioned in the references. To be able to construct the control charts, see the first example.
 }
 \value{Return single values which resemble the ARL, the critical value, and the optimal lambda, respectively.}
 \references{
-S. Knoth, S. Steinmetz (2011),
-EWMA \emph{p} charts under Sampling by Variables -- Ideas, Numerics and Properties,
-\emph{Submitted to Technometrics}.
+S. Knoth and S. Steinmetz (2012),
+EWMA \code{p} charts  under sampling by variables,
+accepted in \emph{International Journal of Production Research}.
 }
 \author{Sven Knoth}
 \seealso{
 \code{sewma.arl} for a further collocation based ARL calculation routine.}
 \examples{
-## S. Knoth, S. Steinmetz (2011),
+## Simple example to demonstrate the chart.
+
+# some functions
+h.mu <- function(mu) pnorm(LSL-mu) + pnorm(mu-USL)
+ewma <- function(x, lambda=0.1, z0=0) filter(lambda*x, 1-lambda, m="r", init=z0)
+
+# parameters
+LSL <- -3 # lower specification limit
+USL <-  3	# upper specification limit
+n <- 5		# batch size
+lambda <- 0.1	# EWMA smoothing parameter
+L0 <- 1000	# in-control Average Run Length (ARL)
+z0 <- h.mu(0)	# start at minimal defect level
+ucl <- phat.ewma.crit(lambda, L0, 0, n, z0, LSL=LSL, USL=USL)
+
+# data
+x0 <- matrix(rnorm(50*n), ncol=5)	# in-control data
+x1 <- matrix(rnorm(50*n, mean=0.5), ncol=5)# out-of-control data
+x <- rbind(x0,x1)			# all data
+
+# create chart
+xbar <- apply(x, 1, mean)
+phat <- h.mu(xbar)
+z <- ewma(phat, lambda=lambda, z0=z0)
+plot(1:length(z), z, type="l", xlab="batch", ylim=c(0,.02))
+abline(h=z0, col="grey", lwd=.7)
+abline(h=ucl, col="red")
+
+
+## S. Knoth, S. Steinmetz (2012),
 
 # Table 1
 

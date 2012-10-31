@@ -8,11 +8,9 @@
 #define ewma2 2
 
 double xseU_arl
-  (double lx, double ls, double cx, double cs, double hsx, double hss,
-   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm);
+  (double lx, double ls, double cx, double cs, double hsx, double hss, double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm);
 double xse2_arl
-  (double lx, double ls, double cx, double csl, double csu, double hsx, double hss,
-   double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm);
+  (double lx, double ls, double cx, double csl, double csu, double hsx, double hss, double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm);
 
 void xsewma_arl
 ( int *ctyp, 
@@ -23,9 +21,7 @@ void xsewma_arl
 {
  *arl = -1.;        
  if (*ctyp==ewmaU) 
-   *arl = xseU_arl(*lx,*ls,*cx,*csu,*hsx,*hss,*mu,*sigma,
-                   *df,*Nx,*Ns,10000,*qm);
+   *arl = xseU_arl(*lx,*ls,*cx,*csu,*hsx,*hss,*mu,*sigma,*df,*Nx,*Ns,10000,*qm);
  if (*ctyp==ewma2) 
-   *arl = xse2_arl(*lx,*ls,*cx,*csl,*csu,*hsx,*hss,*mu,*sigma,
-                   *df,*Nx,*Ns,10000,*qm);
+   *arl = xse2_arl(*lx,*ls,*cx,*csl,*csu,*hsx,*hss,*mu,*sigma,*df,*Nx,*Ns,10000,*qm);
 }

@@ -11,10 +11,11 @@ monitoring normal variance.}
 \item{cl}{lower control limit of the EWMA control chart.}
 \item{cu}{upper control limit of the EWMA control chart.}
 \item{sigma}{true standard deviation.}
-\item{df}{actual degrees of freedom, corresponds to batch size.}
-\item{s2.on}{distinguish between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
-\item{hs}{so-called headstart (give fast initial response).}
-\item{sided}{distinguish between one- and two-sided 
+\item{df}{actual degrees of freedom, corresponds to batch size (for known mean it is equal to the batch size,
+for unknown mean it is equal to batch size minus one.}
+\item{s2.on}{distinguishes between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
+\item{hs}{so-called headstart (enables fast initial response).}
+\item{sided}{distinguishes between one- and two-sided 
 two-sided EWMA-\eqn{S^2}{S^2} control charts 
 by choosing \code{"upper"} (upper chart
 without reflection at \code{cl} -- the actual value of
@@ -23,8 +24,8 @@ without reflection at \code{cl} -- the actual value of
 \code{"Rlower"} (lower chart with reflection at \code{cu}),
 and \code{"two"} (two-sided chart), 
 respectively.} 
-\item{r}{dimension of the resulting linear equation system.}
-\item{qm}{number of quadrature nodes.}
+\item{r}{dimension of the resulting linear equation system (highest order of the collocation polynomials).}
+\item{qm}{number of quadrature nodes for calculating the collocation definite integrals.}
 }
 \details{
 \code{sewma.arl} determines the Average Run Length (ARL) by numerically

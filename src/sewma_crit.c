@@ -10,20 +10,14 @@
 #define fixed 0
 #define unbiased 1
 
-double seU_crit(double l, double L0, double hs, double sigma,
-   int df, int N, int qm, int s_squared);
-double seUR_crit(double l, double L0, double cl, double hs, double sigma,
-   int df, int N, int qm, int s_squared);
-double seLR_crit(double l, double L0, double cu, double hs, double sigma,
-   int df, int N, int qm, int s_squared);
-double se2fu_crit(double l, double L0, double cu, double hs, double sigma,
-   int df, int N, int qm);
-int se2_crit(double l, double L0, double *cl, double *cu, double hs, 
-   double sigma, int df, int N, int qm);
+double seU_crit(double l, double L0, double hs, double sigma, int df, int N, int qm, int s_squared);
+double seUR_crit(double l, double L0, double cl, double hs, double sigma, int df, int N, int qm, int s_squared);
+double seLR_crit(double l, double L0, double cu, double hs, double sigma, int df, int N, int qm, int s_squared);
+double se2fu_crit(double l, double L0, double cu, double hs, double sigma, int df, int N, int qm);
+int se2_crit(double l, double L0, double *cl, double *cu, double hs, double sigma, int df, int N, int qm);
 
 void sewma_crit
-( int *ctyp, int *ltyp, double *l, double *L0, double *cl0, double *cu0, double *hs,
-      double *sigma, int *df, int *r, int *qm, int *s_squared, double *c_values)
+( int *ctyp, int *ltyp, double *l, double *L0, double *cl0, double *cu0, double *hs, double *sigma, int *df, int *r, int *qm, int *s_squared, double *c_values)
 { int result;
   double cl=0., cu=1.;
 

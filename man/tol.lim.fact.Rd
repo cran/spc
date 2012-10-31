@@ -4,7 +4,7 @@
 \description{For constructing tolerance intervals, which
 cover a given proportion \eqn{p}{p} of a normal distribution with
 unknown mean and variance with confidence 
-\eqn{1-\alpha}{1-a}, one needs
+\eqn{1-\alpha}{1-a}, one needs to calculate
 the so-called tolerance limit factors \eqn{k}{k}. These values
 are computed for a given sample size \eqn{n}{n}.}
 \usage{tol.lim.fac(n,p,a,mode="WW",m=30)}

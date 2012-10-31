@@ -1,21 +1,22 @@
 Package: spc
-Title: Statistical Process Control
-Version: 0.4.1
-Date: 2011-04-05
-Author: Sven Knoth, ...
+Version: 0.4.2
+Date: 2012-10-31
+Title: Statistical Process Control -- Collection of Some Useful
+        Functions
+Author: Sven Knoth
 Maintainer: Sven Knoth <Sven.Knoth@gmx.de>
+Depends: R (>= 1.8.0)
 Description: Evaluation of control charts by means of the zero-state,
-        steady-state ARL (Average Run Length). Setting up control
-        charts for given in-control ARL and plotting of the related
-        figures. The control charts under consideration are one- and
-        two-sided EWMA, CUSUM, and Shiryaev-Roberts schemes for
-        monitoring the mean of normally distributed independent data.
-        Now, the ARL calculation of the same set of schemes under drift
-        are added. Other charts and parameters are in preparation.
-        Further SPC areas will be covered as well (sampling plans,
-        capability indices ...).
-Depends: R (>= 1.4.0)
-License: GPL
-Packaged: 2012-10-29 08:59:48 UTC; ripley
+        steady-state ARL (Average Run Length) and RL quantiles.
+        Setting up control charts for given in-control ARL. The control
+        charts under consideration are one- and two-sided EWMA, CUSUM,
+        and Shiryaev-Roberts schemes for monitoring the mean of
+        normally distributed independent data. ARL calculation of the
+        same set of schemes under drift are added.  Other charts and
+        parameters are in preparation.  Further SPC areas will be
+        covered as well (sampling plans, capability indices ...).
+License: GPL (>= 2)
+URL: http://www.r-project.org
+Packaged: 2012-11-02 14:58:13 UTC; ripley
 Repository: CRAN
-Date/Publication: 2012-10-29 08:59:48
+Date/Publication: 2012-11-02 15:12:14

@@ -27,13 +27,10 @@ double xe1_iglarlm_drift(double l, double c, double zr, double hs, int q, double
 double xe2_iglarl_drift(double l, double c, double hs, double delta, int m, int N, int with0);
 double xe2_iglarl_drift_wo_m(double l, double c, double hs, double delta, int *m, int N, int with0);
 double xe2_iglarlm_drift(double l, double c, double hs, int q, double delta, int N, int nmax, int with0);
-double xe2_Warl_drift(double l, double c, double hs, double delta,
-  int N, int nmax, int with0);
+double xe2_Warl_drift(double l, double c, double hs, double delta, int N, int nmax, int with0);
 
 void xDewma_arl
-( int *ctyp, double *l, double *c, double *zr, double *hs,
-      double *delta, int *ltyp, int *m, int *r, int *with0, int *mode,
-      int *q, double *arl)
+( int *ctyp, double *l, double *c, double *zr, double *hs, double *delta, int *ltyp, int *m, int *r, int *with0, int *mode, int *q, double *arl)
 {
  if (*ctyp==ewma1 && *m>0)
    *arl = xe1_iglarl_drift(*l,*c,*zr,*hs,*delta,*m,*r,*with0);

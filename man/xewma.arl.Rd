@@ -9,23 +9,22 @@ for different types of EWMA control charts monitoring normal mean.}
 \item{c}{critical value (similar to alarm limit) of the EWMA control chart.}
 \item{mu}{true mean.}
 \item{zr}{reflection border for the one-sided chart.}
-\item{hs}{so-called headstart (give fast initial response).}
-\item{sided}{distinguish between one- and two-sided EWMA control chart 
+\item{hs}{so-called headstart (enables fast initial response).}
+\item{sided}{distinguishes between one- and two-sided EWMA control chart 
 by choosing \code{"one"} and \code{"two"}, respectively.}
-\item{limits}{distinguish between different control limits behavior.}
+\item{limits}{distinguishes between different control limits behavior.}
 \item{q}{change point position. For \eqn{q=1} and
 \eqn{\mu=\mu_0} and \eqn{\mu=\mu_1}, the usual
 zero-state ARLs for the in-control and out-of-control case, respectively,
 are calculated. For \eqn{q>1} and \eqn{\mu!=0} conditional delays, that is,
-\eqn{E_q(L-q+1|L\geq)}, will be determined.
+\eqn{E_q(L-q+1|L\ge q)}, will be determined.
 Note that mu0=0 is implicitely fixed.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}
 }
 \details{
-In case of the two-sided chart with fixed control limits and
-of the one-sided chart,
+In case of the EWMA chart with fixed control limits,
 \code{xewma.arl} determines the Average Run Length (ARL) by numerically
 solving the related ARL integral equation by means of the Nystroem method
 based on Gauss-Legendre quadrature.
@@ -47,15 +46,15 @@ A simple method for studying run-length distributions of
 exponentially weighted moving average charts,
 \emph{Technometrics 29}, 401-407.
 
-J. M. Lucas, M. S. Saccucci (1990),
+J. M. Lucas and M. S. Saccucci (1990),
 Exponentially weighted moving average control schemes: Properties
 and enhancements, \emph{Technometrics 32}, 1-12.
 
-S. Chandrasekaran, J. R. English, R. L. Disney (1995), 
+S. Chandrasekaran, J. R. English and R. L. Disney (1995), 
 Modeling and analysis of EWMA control schemes with variance-adjusted 
 control limits, \emph{IIE Transactions 277}, 282-290.
 
-T. R. Rhoads, D. C. Montgomery, C. M. Mastrangelo (1996),
+T. R. Rhoads, D. C. Montgomery and C. M. Mastrangelo (1996),
 Fast initial response scheme for exponentially weighted moving average
 control chart, \emph{Quality Engineering 9}, 317-327.
 
@@ -117,7 +116,7 @@ round(cbind(mu,arl1,arl2),digits=2)
 ## 3.25  1.18   2.56
 ## 3.50  1.12   2.39
 ## 3.75  1.08   2.26
-## 4.00  1.05   2.15  (* -- in Crowder (1987) typo!?). 
+## 4.00  1.05   2.15  (* -- in Crowder (1987) typo!?)
 
 ## Lucas/Saccucci (1990)
 ## two-sided EWMA
@@ -144,7 +143,7 @@ round(cbind(mu,arl1,arl2),digits=2)
 ## 3.00   1.93   4.03
 ## 3.50   1.58   3.49
 ## 4.00   1.34   3.11
-## 5.00   1.07   2.55.
+## 5.00   1.07   2.55
 
 ## with fir feature
 l1 <- .5
@@ -164,7 +163,7 @@ round(cbind(mu,arl1,arl2),digits=2)
 ## 1.0  15.9    7.36
 ## 2.0   2.87   3.43
 ## 3.0   1.45   2.34
-## 5.0   1.01   1.57.
+## 5.0   1.01   1.57
 
 ## Chandrasekaran, English, Disney (1995)
 ## two-sided EWMA with fixed and variance adjusted limits (vacl)
@@ -188,7 +187,7 @@ round(cbind(mu,arl1s,arl1n,arl2s,arl2n),digits=2)
 ## 0.50  48.14  45.65  31.08  24.35
 ## 0.75  20.02  19.72  15.71  10.74
 ## 1.00  11.07   9.37  10.23   6.35
-## 2.00   3.59   2.64   4.32   2.73.
+## 2.00   3.59   2.64   4.32   2.73
 
 ## The results in Chandrasekaran, English, Disney (1995) are not
 ## that accurate. Let us consider the more appropriate comparison
@@ -254,7 +253,7 @@ round(cbind(mu,arlfix,arlvacl),digits=1)
 ## 2.50    4.8      2.0
 ## 3.00    4.0      1.6
 ## 3.50    3.4      1.3
-## 4.00    3.0      1.1.
+## 4.00    3.0      1.1
 
 ## fir, both, and Steiner's modification
 
@@ -277,7 +276,7 @@ round(cbind(mu,arlfir,arlboth,arlstein),digits=1)
 ## 1.5   4.6     2.0     1.8
 ## 2.0   3.4     1.4     1.3
 ## 3.0   2.4     1.1     1.0
-## 4.0   1.9     1.0     1.0.
+## 4.0   1.9     1.0     1.0
 
 ## SAS/QC manual 1999
 ## two-sided EWMA control charts with fixed limits

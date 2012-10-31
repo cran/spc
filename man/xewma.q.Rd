@@ -10,10 +10,10 @@ for EWMA control charts monitoring normal mean.}
 \item{mu}{true mean.}
 \item{p}{quantile level.}
 \item{zr}{reflection border for the one-sided chart.}
-\item{hs}{so-called headstart (give fast initial response).}
-\item{sided}{distinguish between one- and two-sided EWMA control chart 
+\item{hs}{so-called headstart (enables fast initial response).}
+\item{sided}{distinguishes between one- and two-sided EWMA control chart 
 by choosing \code{"one"} and \code{"two"}, respectively.}
-\item{limits}{distinguish between different control limits behavior.}
+\item{limits}{distinguishes between different control limits behavior.}
 \item{q}{change point position. For \eqn{q=1} and
 \eqn{\mu=\mu_0} and \eqn{\mu=\mu_1}, the usual
 zero-state ARLs for the in-control and out-of-control case, respectively,

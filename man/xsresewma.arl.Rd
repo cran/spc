@@ -21,9 +21,9 @@ xs.res.ewma.pms(lx, cx, ls, csu, mu, sigma, type="3", alpha=0, n=5, hsx=0, rx=40
 \item{c, cu, cx, csu}{critical value (similar to alarm limit) of the EWMA control charts.}
 \item{mu}{true mean.}
 \item{sigma}{true standard deviation.}
-\item{alpha}{The AR(1) coefficient -- first order autocorrelation of the original data.}
-\item{n}{Batch size.}
-\item{hs, hsx, hss}{so-called headstart (give fast initial response).}
+\item{alpha}{the AR(1) coefficient -- first order autocorrelation of the original data.}
+\item{n}{batch size.}
+\item{hs, hsx, hss}{so-called headstart (enables fast initial response).}
 \item{r, rx, rs}{number of quadrature nodes or size of collocation base, dimension of the resulting linear
 equation system is equal to \code{r} (two-sided).}
 \item{qm}{number of nodes for collocation quadratures.}
@@ -88,6 +88,7 @@ for ( lambda in lambdas ) {
 
 print(crit)
 
+
 cat("\nFragments of Table 4 (n=5, lambda.1=lambda.2=0.1)\n\n")
 
 lambda <- .1
@@ -127,6 +128,7 @@ rownames(arls) <- d.values
 
 print(arls)
 
+
 ## S. Knoth, M. C. Morais, A. Pacheco, W. Schmid (2009)
 
 cat("\nFragments of Table 5 (n=5, lambda=0.1)\n\n")
@@ -152,7 +154,8 @@ for ( delta in d.values ) {
 #  1.75  44.128   3.995   3.942 0.021579
 #  2.00  28.974   2.887   2.853 0.018220
 
-cbind(delta=d.values, arl.x, arl.s, arl.xs, PMS.3)
+print(cbind(delta=d.values, arl.x, arl.s, arl.xs, PMS.3))
+
 
 cat("\nFragments of Table 6 (n=5, lambda=0.1)\n\n")
 
@@ -182,6 +185,6 @@ rownames(PMS.4) <- NULL
 #   1.50 0.000000 0.000256 0.000120 0.000163 0.000531 0.001584 0.042734
 #   2.00 0.000000 0.000311 0.000091 0.000056 0.000259 0.001029 0.054543
 
-PMS.4
+print(PMS.4)
 }
 \keyword{ts}
