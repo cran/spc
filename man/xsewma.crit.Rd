@@ -15,12 +15,13 @@ monitoring normal mean and variance.}
 \item{cu}{for two-sided (\code{sided}=\code{"two"}) and fixed upper
 control limit (\code{mode}=\code{"fixed"}) a value larger than \code{sigma0}
 has to been given, for all other cases \code{cu} is ignored.}
-\item{hsx}{so-called headstart (give fast initial response) of the mean chart -- 
+\item{hsx}{so-called headstart (enables fast initial response) of the mean chart -- 
 do not confuse with the true FIR feature considered in xewma.arl; will be updated.}
-\item{hss}{headstart (give fast initial response) of the variance chart.}
-\item{df}{actual degrees of freedom, corresponds to batch size.}
-\item{s2.on}{distinguish between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
-\item{sided}{distinguish between one- and two-sided two-sided EWMA-\eqn{S^2}{S^2} control charts
+\item{hss}{headstart (enables fast initial response) of the variance chart.}
+\item{df}{actual degrees of freedom, corresponds to batch size (for known mean it is equal to the batch size,
+for unknown mean it is equal to batch size minus one.}
+\item{s2.on}{distinguishes between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
+\item{sided}{distinguishes between one- and two-sided two-sided EWMA-\eqn{S^2}{S^2} control charts
 by choosing \code{"upper"} (upper chart without reflection at \code{cl} -- the actual value of
 \code{cl} is not used), \code{"Rupper"} (upper chart with reflection at \code{cl}),
 \code{"Rlower"} (lower chart with reflection at \code{cu}), and \code{"two"} (two-sided chart),

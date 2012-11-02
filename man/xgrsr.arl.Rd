@@ -3,17 +3,23 @@
 \title{Compute (zero-state) ARLs of Shiryaev-Roberts schemes}
 \description{Computation of the (zero-state) Average Run Length (ARL)
 for Shiryaev-Roberts schemes monitoring normal mean.}
-\usage{xgrsr.arl(k, g, mu, zr = 0, hs=NULL, sided = "one", r = 30)}
+\usage{xgrsr.arl(k, g, mu, zr = 0, hs=NULL, sided = "one", q = 1, r = 30)}
 \arguments{
 \item{k}{reference value of the Shiryaev-Roberts scheme.}
 \item{g}{control limit (alarm threshold) of Shiryaev-Roberts scheme.}
 \item{mu}{true mean.}
 \item{zr}{reflection border to enable the numerical algorithms used here.}
-\item{hs}{so-called headstart (give fast initial response). If \code{hs=NULL}, then
+\item{hs}{so-called headstart (enables fast initial response). If \code{hs=NULL}, then
 the classical headstart -Inf is used (corresponds to 0 for the non-log scheme).}
-\item{sided}{distinguish between one- and two-sided schemes by choosing 
+\item{sided}{distinguishes between one- and two-sided schemes by choosing 
 \code{"one"} and\code{"two"}, respectively. Currently only one-sided schemes are
 implemented.}
+\item{q}{change point position. For \eqn{q=1} and
+\eqn{\mu=\mu_0} and \eqn{\mu=\mu_1}, the usual
+zero-state ARLs for the in-control and out-of-control case, respectively,
+are calculated. For \eqn{q>1} and \eqn{\mu!=0} conditional delays, that is,
+\eqn{E_q(L-q+1|L\ge q)}, will be determined.
+Note that mu0=0 is implicitely fixed.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1}.}
 }
@@ -31,9 +37,8 @@ S. Lenz, H. & Wilrich, P. (ed.),
 \emph{Frontiers in Statistical Quality Control 8}, Physica Verlag, Heidelberg, Germany, 74-99.
 
 G. Moustakides, A. Polunchenko, A. Tartakovsky (2009),
-Numerical comparison of CUSUM and Shiryaev-Roberts procedures for
-detectin changes in distributions,
-\emph{Communications in Statistics: Theory and Methods}, to appear.
+Numerical comparison of CUSUM and Shiryaev-Roberts procedures for detecting changes in distributions,
+\emph{Communications in Statistics: Theory and Methods 38}, 3225-3239.
 }
 \author{Sven Knoth}
 \seealso{
@@ -41,8 +46,7 @@ detectin changes in distributions,
 respectively, and \code{xgrsr.ad} for the steady-state ARL.
 }
 \examples{
-## Small study to identify appropriate reflection border to mimic
-## unreflected schemes
+## Small study to identify appropriate reflection border to mimic unreflected schemes
 k <- .5
 g <- log(390)
 zrs <- -(0:10)

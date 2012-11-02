@@ -15,8 +15,7 @@ double xc2_igladR(double k, double h, double mu0, double mu1, int r);
 double xcC_iglad (double k, double h, double mu0, double mu1, int N);
 
 void xcusum_ad
-( int *ctyp, double *k, double *h, double *mu0, double *mu1,
-  int *r, double *ad)
+( int *ctyp, double *k, double *h, double *mu0, double *mu1, int *r, double *ad)
 { 
  if (*ctyp==cusum1) *ad = xc1_iglad(*k,*h,*mu0,*mu1,*r);
  if (*ctyp==cusum2 && *r>0) *ad = xc2_iglad(*k,*h,*mu0,*mu1,*r);

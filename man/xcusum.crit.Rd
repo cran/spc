@@ -8,8 +8,8 @@ for different types of CUSUM control charts monitoring normal mean.}
 \item{k}{reference value of the CUSUM control chart.}
 \item{L0}{in-control ARL.}
 \item{mu0}{in-control mean.}
-\item{hs}{so-called headstart (give fast initial response).}
-\item{sided}{distinguish between one-, two-sided and Crosier's modified
+\item{hs}{so-called headstart (enables fast initial response).}
+\item{sided}{distinguishes between one-, two-sided and Crosier's modified
 two-sided CUSUM schemoosing \code{"one"}, \code{"two"},
 and \code{"Crosier"}, respectively.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear

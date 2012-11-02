@@ -11,10 +11,10 @@ for different types of EWMA control charts monitoring normal mean.}
 \item{c}{critical value (similar to alarm limit) of the EWMA control chart.}
 \item{delta}{true drift parameter.}
 \item{zr}{reflection border for the one-sided chart.}
-\item{hs}{so-called headstart (give fast initial response).}
+\item{hs}{so-called headstart (enables fast initial response).}
 \item{sided}{distinguish between one- and two-sided EWMA control chart 
 by choosing \code{"one"} and \code{"two"}, respectively.}
-\item{limits}{distinguish between different control limits behavior.}
+\item{limits}{distinguishes between different control limits behavior.}
 \item{mode}{decide whether Gan's or Knoth's approach is used. Use
 \code{"Gan"} and \code{"Knoth"}, respectively.}
 \item{m}{parameter used if \code{mode="Gan"}. \code{m} is design
@@ -26,7 +26,7 @@ zero-state ARLs for the in-control and out-of-control case, respectively,
 are calculated. For \eqn{q>1} and \eqn{\mu!=0} conditional delays, that is,
 \eqn{E_q(L-q+1|L\geq)}, will be determined.
 Note that mu0=0 is implicitely fixed. Deploy large \code{q} to mimic
-steady-state. It works only for \code{mode="Knoth"}}
+steady-state. It works only for \code{mode="Knoth"}.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}
@@ -61,10 +61,16 @@ H. M. Fahmy and E. A. Elsayed (2006),
 Detection of linear trends in process mean,
 \emph{International Journal of Production Research 44}, 487-504.
 
+S. Knoth (2012),
+More on Control Charting under Drift,
+in: \emph{Frontiers in Statistical Quality Control 10},
+H.-J. Lenz, W. Schmid and P.-T. Wilrich (Eds.),
+Physica Verlag, Heidelberg, Germany, 53-68.
+
 C. Zou, Y. Liu and Z. Wang (2009),
 Comparisons of control schemes for monitoring
 the means of processes subject to drifts,
-\emph{to appear in Metrika}.
+\emph{Metrika 70}, 141-163.
 }
 \author{Sven Knoth}
 \seealso{

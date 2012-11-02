@@ -1,5 +1,12 @@
-# Default NAMESPACE created by R
-# Remove the previous line if you edit this file
-
-# Export all names
-exportPattern(".")
+useDynLib(spc)
+export("xshewhartrunsrules.ad", "xshewhartrunsrules.arl", "xshewhartrunsrules.crit", "xshewhartrunsrules.matrix",
+       "xewma.ad", "xewma.arl", "xewma.crit", "xewma.q", "xewma.sf",
+       "xcusum.ad", "xcusum.arl", "xcusum.crit.L0h", "xcusum.crit.L0L1", "xcusum.crit", "xcusum.q", "xcusum.sf",
+       "xgrsr.ad", "xgrsr.arl", "xgrsr.crit",
+       "sewma.arl", "sewma.crit",
+       "xsewma.arl", "xsewma.crit",
+       "xDcusum.arl", "xDewma.arl", "xDgrsr.arl", "xDshewhartrunsrules.arl", "xDshewhartrunsrulesFixedm.arl",
+       "p.ewma.arl",
+       "phat.ewma.arl", "phat.ewma.crit", "phat.ewma.lambda",
+       "s.res.ewma.arl", "x.res.ewma.arl", "xs.res.ewma.arl", "xs.res.ewma.pms",    
+       "tol.lim.fac")

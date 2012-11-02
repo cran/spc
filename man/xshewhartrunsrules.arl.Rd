@@ -17,9 +17,9 @@ xshewhartrunsrules.matrix(mu, c = 1, type = "12")}
 \arguments{
 \item{mu}{true mean.}
 \item{L0}{pre-defined in-control ARL, that is, determine \code{c} so that the mean
-number of observation until a false alarm is \code{L0}.}
+number of observations until a false alarm is \code{L0}.}
 \item{mu1, mu0}{for the steady-state ARL two means are specified, mu0 is the in-control one
-and usually equal to 1, and mu1 must be given.}
+and usually equal to 0 , and mu1 must be given.}
 \item{c}{normalizing constant to ensure specific alarming behavior.}
 \item{type}{controls the type of Shewhart chart used, seed details section.}
 }
@@ -34,13 +34,13 @@ With \code{xshewhartrunsrules.ad} the steady-state ARL is calculated.
 With the argument \code{type} certain runs rules could be set. The following list gives an overview.
 
 \itemize{
-\item{"1"}{The classical Shewhart chart with \code{+/- 3 c sigma} control limits (\code{c} is typically
+\item{"1"}{ The classical Shewhart chart with \code{+/- 3 c sigma} control limits (\code{c} is typically
 equal to 1 and can be changed by the argument \code{c}).}
-\item{"12"}{The classic and the following runs rule: 2 of 3 are beyond \code{+/- 2 c sigma} on the same
+\item{"12"}{ The classic and the following runs rule: 2 of 3 are beyond \code{+/- 2 c sigma} on the same
 side of the chart.}
-\item{"13"}{The classic and the following runs rule: 4 of 5 are beyond \code{+/- 1 c sigma} on the same
+\item{"13"}{ The classic and the following runs rule: 4 of 5 are beyond \code{+/- 1 c sigma} on the same
 side of the chart.}
-\item{"14"}{The classic and the following runs rule: 8 of 8 are on the same side of the chart
+\item{"14"}{ The classic and the following runs rule: 8 of 8 are on the same side of the chart
 (referring to the center line).}}
 }
 \value{Returns a single value which resembles the zero-state or steady-state ARL.

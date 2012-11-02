@@ -9,11 +9,11 @@ for different types of EWMA control charts monitoring normal mean.}
 \item{L0}{in-control ARL.}
 \item{mu0}{in-control mean.}
 \item{zr}{reflection border for the one-sided chart.}
-\item{hs}{so-called headstart (give fast initial response).}
-\item{sided}{distinguish between one- and two-sided
+\item{hs}{so-called headstart (enables fast initial response).}
+\item{sided}{distinguishes between one- and two-sided
 two-sided EWMA control chart by choosing \code{"one"} and \code{"two"},
 respectively.}
-\item{limits}{distinguish between different control limits behavior.}
+\item{limits}{distinguishes between different control limits behavior.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}

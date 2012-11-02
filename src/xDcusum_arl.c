@@ -17,8 +17,7 @@ double xc1_iglarl_drift_wo_m(double k, double h, double hs, double delta, int *m
 double xc1_iglarlm_drift(double k, double h, double hs, int q, double delta, int N, int nmax, int with0);
 
 void xDcusum_arl
-( int *ctyp, double *k, double *h, double *hs, double *delta, int *m, int *r,
-  int *with0, int *mode, int *q, double *arl)
+( int *ctyp, double *k, double *h, double *hs, double *delta, int *m, int *r, int *with0, int *mode, int *q, double *arl)
 {
  if (*ctyp==cusum1 && *m>0)  *arl = xc1_iglarl_drift(*k, *h, *hs, *delta, *m, *r, *with0);
  if (*ctyp==cusum1 && *m==0 && *mode==Gan)   *arl = xc1_iglarl_drift_wo_m(*k, *h, *hs, *delta, m, *r, *with0);

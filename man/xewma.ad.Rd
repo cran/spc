@@ -10,10 +10,10 @@ for different types of EWMA control charts monitoring normal mean.}
 \item{mu1}{in-control mean.}
 \item{mu0}{out-of-control mean.}
 \item{zr}{reflection border for the one-sided chart.}
-\item{sided}{distinguish between one- and two-sided
+\item{sided}{distinguishes between one- and two-sided
 two-sided EWMA control chart by choosing \code{"one"} and \code{"two"},
 respectively.}
-\item{limits}{distinguish between different control limits behavior.}
+\item{limits}{distinguishes between different control limits behavior.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}
@@ -32,7 +32,7 @@ A simple method for studying run-length distributions of
 exponentially weighted moving average charts,
 \emph{Technometrics 29}, 401-407.
 
-J. M. Lucas, M. S. Saccucci (1990),
+J. M. Lucas and M. S. Saccucci (1990),
 Exponentially weighted moving average control schemes: Properties
 and enhancements, \emph{Technometrics 32}, 1-12.
 }
@@ -52,7 +52,6 @@ arl <- sapply(mu,l=l,c=c,sided="two",xewma.arl)
 ad <- sapply(mu,l=l,c=c,sided="two",xewma.ad)
 round(cbind(mu,arl,ad),digits=2)
 
-## Lucas/Saccucci (1990)
 ## Lucas/Saccucci (1990)
 ## two-sided EWMA
 
@@ -78,6 +77,6 @@ round(cbind(mu,ad1,ad2),digits=2)
 ## 3.00   1.91   4.02
 ## 3.50   1.58   3.49
 ## 4.00   1.36   3.09
-## 5.00   1.10   2.55.
+## 5.00   1.10   2.55
 }
 \keyword{ts}

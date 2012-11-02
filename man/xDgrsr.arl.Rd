@@ -11,8 +11,8 @@ mode = "Gan", q = 1, r = 30, with0 = FALSE)}
 \item{g}{control limit (alarm threshold) of Shiryaev-Roberts scheme.}
 \item{delta}{true drift parameter.}
 \item{zr}{reflection border for the one-sided chart.}
-\item{hs}{so-called headstart (give fast initial response).}
-\item{sided}{distinguish between one- and two-sided 
+\item{hs}{so-called headstart (enables fast initial response).}
+\item{sided}{distinguishes between one- and two-sided 
 Shiryaev-Roberts schemes
 by choosing \code{"one"} and \code{"two"}, respectively. Currentlly,
 the two-sided scheme is not implemented.}
@@ -25,7 +25,7 @@ zero-state ARLs for the in-control and out-of-control case, respectively,
 are calculated. For \eqn{q>1} and \eqn{\mu!=0} conditional delays, that is,
 \eqn{E_q(L-q+1|L\geq)}, will be determined.
 Note that mu0=0 is implicitely fixed. Deploy large \code{q} to mimic
-steady-state. It works only for \code{mode="Knoth"}}
+steady-state. It works only for \code{mode="Knoth"}.}
 \item{mode}{decide whether Gan's or Knoth's approach is used. Use
 \code{"Gan"} and \code{"Knoth"}, respectively.
 \code{"Knoth"} is not implemented yet.}
@@ -53,6 +53,17 @@ EWMA control chart under linear drift,
 S. Knoth (2003),
 EWMA schemes with non-homogeneous transition kernels,
 \emph{Sequential Analysis 22}, 241-255.
+
+S. Knoth (2012),
+More on Control Charting under Drift,
+in: \emph{Frontiers in Statistical Quality Control 10},
+H.-J. Lenz, W. Schmid and P.-T. Wilrich (Eds.),
+Physica Verlag, Heidelberg, Germany, 53-68.
+
+C. Zou, Y. Liu and Z. Wang (2009),
+Comparisons of control schemes for monitoring
+the means of processes subject to drifts,
+\emph{Metrika 70}, 141-163.
 }
 \author{Sven Knoth}
 \seealso{

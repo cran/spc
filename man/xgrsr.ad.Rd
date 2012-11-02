@@ -10,7 +10,7 @@ for Shiryaev-Roberts schemes monitoring normal mean.}
 \item{mu1}{out-of-control mean.}
 \item{mu0}{in-control mean.}
 \item{zr}{reflection border to enable the numerical algorithms used here.}
-\item{sided}{distinguish between one- and two-sided schemes by choosing 
+\item{sided}{distinguishes between one- and two-sided schemes by choosing 
 \code{"one"} and\code{"two"}, respectively. Currently only one-sided schemes are
 implemented.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
@@ -32,7 +32,7 @@ S. Lenz, H. & Wilrich, P. (ed.),
 G. Moustakides, A. Polunchenko, A. Tartakovsky (2009),
 Numerical comparison of CUSUM and Shiryaev-Roberts procedures for
 detectin changes in distributions,
-\emph{Communications in Statistics: Theory and Methods}, to appear.
+\emph{Communications in Statistics: Theory and Methods 38}, 3225-3239.
 }
 \author{Sven Knoth}
 \seealso{
@@ -40,8 +40,7 @@ detectin changes in distributions,
 respectively, and \code{xgrsr.arl} for the zero-state ARL.
 }
 \examples{
-## Small study to identify appropriate reflection border to mimic
-## unreflected schemes
+## Small study to identify appropriate reflection border to mimic unreflected schemes
 k <- .5
 g <- log(390)
 zrs <- -(0:10)

@@ -3,7 +3,7 @@
 \title{Compute ARLs of CUSUM control charts}
 \description{Computation of the (zero-state) Average Run Length (ARL)
 for different types of CUSUM control charts monitoring normal mean.}
-\usage{xcusum.arl(k, h, mu, hs = 0, sided = "one", r = 30)}
+\usage{xcusum.arl(k, h, mu, hs = 0, sided = "one", method = "igl", q = 1, r = 30)}
 \arguments{
 \item{k}{reference value of the CUSUM control chart.}
 \item{h}{decision interval (alarm limit, threshold) of the CUSUM control chart.}
@@ -12,6 +12,14 @@ for different types of CUSUM control charts monitoring normal mean.}
 \item{sided}{distinguish between one-, two-sided and Crosier's modified
 two-sided CUSUM scheme by choosing \code{"one"}, \code{"two"},
 and \code{"Crosier"}, respectively.}
+\item{method}{deploy the integral equation (\code{"igl"}) or Markov chain approximation
+(\code{"mc"}) method to calculate the ARL (currently only for two-sided CUSUM implemented).}
+\item{q}{change point position. For \eqn{q=1} and
+\eqn{\mu=\mu_0} and \eqn{\mu=\mu_1}, the usual
+zero-state ARLs for the in-control and out-of-control case, respectively,
+are calculated. For \eqn{q>1} and \eqn{\mu!=0} conditional delays, that is,
+\eqn{E_q(L-q+1|L\ge q)}, will be determined.
+Note that mu0=0 is implicitely fixed.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-, two-sided) or \code{2r+1}
 (Crosier).}

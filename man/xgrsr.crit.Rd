@@ -9,9 +9,9 @@ for Shiryaev-Roberts schemes monitoring normal mean.}
 \item{L0}{in-control ARL.}
 \item{mu0}{in-control mean.}
 \item{zr}{reflection border to enable the numerical algorithms used here.}
-\item{hs}{so-called headstart (give fast initial response). If \code{hs=NULL}, then
+\item{hs}{so-called headstart (enables fast initial response). If \code{hs=NULL}, then
 the classical headstart -Inf is used (corresponds to 0 for the non-log scheme).}
-\item{sided}{distinguish between one- and two-sided schemes by choosing 
+\item{sided}{distinguishes between one- and two-sided schemes by choosing 
 \code{"one"} and\code{"two"}, respectively. Currently only one-sided schemes are
 implemented.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
@@ -26,9 +26,8 @@ by applying secant rule and using \code{xgrsr.arl()}.
 \code{g}.}
 \references{
 G. Moustakides, A. Polunchenko, A. Tartakovsky (2009),
-Numerical comparison of CUSUM and Shiryaev-Roberts procedures for
-detectin changes in distributions,
-\emph{Communications in Statistics: Theory and Methods}, to appear.
+Numerical comparison of CUSUM and Shiryaev-Roberts procedures for detecting changes in distributions,
+\emph{Communications in Statistics: Theory and Methods 38}, 3225-3239.r.
 }
 \author{Sven Knoth}
 \seealso{\code{xgrsr.arl} for zero-state ARL computation.}

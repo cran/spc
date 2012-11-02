@@ -1,6 +1,6 @@
 \name{xcusum.crit.L0h}
 \alias{xcusum.crit.L0h}
-\title{Compute the CUSUM reference value k for give in-control ARL and threshold h}
+\title{Compute the CUSUM reference value k for given in-control ARL and threshold h}
 \description{Computation of the reference value k
 for one-sided CUSUM control charts monitoring normal mean, if the in-control ARL L0 and
 the alarm threshold h are given.}
@@ -8,9 +8,9 @@ the alarm threshold h are given.}
 \arguments{
 \item{L0}{in-control ARL.}
 \item{h}{alarm level of the CUSUM control chart.}
-\item{hs}{so-called headstart (give fast initial response).}
-\item{sided}{distinguish between one-, two-sided and Crosier's modified
-two-sided CUSUM schemoosing \code{"one"}, \code{"two"},
+\item{hs}{so-called headstart (enables fast initial response).}
+\item{sided}{distinguishes between one-, two-sided and Crosier's modified
+two-sided CUSUM scheme choosing \code{"one"}, \code{"two"},
 and \code{"Crosier"}, respectively.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-, two-sided) or \code{2r+1}

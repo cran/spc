@@ -11,18 +11,19 @@ monitoring normal mean and variance.}
 \item{cx}{control limit of the two-sided mean EWMA control chart.}
 \item{ls}{smoothing parameter lambda of the variance EWMA chart.}
 \item{csu}{upper control limit of the variance EWMA control chart.}
-\item{df}{actual degrees of freedom, corresponds to batch size.}
+\item{df}{actual degrees of freedom, corresponds to batch size (for known mean it is equal to the batch size,
+for unknown mean it is equal to batch size minus one.}
 \item{mu}{true mean.}
 \item{sigma}{true standard deviation.}
-\item{hsx}{so-called headstart (give fast initial response) of the mean chart -- 
+\item{hsx}{so-called headstart (enables fast initial response) of the mean chart -- 
 do not confuse with the true FIR feature considered in xewma.arl; will be updated.}
 \item{Nx}{dimension of the approximating matrix of the mean chart.}
 \item{csl}{lower control limit of the variance EWMA control chart; default value is 0; not considered if
 \code{sided} is \code{"upper"}.}
-\item{hss}{headstart (give fast initial response) of the variance chart.}
+\item{hss}{headstart (enables fast initial response) of the variance chart.}
 \item{Ns}{dimension of the approximating matrix of the variance chart.}
-\item{s2.on}{distinguish between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
-\item{sided}{distinguish between one- and two-sided two-sided EWMA-\eqn{S^2}{S^2} control charts 
+\item{s2.on}{distinguishes between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
+\item{sided}{distinguishes between one- and two-sided two-sided EWMA-\eqn{S^2}{S^2} control charts 
 by choosing \code{"upper"} (upper chart without reflection at \code{cl} -- the actual value of
 \code{cl} is not used), \code{"Rupper"} (upper chart with reflection at \code{cl}),
 \code{"Rlower"} (lower chart with reflection at \code{cu}), and \code{"two"} (two-sided chart), 
@@ -33,7 +34,7 @@ respectively.}
 \code{xsewma.arl} determines the Average Run Length (ARL) by 
 an extension of Gan's (derived from ideas already published by Waldmann)
 algorithm. The variance EWMA part is treated similarly to the ARL calculation method
-deployed for the single variance EWMA chartas in Knoth (2005), that is, by means of 
+deployed for the single variance EWMA charts in Knoth (2005), that is, by means of 
 collocation (Chebyshev polynomials). For more details see Knoth (2007).}
 \value{Returns a single value which resembles the ARL.}
 \references{

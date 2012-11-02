@@ -8,8 +8,8 @@
 \item{h}{decision interval (alarm limit, threshold) of the CUSUM control chart.}
 \item{mu}{true mean.}
 \item{p}{quantile level.}
-\item{hs}{so-called headstart (give fast initial response).}
-\item{sided}{distinguish between one- and two-sided CUSUM control chart by choosing \code{"one"} and \code{"two"}, respectively.}
+\item{hs}{so-called headstart (enables fast initial response).}
+\item{sided}{distinguishes between one- and two-sided CUSUM control chart by choosing \code{"one"} and \code{"two"}, respectively.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear equation system is equal to \code{r+1}.}
 }
 \details{
