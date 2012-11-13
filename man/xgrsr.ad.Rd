@@ -3,7 +3,7 @@
 \title{Compute steady-state ARLs of Shiryaev-Roberts schemes}
 \description{Computation of the steady-state Average Run Length (ARL)
 for Shiryaev-Roberts schemes monitoring normal mean.}
-\usage{xgrsr.ad(k, g, mu1, mu0 = 0, zr = 0, sided = "one", r = 30)}
+\usage{xgrsr.ad(k, g, mu1, mu0 = 0, zr = 0, sided = "one", MPT = FALSE, r = 30)}
 \arguments{
 \item{k}{reference value of the Shiryaev-Roberts scheme.}
 \item{g}{control limit (alarm threshold) of Shiryaev-Roberts scheme.}
@@ -13,6 +13,8 @@ for Shiryaev-Roberts schemes monitoring normal mean.}
 \item{sided}{distinguishes between one- and two-sided schemes by choosing 
 \code{"one"} and\code{"two"}, respectively. Currently only one-sided schemes are
 implemented.}
+\item{MPT}{switch between the old implementation (\code{FALSE}) and the new one (\code{TRUE}) that considers the completed
+likelihood ratio. MPT contains the initials of G. Moustakides, A. Polunchenko and A. Tartakovsky.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1}.}
 }

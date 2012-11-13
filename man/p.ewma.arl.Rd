@@ -6,28 +6,31 @@
 \arguments{
 \item{lambda}{smoothing parameter of the EWMA p control chart.}
 \item{ucl}{upper control limit of the EWMA p control chart.}
-\item{n}{batch size.}
+\item{n}{subgroup size.}
 \item{p}{(failure/success) rate.}
 \item{z0}{so-called headstart (give fast initial response).}
 \item{d.res}{resolution (see details).}
-\item{r.mode}{round mode -- allowed modes are \code{"gan.floor"}, \code{"floor"}, \code{"ceil"}, \code{"ieee.round"}, \code{"round"}, \code{"mix"}.}
+\item{r.mode}{round mode -- allowed modes are \code{"gan.floor"}, \code{"floor"}, \code{"ceil"},
+\code{"ieee.round"}, \code{"round"}, \code{"mix"}.}
 \item{i.mode}{type of interval center -- \code{"integer"} or \code{"half"} integer.}
 }
 \details{
 The monitored data follow a binomial distribution with size \code{n} and failure/success probability \code{p}.
-The ARL values of the resulting EWMA control chart are determined by a Markov chain approximation. Here, the original EWMA values are approximated by
+The ARL values of the resulting EWMA control chart are determined by Markov chain approximation.
+Here, the original EWMA values are approximated by
 multiples of one over \code{d.res}. Different ways of rounding (see \code{r.mode}) to the next multiple are implemented.
 Besides Gan's paper nothing is published about the numerical subtleties.
 }
 \value{Return single value which resemble the ARL.}
 \references{
 F. F. Gan (1990),
-Monitoring observations generated from a binomial distribution using modified exponentially weighted moving average control chart,
+Monitoring observations generated from a binomial distribution using modified
+exponentially weighted moving average control chart,
 \emph{J. Stat. Comput. Simulation} 37, 45-60.
 
-S. Knoth and S. Steinmetz (2012),
+S. Knoth and S. Steinmetz (2013),
 EWMA \code{p} charts  under sampling by variables,
-accepted in \emph{International Journal of Production Research}.
+\emph{International Journal of Production Research} 51, 3795-3807.
 }
 \author{Sven Knoth}
 \seealso{later.}
@@ -56,13 +59,13 @@ rownames(arls) <- p.value
 colnames(arls) <- paste("lambda =", lambda)
 arls
 
-## Knoth/Steinmetz (2012)
+## Knoth/Steinmetz (2013)
 
 n <- 5
 p0 <- 0.02
 z0 <- n*p0
 lambda <- 0.3
-ucl <- 0.649169922 ## should provide in-control ARL of about 370.4; determined with d.res = 2^14 = 16384
+ucl <- 0.649169922 ## in-control ARL 370.4 (determined with d.res = 2^14 = 16384)
 
 res.list <- 2^(1:12)
 arl.list <- NULL

@@ -2,22 +2,24 @@
 \alias{sewma.crit}
 \title{Compute critical values of EWMA control charts (variance charts)}
 \description{Computation of the critical values (similar to alarm limits)
-for different types of EWMA control charts 
-(based on the sample variance \eqn{S^2})
-monitoring normal variance.}
-\usage{sewma.crit(l,L0,df,sigma0=1,cl=NULL,cu=NULL,hs=1,s2.on=TRUE,sided="upper",mode="fixed",r=40,qm=30)}
+for different types of EWMA control charts (based on the sample variance
+\eqn{S^2}) monitoring normal variance.}
+\usage{sewma.crit(l,L0,df,sigma0=1,cl=NULL,cu=NULL,hs=NULL,s2.on=TRUE,
+sided="upper",mode="fixed",ur=4,r=40,qm=30)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{L0}{in-control ARL.}
-\item{df}{actual degrees of freedom, corresponds to batch size (for known mean it is equal to the batch size,
-for unknown mean it is equal to batch size minus one.}
+\item{df}{actual degrees of freedom, corresponds to subgroup size (for known mean it is equal to the subgroup size,
+for unknown mean it is equal to subgroup size minus one.}
 \item{sigma0}{in-control standard deviation.}
 \item{cl}{deployed for \code{sided}=\code{"Rupper"}, that is, upper variance control chart
 with lower reflecting barrier \code{cl}.}
 \item{cu}{for two-sided (\code{sided}=\code{"two"}) and fixed upper
 control limit (\code{mode}=\code{"fixed"}) a value larger than \code{sigma0}
 has to been given, for all other cases \code{cu} is ignored.}
-\item{hs}{so-called headstart (enables fast initial response).}
+\item{hs}{so-called headstart (enables fast initial response); the default (\code{NULL})
+yields the expected in-control value of \eqn{S^2}{S^2} (1) and \eqn{S}{S} (\eqn{c_4}{c_4}),
+respectively.}
 \item{s2.on}{distinguishes between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
 \item{sided}{distinguishes between one- and two-sided
 two-sided EWMA-\eqn{S^2}{S^2} control charts
@@ -32,8 +34,14 @@ respectively.}
 an upper control limit (see \code{cu}) is set and only the lower is
 calculated to obtain the in-control ARL \code{L0}, while with \code{"unbiased"}
 a certain unbiasedness of the ARL function is guaranteed (here, both the
-lower and the upper control limit are calculated).}
-\item{r}{dimension of the resulting linear equation system (highest order of the collocation polynomials).}
+lower and the upper control limit are calculated). With \code{"vanilla"} limits symmetric
+around 1 (the in-control value of the variance)
+are determined, while for \code{"eq.tails"} the in-control ARL values of two single EWMA
+variance charts (decompose the two-sided
+scheme into one lower and one upper scheme) are matched.}
+\item{ur}{truncation of lower chart for \code{eq.tails} mode.}
+\item{r}{dimension of the resulting linear equation system
+(highest order of the collocation polynomials).}
 \item{qm}{number of quadrature nodes for calculating the collocation definite integrals.}
 }
 \details{
@@ -64,7 +72,7 @@ Computation of the ARL for CUSUM-\eqn{S^2}{S^2} schemes,
 \emph{Computational Statistics & Data Analysis 51}, 499-512.
 
 S. Knoth (2006b), 
-The art of evaluating monitoring schemes -- how to measure the performance of control charts? 
+The art of evaluating monitoring schemes -- how to measure the performance of control charts?
 in \emph{Frontiers in Statistical Quality Control 8},
 H.-J. Lenz and P.-T. Wilrich (Eds.),
 Physica Verlag, Heidelberg, Germany, 74-99.
@@ -112,6 +120,7 @@ cv.Fig2
 ## sake of accuracy, the value 80 was used.
 ## Additionally, this example needs between 1 and 2 minutes on a 1.6 Ghz box. 
 
+\dontrun{
 l  <- 0.1
 L0 <- 500
 df <- 4
@@ -119,14 +128,16 @@ limits <- sewma.crit(l, L0, df, sided="two", mode="unbiased", r=80)
 SEWMA.arl <- Vectorize(sewma.arl, "sigma")
 SEWMA.ARL <- function(sigma) 
   SEWMA.arl(l, limits[1], limits[2], sigma, df, sided="two", r=80)
-#layout(matrix(1:2, nrow=1))
+layout(matrix(1:2, nrow=1))
 curve(SEWMA.ARL, .75, 1.25, log="y")
-curve(SEWMA.ARL, .95, 1.05, log="y")
+curve(SEWMA.ARL, .95, 1.05, log="y")}
+# the above stuff needs about 1 minute
 
 ## control limits for upper and lower EWMA charts with reflecting barriers
 ## (reflection at in-control level sigma0 = 1)
 ## examples from Knoth (2006a), Tables 4 and 5
 
+\dontrun{
 ## upper chart with reflection at sigma0=1 in Table 4: c = 2.4831
 l <- 0.15
 L0 <- 100
@@ -141,6 +152,6 @@ L0 <- 200
 df <- 5
 limits <- sewma.crit(l, L0, df, cu=1, sided="Rlower", r=100)
 cv.Tab5 <- -(limits["cl"]-1)/( sqrt(l/(2-l))*sqrt(2/df) )
-cv.Tab5
+cv.Tab5}
 }
 \keyword{ts}

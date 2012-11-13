@@ -17,9 +17,10 @@ xcusum.arl <- function(k, h, mu, hs=0, sided="one", method="igl", q=1, r=30) {
   q <- round(q)
   if (q<1)
     stop("wrong change point position (q)")
-  arl <- .C("xcusum_arl",as.integer(ctyp),as.double(k),
-            as.double(h),as.double(hs),as.double(mu),as.integer(q),as.integer(r),as.integer(mtyp),
-            ans=double(length=1),PACKAGE="spc")$ans
-  names(arl) <- "arl"
+  arl <- .C("xcusum_arl",
+            as.integer(ctyp), as.double(k), as.double(h), as.double(hs), as.double(mu),
+            as.integer(q), as.integer(r), as.integer(mtyp),
+            ans=double(length=q), PACKAGE="spc")$ans
+  names(arl) <- NULL
   return (arl)
 }

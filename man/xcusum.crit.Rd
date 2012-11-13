@@ -10,16 +10,14 @@ for different types of CUSUM control charts monitoring normal mean.}
 \item{mu0}{in-control mean.}
 \item{hs}{so-called headstart (enables fast initial response).}
 \item{sided}{distinguishes between one-, two-sided and Crosier's modified
-two-sided CUSUM schemoosing \code{"one"}, \code{"two"},
-and \code{"Crosier"}, respectively.}
+two-sided CUSUM scheme by choosing \code{"one"}, \code{"two"}, and \code{"Crosier"}, respectively.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-, two-sided) or \code{2r+1}
 (Crosier).}
 }
 \details{
 \code{xcusum.crit} determines the decision interval (alarm limit)
-for given in-control ARL \code{L0}
-by applying secant rule and using \code{xcusum.arl()}.
+for given in-control ARL \code{L0} by applying secant rule and using \code{xcusum.arl()}.
 }
 \value{Returns a single value which resembles the decision interval
 \code{h}.}

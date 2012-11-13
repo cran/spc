@@ -29,7 +29,8 @@ equation system is equal to \code{r+1} (one-, two-sided) or \code{2r+1}
 solving the related ARL integral equation by means of the Nystroem method
 based on Gauss-Legendre quadrature.
 }
-\value{Returns a single value which resembles the ARL.}
+\value{Returns a vector of length \code{q} which resembles the ARL and the sequence of conditional expected delays for
+\code{q}=1 and \code{q}>1, respectively.}
 \references{
 A. L. Goel, S. M. Wu (1971),
 Determination of A.R.L. and a contour nomogram for CUSUM charts to

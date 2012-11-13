@@ -35,7 +35,10 @@ Note that for one-sided EWMA charts (\code{sided}=\code{"one"}), only
 (combination of \code{"fir"} and \code{"vacl"}), and \code{"Steiner"} are implemented.
 For details see Knoth (2004).
 }
-\value{Returns a single value which resembles the ARL.}
+\value{Except for the fixed limits EWMA charts it returns a single value which resembles the ARL.
+For fixed limits charts, it returns a vector of length \code{q} which resembles the ARL and the
+sequence of conditional expected delays for
+\code{q}=1 and \code{q}>1, respectively.}
 \references{
 K.-H. Waldmann (1986),
 Bounds for the distribution of the run length of geometric moving 
@@ -145,6 +148,7 @@ round(cbind(mu,arl1,arl2),digits=2)
 ## 4.00   1.34   3.11
 ## 5.00   1.07   2.55
 
+\dontrun{
 ## with fir feature
 l1 <- .5
 l2 <- .03
@@ -329,5 +333,6 @@ data.frame(mus, arls)
 c <- xewma.crit(lambda, L0, zr=zr, limits="stat", r=r)
 arls <- round(Mxewma.arl(lambda, c, mus, zr=zr, limits="stat", r=r), digits=4)
 data.frame(mus, arls)
+}
 }
 \keyword{ts}

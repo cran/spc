@@ -22,10 +22,17 @@ xewma.arl <- function(l, c, mu, zr=0, hs=0, sided="one", limits="fix", q=1, r=40
   q <- round(q)
   if (q<1)
     stop("wrong change point position (q)")
-  arl <- .C("xewma_arl",as.integer(ctyp),as.double(l),
-            as.double(c),as.double(zr),as.double(hs),
-            as.double(mu),as.integer(ltyp),as.integer(r),as.integer(q),
-            ans=double(length=1),PACKAGE="spc")$ans 
-  names(arl) <- "arl"
+  if ( limits=="fix" & q>1 ) {
+    arl <- .C("xewma_arl",as.integer(ctyp),as.double(l),
+              as.double(c),as.double(zr),as.double(hs),
+              as.double(mu),as.integer(ltyp),as.integer(r),as.integer(q),
+              ans=double(length=q), PACKAGE="spc")$ans 
+  } else {
+    arl <- .C("xewma_arl",as.integer(ctyp),as.double(l),
+              as.double(c),as.double(zr),as.double(hs),
+              as.double(mu),as.integer(ltyp),as.integer(r),as.integer(q),
+              ans=double(length=1), PACKAGE="spc")$ans
+  }
+  names(arl) <- NULL
   return (arl)
 }

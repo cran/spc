@@ -2,8 +2,7 @@
 \alias{xcusum.crit.L0L1}
 \title{Compute the CUSUM k and h for given in-control ARL L0 and out-of-control L1}
 \description{Computation of the reference value k and the alarm threshold h
-for one-sided CUSUM control charts monitoring normal mean, if the in-control ARL L0 and
-the out-of-control L1 are given.}
+for one-sided CUSUM control charts monitoring normal mean, if the in-control ARL L0 and the out-of-control L1 are given.}
 \usage{xcusum.crit.L0L1(L0, L1, hs=0, sided="one", r=30, L1.eps=1e-6, k.eps=1e-8)}
 \arguments{
 \item{L0}{in-control ARL.}
@@ -84,6 +83,5 @@ for ( L1 in L1.set ) {
   }
   cat("\n")
 }
-#
 }
 \keyword{ts}

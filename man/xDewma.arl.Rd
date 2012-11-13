@@ -30,8 +30,8 @@ steady-state. It works only for \code{mode="Knoth"}.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}
-\item{with0}{define whether the first observation used for the ARL
-calculatio follows already 1*delta or 0*delta.
+\item{with0}{defines whether the first observation used for the RL calculation
+follows already 1*delta or still 0*delta.
 With \code{q} additional flexibility is given.}
 }
 \details{
@@ -79,6 +79,7 @@ steady-state ARL computation of EWMA control charts
 for the classical step change model.
 }
 \examples{
+\dontrun{
 DxDewma.arl <- Vectorize(xDewma.arl, "delta")
 ## Gan (1991)
 ## Table 1
@@ -196,7 +197,7 @@ cE <- 2.7
 deltas <- c(.1, (1:8)/4)
 arlE1 <- c(round(xewma.arl(lambda, cE, 0, sided="two"), digits=3),
            round(DxDewma.arl(lambda, cE, deltas, sided="two"), digits=3))
-arlE51 <- c(round(xewma.arl(lambda, cE, 0, sided="two", q=51), digits=3),
+arlE51 <- c(round(xewma.arl(lambda, cE, 0, sided="two", q=51)[51], digits=3),
      round(DxDewma.arl(lambda, cE, deltas, sided="two", mode="Knoth", q=51),
            digits=3))
 data.frame(delta=c(0, deltas), arlE1, arlE51)
@@ -246,5 +247,6 @@ arl2 <- c(round(xewma.arl(l2, c2, 0, zr=zr), digits=2),
 arl3 <- c(round(xewma.arl(l3, c3, 0, zr=zr, r=r), digits=2),
           round(DxDewma.arl(l3, c3, deltas, zr=zr, r=r), digits=2))
 data.frame(delta=c(0, deltas), arl1, arl2, arl3)
+}
 }
 \keyword{ts}

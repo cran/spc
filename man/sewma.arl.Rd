@@ -2,19 +2,21 @@
 \alias{sewma.arl}
 \title{Compute ARLs of EWMA control charts (variance charts)}
 \description{Computation of the (zero-state) Average Run Length (ARL)
-for different types of EWMA control charts 
-(based on the sample variance \eqn{S^2})
-monitoring normal variance.}
-\usage{sewma.arl(l,cl,cu,sigma,df,s2.on=TRUE,hs=1,sided="upper",r=40,qm=30)}
+for different types of EWMA control charts (based on the sample variance
+\eqn{S^2}) monitoring normal variance.}
+\usage{sewma.arl(l,cl,cu,sigma,df,s2.on=TRUE,hs=NULL,sided="upper",r=40,qm=30)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{cl}{lower control limit of the EWMA control chart.}
 \item{cu}{upper control limit of the EWMA control chart.}
 \item{sigma}{true standard deviation.}
-\item{df}{actual degrees of freedom, corresponds to batch size (for known mean it is equal to the batch size,
-for unknown mean it is equal to batch size minus one.}
+\item{df}{actual degrees of freedom, corresponds to subgroup
+size (for known mean it is equal to the subgroup size,
+for unknown mean it is equal to subgroup size minus one.}
 \item{s2.on}{distinguishes between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
-\item{hs}{so-called headstart (enables fast initial response).}
+\item{hs}{so-called headstart (enables fast initial response);
+the default (\code{NULL}) yields the expected in-control value of
+\eqn{S^2}{S^2} (1) and \eqn{S}{S} (\eqn{c_4}{c_4}), respectively.}
 \item{sided}{distinguishes between one- and two-sided 
 two-sided EWMA-\eqn{S^2}{S^2} control charts 
 by choosing \code{"upper"} (upper chart
@@ -24,8 +26,10 @@ without reflection at \code{cl} -- the actual value of
 \code{"Rlower"} (lower chart with reflection at \code{cu}),
 and \code{"two"} (two-sided chart), 
 respectively.} 
-\item{r}{dimension of the resulting linear equation system (highest order of the collocation polynomials).}
-\item{qm}{number of quadrature nodes for calculating the collocation definite integrals.}
+\item{r}{dimension of the resulting linear equation system (highest order of
+the collocation polynomials).}
+\item{qm}{number of quadrature nodes for calculating the collocation
+definite integrals.}
 }
 \details{
 \code{sewma.arl} determines the Average Run Length (ARL) by numerically
@@ -77,13 +81,13 @@ Ssewma.arl <- Vectorize("sewma.arl", "sigma")
 # 1.5     4.30
 # 2       2.11
 
+\dontrun{
 l <- 0.15
 df <- 4
 cu <- 1 + 2.4831*sqrt(l/(2-l))*sqrt(2/df)
 sigmas <- c(1 + (0:5)/100, 1 + (1:5)/10, 2)
 arls <- round(Ssewma.arl(l, 1, cu, sigmas, df, sided="Rupper", r=100), digits=2)
-data.frame(sigmas, arls)
-
+data.frame(sigmas, arls)}
 
 ## lower chart with reflection at sigma0=1 in Table 5
 ## original entries are
@@ -94,11 +98,12 @@ data.frame(sigmas, arls)
 # 0.7     8.65
 # 0.6     6.31
 
+\dontrun{
 l <- 0.115
 df <- 5
 cl <- 1 - 2.0613*sqrt(l/(2-l))*sqrt(2/df)
 sigmas <- c((10:6)/10)
 arls <- round(Ssewma.arl(l, cl, 1, sigmas, df, sided="Rlower", r=100), digits=2)
-data.frame(sigmas, arls)
+data.frame(sigmas, arls)}
 }
 \keyword{ts}

@@ -3,9 +3,9 @@ xsewma.arl <- function(lx, cx, ls, csu, df, mu, sigma,
                        hsx=0, Nx=40,
                        csl=0, hss=1, Ns=40,
                        s2.on=TRUE, sided="upper", qm=30) {
-  if (lx<=0 || lx>1) 
+  if (lx<=0 | lx>1) 
     stop("lx has to be between 0 and 1")
-  if (ls<=0 || ls>1)
+  if (ls<=0 | ls>1)
     stop("ls has to be between 0 and 1")
   if (cx<=0)
     stop("cx has to be positive")

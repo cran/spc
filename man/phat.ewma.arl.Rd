@@ -16,8 +16,8 @@ phat.ewma.lambda(L0, mu, n, z0, sigma=1, max_l=1, min_l=.001, LSL=-3, USL=3, qm=
 \item{ucl}{upper control limit of the EWMA phat control chart.}
 \item{L0}{pre-defined in-control ARL (Average Run Length).}
 \item{mu}{true mean or mean where the ARL should be minimized (then the in-control mean is simply 0).}
-\item{n}{batch size.}
-\item{z0}{so-called headstart (give fast initial response).}
+\item{n}{subgroup size.}
+\item{z0}{so-called headstart (gives fast initial response).}
 \item{sigma}{actual standard deviation of the data -- the in-control value is 1.}
 \item{max_l, min_l}{maximal and minimal value for optimal lambda search.}
 \item{LSL,USL}{lower and upper specification limit, respectively.}
@@ -25,16 +25,19 @@ phat.ewma.lambda(L0, mu, n, z0, sigma=1, max_l=1, min_l=.001, LSL=-3, USL=3, qm=
 \item{qm}{number of nodes for collocation quadratures.}
 }
 \details{
-The three implemented functions allow to apply a new type control chart. Basically, lower and upper specification limits are given. The monitoring
-vehicle then is the empirical probability that an item will not follow these specification given the sequence of sample means. If
-the related EWMA sequence violates the control limits, then the alarm indicates a significant process deterioration. For details see the
+The three implemented functions allow to apply a new type control chart. Basically, lower and upper
+specification limits are given. The monitoring
+vehicle then is the empirical probability that an item will not follow these specification given the
+sequence of sample means. If
+the related EWMA sequence violates the control limits, then the alarm indicates a significant process
+deterioration. For details see the
 paper mentioned in the references. To be able to construct the control charts, see the first example.
 }
 \value{Return single values which resemble the ARL, the critical value, and the optimal lambda, respectively.}
 \references{
-S. Knoth and S. Steinmetz (2012),
+S. Knoth and S. Steinmetz (2013),
 EWMA \code{p} charts  under sampling by variables,
-accepted in \emph{International Journal of Production Research}.
+\emph{International Journal of Production Research} 51, 3795-3807.
 }
 \author{Sven Knoth}
 \seealso{
@@ -69,7 +72,7 @@ abline(h=z0, col="grey", lwd=.7)
 abline(h=ucl, col="red")
 
 
-## S. Knoth, S. Steinmetz (2012),
+## S. Knoth, S. Steinmetz (2013)
 
 # Table 1
 
@@ -90,7 +93,8 @@ mus <- c((0:4)/4, 1.5, 2, 3)
 phat.ewma.ARL <- Vectorize("phat.ewma.arl", "mu")
 arls <- NULL
 for ( i in 1:length(lambdas) ) {
-  arls <- cbind(arls, round(phat.ewma.ARL(lambdas[i], ucls[i], mus, n, p.star, LSL=LSL, USL=USL), digits=2))
+  arls <- cbind(arls, round(phat.ewma.ARL(lambdas[i], ucls[i], mus,
+                n, p.star, LSL=LSL, USL=USL), digits=2))
 }
 arls <- data.frame(arls, row.names=NULL)
 names(arls) <- lambdas
@@ -98,9 +102,10 @@ print(arls)
 
 # Table 3
 
+\dontrun{
 mus <- c(.25, .5, 1, 2)
 phat.ewma.LAMBDA <- Vectorize("phat.ewma.lambda", "mu")
 lambdas <- phat.ewma.LAMBDA(L0, mus, n, p.star, LSL=LSL, USL=USL)
-print(cbind(mus, lambdas))
+print(cbind(mus, lambdas))}
 }
 \keyword{ts}

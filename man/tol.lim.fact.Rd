@@ -11,15 +11,13 @@ are computed for a given sample size \eqn{n}{n}.}
 \arguments{
 \item{n}{sample size.}
 \item{p}{coverage.}
-\item{a}{error probability 
-\eqn{\alpha}{a}, resulting interval covers at
-least proportion \code{p} 
+\item{a}{error probability \eqn{\alpha}{a}, resulting interval covers at least proportion \code{p}
 with confidence of at least \eqn{1-\alpha}{1-a}.}
-\item{mode}{distinguish between Wald/Wolfowitz' approximation
-method (\code{"WW"}) and the more accurate approach (\code{"exact"})
+\item{mode}{distinguish between Wald/Wolfowitz' approximation method (\code{"WW"}) and the more
+accurate approach (\code{"exact"})
 based on Gauss-Legendre quadrature.}
-\item{m}{number of abscissas for the quadrature (needed only for
-\code{method="exact"}), of course, the larger the more accurate.}
+\item{m}{number of abscissas for the quadrature (needed only for \code{method="exact"}),
+of course, the larger the more accurate.}
 }
 \details{
 \code{tol.lim.fac} determines tolerance limits factors 

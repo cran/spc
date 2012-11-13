@@ -10,11 +10,9 @@ the alarm threshold h are given.}
 \item{h}{alarm level of the CUSUM control chart.}
 \item{hs}{so-called headstart (enables fast initial response).}
 \item{sided}{distinguishes between one-, two-sided and Crosier's modified
-two-sided CUSUM scheme choosing \code{"one"}, \code{"two"},
-and \code{"Crosier"}, respectively.}
+two-sided CUSUM scheme choosing \code{"one"}, \code{"two"}, and \code{"Crosier"}, respectively.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
-equation system is equal to \code{r+1} (one-, two-sided) or \code{2r+1}
-(Crosier).}
+equation system is equal to \code{r+1} (one-, two-sided) or \code{2r+1} (Crosier).}
 \item{L0.eps}{error bound for the L0 error.}
 \item{k.eps}{bound for the difference of two successive values of k.}
 }
@@ -23,8 +21,7 @@ equation system is equal to \code{r+1} (one-, two-sided) or \code{2r+1}
 for given in-control ARL \code{L0} and alarm level \code{h}
 by applying secant rule and using \code{xcusum.arl()}. Note that
 not for any combination of \code{L0} and \code{h} a solution exists
--- for given \code{L0} there is a maximal value for \code{h}
-to get a valid result \code{k}.
+-- for given \code{L0} there is a maximal value for \code{h} to get a valid result \code{k}.
 }
 \value{Returns a single value which resembles the reference value \code{k}.}
 %\references{Later...}

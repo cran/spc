@@ -65,6 +65,6 @@ for ( i in 1:length(G.lambda) ) {
   SF <- xewma.sf(G.lambda[i], G.h[i], 0, 1000)
   if (i==1) plot(1:length(SF), SF, type="l", xlab="n", ylab="P(L>n)")
   else lines(1:length(SF), SF, col=i)
-  }
+}
 }
 \keyword{ts}

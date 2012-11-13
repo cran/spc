@@ -2,12 +2,12 @@
 \alias{xcusum.q}
 \title{Compute RL quantiles of CUSUM control charts}
 \description{Computation of quantiles of the Run Length (RL)for CUSUM control charts monitoring normal mean.}
-\usage{xcusum.q(k, h, mu, p, hs=0, sided="one", r=40)}
+\usage{xcusum.q(k, h, mu, alpha, hs=0, sided="one", r=40)}
 \arguments{
 \item{k}{reference value of the CUSUM control chart.}
 \item{h}{decision interval (alarm limit, threshold) of the CUSUM control chart.}
 \item{mu}{true mean.}
-\item{p}{quantile level.}
+\item{alpha}{quantile level.}
 \item{hs}{so-called headstart (enables fast initial response).}
 \item{sided}{distinguishes between one- and two-sided CUSUM control chart by choosing \code{"one"} and \code{"two"}, respectively.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear equation system is equal to \code{r+1}.}
@@ -31,12 +31,12 @@ Bounds for the distribution of the run length of one-sided and two-sided CUSUM q
 ## Waldmann (1986), one-sided CUSUM, Table 2
 ## original values are 345, 82, 9
 
-XCUSUM.Q <- Vectorize("xcusum.q", "p")
+XCUSUM.Q <- Vectorize("xcusum.q", "alpha")
 k <- .5
 h <- 3
 mu <- 0 # corresponds to Waldmann's -0.5
-p.list <- c(.95, .5, .05)
-rl.quantiles <- ceiling(XCUSUM.Q(k, h, mu, p.list))
-cbind(p.list, rl.quantiles)
+a.list <- c(.95, .5, .05)
+rl.quantiles <- ceiling(XCUSUM.Q(k, h, mu, a.list))
+cbind(a.list, rl.quantiles)
 }
 \keyword{ts}

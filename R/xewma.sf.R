@@ -5,7 +5,7 @@ xewma.sf <- function(l, c, mu, n, zr=0, hs=0, sided="one", limits="fix", q=1, r=
   if ( n < 1 )                   stop("n has to be a natural number")
   if ( zr > c & sided == "one")  stop("wrong reflexion border")
   if ( (sided == "two" & abs(hs) > c) | (sided == "one" & ( hs < zr | hs > c )) )
-                                 stop("wrong headstart")
+                                 warning("unusual headstart")
   ctyp <- pmatch(sided, c("one", "two")) - 1
   if ( is.na(ctyp) )             stop("invalid ewma type")
   ltyp <- -1 + pmatch(limits, c("fix", "vacl", "fir", "both", "Steiner", "stat", "test"))
