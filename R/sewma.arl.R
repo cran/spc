@@ -1,6 +1,10 @@
 # Computation of EWMA ARLs (variance monitoring)
-sewma.arl <- function(l,cl,cu,sigma,df,
-                      s2.on=TRUE,hs=1,sided="upper",r=40,qm=30) {
+sewma.arl <- function(l, cl, cu, sigma, df, s2.on=TRUE, hs=NULL, sided="upper", r=40, qm=30) {
+  mitte <- sqrt( 2/df ) * gamma( (df+1)/2 )/ gamma( df/2 )
+  if ( is.null(hs) ) {
+    if ( s2.on ) { hs <- 1 } else { hs <- mitte }
+  }
+  
   if ( l<=0 || l>1 ) 
     stop("l has to be between 0 and 1")
   if ( cu<=0 ) 
@@ -14,6 +18,7 @@ sewma.arl <- function(l,cl,cu,sigma,df,
   s_squared <- as.numeric(s2.on)
   if ( !(s_squared %in% c(0,1)) )
     stop("wrong value for s2.on")
+  
   if ( hs<cl | hs>cu ) 
     stop("wrong headstart")
   ctyp <- pmatch(sided, c("upper", "Rupper", "two", "Rlower")) - 1

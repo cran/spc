@@ -14,14 +14,13 @@ xDshewhartrunsrulesFixedm.arl(delta, c = 1, m = 100, type = "12")
 \item{delta}{true drift parameter.}
 \item{c}{normalizing constant to ensure specific alarming behavior.}
 \item{type}{controls the type of Shewhart chart used, seed details section.}
-\item{m}{parameter of Gan's approach. If \code{m=NULL}, then \code{m}
-will increased until the resulting ARL does not change anymore.}
+\item{m}{parameter of Gan's approach. If \code{m=NULL}, then \code{m} will increased until
+the resulting ARL does not change anymore.}
 }
 \details{
 Based on Gan (1991), the ARL is calculated for
 Shewhart control charts with and without runs rules
-under drift. The usual
-ARL function with mu=m*delta is determined and recursively via
+under drift. The usual ARL function with mu=m*delta is determined and recursively via
 m-1, m-2, ... 1 (or 0) the drift ARL determined.
 \code{xDshewhartrunsrulesFixedm.arl} is the actual work horse, while
 \code{xDshewhartrunsrules.arl} provides a convenience wrapper.

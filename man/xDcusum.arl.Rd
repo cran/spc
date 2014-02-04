@@ -2,8 +2,7 @@
 \alias{xDcusum.arl}
 \title{Compute ARLs of CUSUM control charts under drift}
 \description{Computation of the (zero-state and other) Average Run Length (ARL)
-under drift
-for one-sided CUSUM control charts monitoring normal mean.}
+under drift for one-sided CUSUM control charts monitoring normal mean.}
 \usage{xDcusum.arl(k, h, delta, hs = 0, sided = "one",
     mode = "Gan", m = NULL, q = 1, r = 30, with0 = FALSE)}
 \arguments{
@@ -29,8 +28,8 @@ steady-state. It works only for \code{mode="Knoth"}.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}
-\item{with0}{define whether the first observation used for the ARL
-calculatio follows already 1*delta or 0*delta.
+\item{with0}{defines whether the first observation used for the RL
+calculation follows already 1*delta or still 0*delta.
 With \code{q} additional flexibility is given.}
 }
 \details{
@@ -103,7 +102,6 @@ arl.like.Knoth <-
   round(DxDcusum.arl(k, h, deltas, r=r, mode="Knoth", with0=TRUE), digits=2)
 data.frame(deltas, arl.like.Gan, arl.like.Knoth)
 
-
 ## Zou et al. (2009)
 ## Table 1
 ## original values are
@@ -120,6 +118,7 @@ data.frame(deltas, arl.like.Gan, arl.like.Knoth)
 #  2.0     3.17  2.67  2.32
 #  3.0     2.79  2.04  1.96
 #  4.0     2.10  1.98  1.74
+\dontrun{
 k1 <- 0.25
 k2 <- 0.5
 k3 <- 0.75
@@ -133,6 +132,6 @@ arl2 <- c(round(xcusum.arl(k2, h2, 0), digits=2),
           round(DxDcusum.arl(k2, h2, deltas, r=r), digits=2))
 arl3 <- c(round(xcusum.arl(k3, h3, 0, r=r), digits=2),
           round(DxDcusum.arl(k3, h3, deltas, r=r), digits=2))
-data.frame(delta=c(0, deltas), arl1, arl2, arl3)
+data.frame(delta=c(0, deltas), arl1, arl2, arl3)}
 }
 \keyword{ts}

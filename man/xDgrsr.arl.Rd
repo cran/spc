@@ -30,14 +30,14 @@ steady-state. It works only for \code{mode="Knoth"}.}
 \code{"Gan"} and \code{"Knoth"}, respectively.
 \code{"Knoth"} is not implemented yet.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
-equation system is equal to \code{r+1} (one-sided) or \code{r}
-(two-sided).}
-\item{with0}{define whether the first observation used for the ARL
-calculatio follows already 1*delta or 0*delta.
+equation system is equal to \code{r+1} (one-sided) or \code{r} (two-sided).}
+\item{with0}{defines whether the first observation used for the RL calculation
+follows already 1*delta or still 0*delta.
 With \code{q} additional flexibility is given.}
 }
 \details{
-Based on Gan (1991) or Knoth (2003), the ARL is calculated for Shiryaev-Roberts schemes under drift. In case of Gan's framework, the usual
+Based on Gan (1991) or Knoth (2003), the ARL is calculated for Shiryaev-Roberts schemes under drift.
+In case of Gan's framework, the usual
 ARL function with mu=m*delta is determined and recursively via
 m-1, m-2, ... 1 (or 0) the drift ARL determined. The framework
 of Knoth allows to calculate ARLs for varying parameters, such as
@@ -72,6 +72,7 @@ steady-state ARL computation of EWMA control charts
 for the classical step change model.
 }
 \examples{
+\dontrun{
 ## Monte Carlo example with 10^8 replicates
 #   delta      arl    s.e.
 #   0.0001 381.8240   0.0304
@@ -95,5 +96,6 @@ DxDgrsr.arl <- Vectorize(xDgrsr.arl, "delta")
 deltas <- c(0.0001, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02, 0.05, 0.1, 0.5, 1, 3)
 arls <- round(DxDgrsr.arl(k, g, deltas, zr=zr, r=r), digits=4)
 data.frame(deltas, arls)
+}
 }
 \keyword{ts}

@@ -3,7 +3,7 @@
 \title{Compute alarm thresholds for Shiryaev-Roberts schemes}
 \description{Computation of the alarm thresholds (alarm limits)
 for Shiryaev-Roberts schemes monitoring normal mean.}
-\usage{xgrsr.crit(k, L0, mu0 = 0, zr = 0, hs = NULL, sided = "one", r = 30)}
+\usage{xgrsr.crit(k, L0, mu0 = 0, zr = 0, hs = NULL, sided = "one", MPT = FALSE, r = 30)}
 \arguments{
 \item{k}{reference value of the Shiryaev-Roberts scheme.}
 \item{L0}{in-control ARL.}
@@ -14,6 +14,8 @@ the classical headstart -Inf is used (corresponds to 0 for the non-log scheme).}
 \item{sided}{distinguishes between one- and two-sided schemes by choosing 
 \code{"one"} and\code{"two"}, respectively. Currently only one-sided schemes are
 implemented.}
+\item{MPT}{switch between the old implementation (\code{FALSE}) and the new one (\code{TRUE}) that considers the completed
+likelihood ratio. MPT contains the initials of G. Moustakides, A. Polunchenko and A. Tartakovsky.}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1}.}
 }
@@ -22,8 +24,7 @@ equation system is equal to \code{r+1}.}
 for given in-control ARL \code{L0}
 by applying secant rule and using \code{xgrsr.arl()}.
 }
-\value{Returns a single value which resembles the alarm limit
-\code{g}.}
+\value{Returns a single value which resembles the alarm limit \code{g}.}
 \references{
 G. Moustakides, A. Polunchenko, A. Tartakovsky (2009),
 Numerical comparison of CUSUM and Shiryaev-Roberts procedures for detecting changes in distributions,

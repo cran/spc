@@ -6,8 +6,8 @@ xewma.crit <- function(l,L0,mu0=0,zr=0,hs=0,sided="one",limits="fix",r=40,c0=NUL
     stop("L0 is too small")
   if (r<4)
     stop("r is too small")
-  if (sided=="one" & hs<zr)
-    stop("headstart hs smaller than reflexion border zr")
+  if ( sided=="one" & hs<zr )
+    warning("unusual headstart")
   ctyp <- pmatch(sided, c("one", "two")) - 1
   if (is.na(ctyp)) 
     stop("invalid ewma type")

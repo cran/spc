@@ -32,7 +32,7 @@ void xsewma_crit
       double *lx, double *ls, double *L0, double *cu0, double *hsx, double *hss,
       double *mu, double *sigma, int *df,
       int *Nx, int *Ns, int *qm, double *c_values)
-{ int result;
+{ int result=0;
   double cx, cl, cu;
  cx = -1.;
  cl = 0.;
@@ -48,7 +48,7 @@ void xsewma_crit
    if (*ltyp==unbiased)
      result = xse2_crit(*lx,*ls,*L0,&cx,&cl,&cu,*hsx,*hss,*mu,*sigma,*df,*Nx,*Ns,10000,*qm);
  }
-
+ if ( result != 0 ) warning("trouble with xsewma_crit [package spc]");
  c_values[0] = cx;
  c_values[1] = cl;
  c_values[2] = cu;

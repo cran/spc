@@ -2,7 +2,7 @@
 # (simultaneous mean and variance monitoring)
 xsewma.crit <- function(lx, ls, L0, df, mu0=0, sigma0=1, cu=NULL, hsx=0, hss=1,
                         s2.on=TRUE, sided="upper", mode="fixed",
-                        Nx=20, Ns=40, qm=30) 
+                        Nx=30, Ns=40, qm=30) 
 {
   if (lx<=0 || lx>1) 
     stop("lx has to be between 0 and 1")

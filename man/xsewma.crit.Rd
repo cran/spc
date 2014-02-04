@@ -5,7 +5,8 @@
 for different types of simultaneous EWMA control charts 
 (based on the sample mean and the sample variance \eqn{S^2})
 monitoring normal mean and variance.}
-\usage{xsewma.crit(lx, ls, L0, df, mu0=0, sigma0=1, cu=NULL, hsx=0, hss=1, s2.on=TRUE, sided="upper", mode="fixed", Nx=20, Ns=40, qm=30)}
+\usage{xsewma.crit(lx, ls, L0, df, mu0=0, sigma0=1, cu=NULL, hsx=0,
+hss=1, s2.on=TRUE, sided="upper", mode="fixed", Nx=30, Ns=40, qm=30)}
 \arguments{
 \item{lx}{smoothing parameter lambda of the two-sided mean EWMA chart.}
 \item{ls}{smoothing parameter lambda of the variance EWMA chart.}
@@ -18,14 +19,15 @@ has to been given, for all other cases \code{cu} is ignored.}
 \item{hsx}{so-called headstart (enables fast initial response) of the mean chart -- 
 do not confuse with the true FIR feature considered in xewma.arl; will be updated.}
 \item{hss}{headstart (enables fast initial response) of the variance chart.}
-\item{df}{actual degrees of freedom, corresponds to batch size (for known mean it is equal to the batch size,
-for unknown mean it is equal to batch size minus one.}
+\item{df}{actual degrees of freedom, corresponds to subgroup size
+(for known mean it is equal to the subgroup size,
+for unknown mean it is equal to subgroup size minus one.}
 \item{s2.on}{distinguishes between \eqn{S^2}{S^2} and \eqn{S}{S} chart.}
-\item{sided}{distinguishes between one- and two-sided two-sided EWMA-\eqn{S^2}{S^2} control charts
-by choosing \code{"upper"} (upper chart without reflection at \code{cl} -- the actual value of
-\code{cl} is not used), \code{"Rupper"} (upper chart with reflection at \code{cl}),
-\code{"Rlower"} (lower chart with reflection at \code{cu}), and \code{"two"} (two-sided chart),
-respectively.}
+\item{sided}{distinguishes between one- and two-sided two-sided EWMA-\eqn{S^2}{S^2}
+control charts by choosing \code{"upper"} (upper chart without reflection at \code{cl}
+-- the actual value of \code{cl} is not used), \code{"Rupper"} (upper chart with
+reflection at \code{cl}), \code{"Rlower"} (lower chart with reflection at \code{cu}),
+and \code{"two"} (two-sided chart), respectively.}
 \item{mode}{only deployed for \code{sided}=\code{"two"} -- with \code{"fixed"}
 an upper control limit (see \code{cu}) is set and only the lower is
 determined to obtain the in-control ARL \code{L0}, while with \code{"unbiased"}
@@ -49,7 +51,8 @@ the lower and upper controls limit \code{cl} and \code{cu} of the variance EWMA 
 \references{
 
 S. Knoth (2007),
-Accurate ARL calculation for EWMA control charts monitoring simultaneously normal mean and variance,
+Accurate ARL calculation for EWMA control charts monitoring simultaneously
+normal mean and variance,
 \emph{Sequential Analysis 26}, 251-264.
 }
 \author{Sven Knoth}
@@ -58,7 +61,7 @@ Accurate ARL calculation for EWMA control charts monitoring simultaneously norma
 ## Knoth (2007)
 ## results in Table 2
 
-# batch size n=5, df=n-1
+# subgroup size n=5, df=n-1
 df  <- 4
 # lambda of mean chart
 lx  <- .134

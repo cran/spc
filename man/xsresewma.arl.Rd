@@ -12,9 +12,11 @@ the probability of misleading signals (PMS) is calculated.}
 
 s.res.ewma.arl(l, cu, sigma, mu=0, alpha=0, n=5, hs=1, r=40, qm=30)
 
-xs.res.ewma.arl(lx, cx, ls, csu, mu, sigma, alpha=0, n=5, hsx=0, rx=40, hss=1, rs=40, qm=30)
+xs.res.ewma.arl(lx, cx, ls, csu, mu, sigma, alpha=0,
+n=5, hsx=0, rx=40, hss=1, rs=40, qm=30)
 
-xs.res.ewma.pms(lx, cx, ls, csu, mu, sigma, type="3", alpha=0, n=5, hsx=0, rx=40, hss=1, rs=40, qm=30)
+xs.res.ewma.pms(lx, cx, ls, csu, mu, sigma, type="3",
+alpha=0, n=5, hsx=0, rx=40, hss=1, rs=40, qm=30)
 }
 \arguments{
 \item{l, lx, ls}{smoothing parameter(s) lambda of the EWMA control chart.}
@@ -24,27 +26,37 @@ xs.res.ewma.pms(lx, cx, ls, csu, mu, sigma, type="3", alpha=0, n=5, hsx=0, rx=40
 \item{alpha}{the AR(1) coefficient -- first order autocorrelation of the original data.}
 \item{n}{batch size.}
 \item{hs, hsx, hss}{so-called headstart (enables fast initial response).}
-\item{r, rx, rs}{number of quadrature nodes or size of collocation base, dimension of the resulting linear
+\item{r, rx, rs}{number of quadrature nodes or size of collocation base,
+dimension of the resulting linear
 equation system is equal to \code{r} (two-sided).}
 \item{qm}{number of nodes for collocation quadratures.}
-\item{type}{PMS type, for \code{PMS}="3" (the default) the probability of getting a mean signal despite the variance
+\item{type}{PMS type, for \code{PMS}="3" (the default) the probability of
+getting a mean signal despite the variance
 changed, and for \code{PMS}="4" the opposite case is dealt with.}
 }
 \details{
-The above list of functions provides the application of algorithms developed for iid data to
+The above list of functions provides the application of
+algorithms developed for iid data to
 the residual case. To be more precise, the underlying model is a sequence of normally
-distributed batches with size \code{n} with autocorrelation within the batch and independence between the batches
-(see also the references below). It is restricted to the classical EWMA chart types, that
-is two-sided for the mean, upper charts for the variance, and all equipped with fixed limits.
-The autocorrelation is modeled by an AR(1) process with parameter \code{alpha}. Additionally,
-with \code{xs.res.ewma.pms} the probability of misleading signals (PMS) of \code{type} is
-calculated. This is offered exclusively in this small collection so that for iid data
+distributed batches with size \code{n} with autocorrelation within
+the batch and independence between the batches
+(see also the references below). It is restricted to the
+classical EWMA chart types, that
+is two-sided for the mean, upper charts for the variance,
+and all equipped with fixed limits.
+The autocorrelation is modeled by an AR(1) process with parameter
+\code{alpha}. Additionally,
+with \code{xs.res.ewma.pms} the probability of misleading signals
+(PMS) of \code{type} is
+calculated. This is offered exclusively in this small
+collection so that for iid data
 this function has to be used too (with \code{alpha=0}).
 }
 \value{Return single values which resemble the ARL and the PMS, respectively.}
 \references{
 S. Knoth, M. C. Morais, A. Pacheco, W. Schmid (2009),
-Misleading Signals in Simultaneous Residual Schemes for the Mean and Variance of a Stationary Process,
+Misleading Signals in Simultaneous Residual Schemes for the Mean and
+Variance of a Stationary Process,
 \emph{Commun. Stat., Theory Methods 38}, 2923-2943.
 
 S. Knoth, W. Schmid, A. Schoene (2001),
@@ -58,8 +70,10 @@ Monitoring the mean and the variance of a stationary process,
 }
 \author{Sven Knoth}
 \seealso{
-\code{xewma.arl}, \code{sewma.arl}, and \code{xsewma.arl} as more elaborated functions in the iid case.}
+\code{xewma.arl}, \code{sewma.arl}, and \code{xsewma.arl} as more
+elaborated functions in the iid case.}
 \examples{
+\dontrun{
 ## S. Knoth, W. Schmid (2002)
 
 cat("\nFragments of Table 2 (n=5, lambda.1=lambda.2)\n")
@@ -106,7 +120,8 @@ arls <- NULL
 for ( delta in d.values ) {
   row <- NULL
   for ( mu in a.values ) {
-    arl <- round(xs.res.ewma.arl(lambda, cx, lambda, csu, mu*sqrt(n), delta, alpha=alpha, n=n), digits=2)
+    arl <- round(xs.res.ewma.arl(lambda, cx, lambda, csu, mu*sqrt(n), delta, alpha=alpha, n=n),
+                 digits=2)
     names(arl) <- NULL
     row <- c(row, arl)   
   }
@@ -137,10 +152,14 @@ d.values <- c(1.02, 1 + (1:5)/10, 1.75 , 2)
 
 arl.x <- arl.s <- arl.xs <- PMS.3 <- NULL
 for ( delta in d.values ) {
-  arl.x  <- c(arl.x,  round(x.res.ewma.arl(lambda, cx/delta, 0, n=n), digits=3))
-  arl.s  <- c(arl.s,  round(s.res.ewma.arl(lambda, csu, delta, n=n), digits=3))
-  arl.xs <- c(arl.xs, round(xs.res.ewma.arl(lambda, cx, lambda, csu, 0, delta, n=n), digits=3))
-  PMS.3  <- c(PMS.3,  round(xs.res.ewma.pms(lambda, cx, lambda, csu, 0, delta, n=n), digits=6))
+  arl.x  <- c(arl.x,  round(x.res.ewma.arl(lambda, cx/delta, 0, n=n),
+                            digits=3))
+  arl.s  <- c(arl.s,  round(s.res.ewma.arl(lambda, csu, delta, n=n),
+                            digits=3))
+  arl.xs <- c(arl.xs, round(xs.res.ewma.arl(lambda, cx, lambda, csu, 0, delta, n=n),
+                            digits=3))
+  PMS.3  <- c(PMS.3,  round(xs.res.ewma.pms(lambda, cx, lambda, csu, 0, delta, n=n),
+                            digits=6))
 }
 
 ## orinal values are (Markov chain approximation)
@@ -167,7 +186,8 @@ for ( ir in 1:length(deltas) ) {
   mu <- deltas[ir]*sqrt(n)
   pms <- NULL
   for ( alpha in alphas ) {
-    pms <- c(pms, round(xs.res.ewma.pms(lambda, cx, lambda, csu, mu, 1, type="4", alpha=alpha, n=n), digits=6))
+    pms <- c(pms, round(xs.res.ewma.pms(lambda, cx, lambda, csu, mu, 1, type="4", alpha=alpha, n=n),
+                        digits=6))
   }
   PMS.4 <- rbind(PMS.4, data.frame(delta=deltas[ir], t(pms)))
 }
@@ -186,5 +206,6 @@ rownames(PMS.4) <- NULL
 #   2.00 0.000000 0.000311 0.000091 0.000056 0.000259 0.001029 0.054543
 
 print(PMS.4)
+}
 }
 \keyword{ts}
