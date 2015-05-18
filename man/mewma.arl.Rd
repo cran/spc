@@ -9,7 +9,8 @@ for multivariate exponentially weighted moving average (MEWMA) charts monitoring
 \item{c}{alarm threshold of the MEWMA control chart.}
 \item{p}{dimension of multivariate normal distribution.}
 \item{delta}{magnitude of the potential change, \code{delta=0} refers to the in-control state.}
-\item{hs}{so-called headstart (enables fast initial response) -- must be non-negative.}
+\item{hs}{so-called headstart (enables fast initial response) -- must be non-negative. Note that in the current implementation it
+is only available for \code{delta} = 0. More work is in progress.}
 \item{r}{number of quadrature nodes -- dimension of the resulting linear equation system
 for \code{delta} = 0. For non-zero \code{delta} this dimension is mostly r^2 (Markov chain approximation leads
 to some larger values). Caution: If \code{ntype} is set to \code{"co"} (collocation), then values of \code{r}
@@ -18,14 +19,14 @@ For the other selections this would happen for values larger than 40.}
 \item{ntype}{choose the numerical algorithm to solve the ARL integral equation. For \code{delta}=0:
 Possible values are
 \code{"gl"}, \code{"gl2"} (gauss-legendre, classic and with variables change: square),
-\code{"co"} (collocation),
+\code{"co"} (collocation, for \code{delta} > 0 with sin transformation),
 \code{"ra"} (radau),
 \code{"cc"} (clenshaw-curtis),
 \code{"mc"} (markov chain),
 and \code{"sr"} (simpson rule).
 For \code{delta} larger than 0, some more values besides the others are possible:
 \code{"gl3"}, \code{"gl4"}, \code{"gl5"} (gauss-legendre with a further change in variables: sin, tan, sinh),
-\code{"co2"}, \code{"co3"} (collocation with sin and tan as quadrature stabilizing transformations).
+\code{"co2"}, \code{"co3"} (collocation with some trimming and tan as quadrature stabilizing transformations, respectively).
 If it is set to \code{NULL} (the default), then for \code{delta}=0 then \code{"gl2"} is chosen.
 If \code{delta} larger than 0, then for \code{p} equal 2 or 4 \code{"gl3"} and for all other values \code{"gl5"} is taken.
 \code{"ra"} denotes the method used in Rigdon (1995a). \code{"mc"} denotes the Markov chain approximation.}

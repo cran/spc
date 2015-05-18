@@ -23,6 +23,10 @@
 #define FINALeps 1e-12
 #define lmEPS 1e-4
 
+#define IDENTITY 0
+#define SIN 1
+#define SINH 2
+#define TAN 3
 
 /*** export ***/
 
@@ -96,6 +100,7 @@ double xe1_Warl(double l, double c, double zr, double hs, double mu, int N, int 
 double xe1_Wq(double l, double c, double p, double zr, double hs, double mu, int N, int nmax);
 double xe1_sf(double l, double c, double zr, double hs, double mu, int N, int nmax, double *p0);
 double xe1_sfm(double l, double c, double zr, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double *p0);
+double xe1_Wqm(double l, double c, double p, double zr, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
 double xe1_iglarl_drift(double l, double c, double zr, double hs, double delta, int m, int N, int with0);
 double xe1_iglarl_drift_wo_m(double l, double c, double zr, double hs, double delta, int *m, int N, int with0);
 double xe1_iglarlm_drift(double l, double c, double zr, double hs, int q, double delta, int N, int nmax, int with0);
@@ -107,13 +112,16 @@ double xe2_iglarl(double l, double c, double hs, double mu, int N);
 double xe2_iglad (double l, double c, double mu0, double mu1, int N);
 double xe2_igladc(double l, double c, double mu0, double mu1, double z0, int N);
 double xe2_arlm(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
+int xe2_arlm_special(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double *pair);
 double xe2_arlm_hom(double l, double c, double hs, int q, double mu0, double mu1, int N, double *ced);
-double xe2_Warl(double l, double c, double hs, double mu, int N, int nmax);
 double xe2_Wq(double l, double c, double p, double hs, double mu, int N, int nmax);
 double xe2_sf(double l, double c, double hs, double mu, int N, int nmax, double *p0);
 double xe2_sfm(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double *p0);
 double xe2_Wqm(double l, double c, double p, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
-double xe2_Carl(double l, double c, double hs, double mu, int N, int qm);
+
+double xe2_Warl(double l, double c, double hs, double mu, int N, int nmax); /* Waldmann's ARL procedure */
+double xe2_Carl(double l, double c, double hs, double mu, int N, int qm); /* collocation */
+
 double xe2_iglarl_drift(double l, double c, double hs, double delta, int m, int N, int with0);
 double xe2_iglarl_drift_wo_m(double l, double c, double hs, double delta, int *m, int N, int with0);
 double xe2_iglarlm_drift(double l, double c, double hs, int q, double delta, int N, int nmax, int with0);
@@ -125,6 +133,18 @@ double xe2_SrWu_arl(double l, double c, double mu);
 double xe2_SrWu_arl_full(double l, double c, double mu);
 double xe2_SrWu_lambda(double delta, double L0);
 
+/* t distribution */
+double xte2_iglarl(double l, double c, double hs, int df, double mu, int N, int subst);
+double xte2_iglad (double l, double c, int df, double mu0, double mu1, int N, int subst);
+double xte2_igladc(double l, double c, int df, double mu0, double mu1, double z0, int N, int subst);
+double xte2_arlm(double l, double c, double hs, int df, int q, double mu0, double mu1, int mode, int N, int nmax, int subst);
+double xte2_arlm_hom(double l, double c, double hs, int df, int q, double mu0, double mu1, int N, double *ced, int subst);
+double xte2_Wq(double l, double c, double p, double hs, int df, double mu, int N, int nmax, int subst);
+double xte2_sf(double l, double c, double hs, int df, double mu, int N, int nmax, double *p0, int subst);
+double xte2_sfm(double l, double c, double hs, int df, int q, double mu0, double mu1, int mode, int N, int nmax, double *p0, int subst);
+double xte2_Wqm(double l, double c, double p, double hs, int df, int q, double mu0, double mu1, int mode, int N, int nmax, int subst);
+
+
 /* incorporate pre-run uncertainty */
 double xe2_iglarl_prerun_MU(double l, double c, double hs, double mu, int pn, int qm, double truncate);
 double xe2_iglarl_prerun_SIGMA(double l, double c, double hs, double mu, int pn, int qm, double truncate);
@@ -134,29 +154,31 @@ double xe2_arlm_prerun_MU(double l, double c, double hs, int q, double mu0, doub
 double xe2_arlm_prerun_SIGMA(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate);
 double xe2_arlm_prerun_BOTH(double l, double c, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate);
 
-double xe2_sf_deluxe(double l, double c, double hs, double mu, int N, int nmax, double *p0, int *nstop, double *rho);
-double xe2_sf_prerun_MU_deluxe(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double *p0);
+double xe2_sf_deluxe(double l, double c, double hs, double mu, int N, int nmax, double BOUND, double *p0, int *nstop, double *rho);
+double xe2_sf_prerun_MU_deluxe(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double BOUND, double *p0);
 double xe2_sf_prerun_MU(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double *p0);
-double xe2_sf_prerun_SIGMA_deluxe(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double *p0);
+double xe2_sf_prerun_SIGMA_deluxe(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double BOUND, double *p0);
 double xe2_sf_prerun_SIGMA(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double *p0);
-double xe2_sf_prerun_BOTH_deluxe(double l, double c, double hs, double mu, int pn, int df, int nmax, int qm1, int qm2, double truncate, double *p0);
+double xe2_sf_prerun_BOTH_deluxe(double l, double c, double hs, double mu, int pn, int df, int nmax, int qm1, int qm2, double truncate, double BOUND, double *p0);
 double xe2_sf_prerun_BOTH(double l, double c, double hs, double mu, int pn, int df, int nmax, int qm1, int qm2, double truncate, double *p0);
 
-double xe2_sfm_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double *p0, int *nstop, double *rho);
-double xe2_sfm_prerun_MU_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double *p0);
+double xe2_sfm_simple(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double *p0);
+double xe2_sfm_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double BOUND, double *p0, int *nstop, double *rho);
+double xe2_sfm_prerun_MU_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double BOUND, double *p0);
 double xe2_sfm_prerun_MU(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double *p0);
-double xe2_sfm_prerun_SIGMA_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double *p0);
+double xe2_sfm_prerun_SIGMA_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double BOUND, double *p0);
 double xe2_sfm_prerun_SIGMA(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double *p0);
-double xe2_sfm_prerun_BOTH_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate, double *p0);
+double xe2_sfm_prerun_BOTH_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate, double BOUND, double *p0);
 double xe2_sfm_prerun_BOTH(double l, double c, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate, double *p0);
 
-double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double mu, int pn, int nmax, int qm, double truncate);
-double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, double mu, int pn, int nmax, int qm, double truncate);
-double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double mu, int pn, int df, int nmax, int qm1, int qm2, double truncate);
+double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double mu, int pn, int nmax, int qm, double truncate, double BOUND);
+double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, double mu, int pn, int nmax, int qm, double truncate, double BOUND);
+double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double mu, int pn, int df, int nmax, int qm1, int qm2, double truncate, double BOUND);
 
-double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate);
-double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate);
-double xe2_Wqm_prerun_BOTH_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate);
+double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double BOUND);
+double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double BOUND);
+double xe2_Wqm_prerun_BOTH_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate, double BOUND);
+
 
 /* EWMA residual charts */
 
@@ -244,6 +266,7 @@ double mxewma_arl_1a5(double lambda, double ce, int p, double delta, double hs, 
 double mxewma_arl_1b(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1); /* collocation */
 double mxewma_arl_1b2(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1); /* collocation, trimmed support of outer integral */
 double mxewma_arl_1b3(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1); /* collocation, tan instead of sin */
+double mxewma_arl_1b4(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1); /* collocation, sinh instead of sin */
 double mxewma_arl_1c(double lambda, double ce, int p, double delta, double hs, int N); /* Radau (Rigdon) */
 double mxewma_arl_1d(double lambda, double ce, int p, double delta, double hs, int N); /* Clenshaw-Curtis */
 double mxewma_arl_1e(double lambda, double ce, int p, double delta, double hs, int N); /* Markov chain (Runger/Prabhu) */
@@ -318,12 +341,28 @@ double wk_h_sigma(double mu, double sigma, double LSL, double USL);
 double WK_h_invers_mu(double p, double sigma, double LSL, double USL);
 double WK_h_invers_sigma(double p, double mu, double LSL, double USL);
 
+double wk_alpha(double p, double sigma, int n, double LSL, double USL);
+
 double cdf_phat(double p, double mu, double sigma, int n, double LSL, double USL);
 double pdf_phat(double p, double mu, double sigma, int n, double LSL, double USL);
+double qf_phat(double p0, double mu, double sigma, int n, double LSL, double USL);
 
-double ewma_phat_arl(double lambda, double ucl, double mu, double sigma, int n, double z0, double LSL, double USL, int N, int qm);
-double ewma_phat_crit(double lambda, double L0, double mu, double sigma, int n, double z0, double LSL, double USL, int N, int qm);
+double wk_cdf_i(double y, double p, double mu, double sigma, int n, double LSL, double USL);
+double wk_pdf_i(double y, double p, double mu, double sigma, int n, double LSL, double USL);
+
+double cdf_phat2(double p, double mu, double sigma, int n, double LSL, double USL, int nodes);
+double pdf_phat2(double p, double mu, double sigma, int n, double LSL, double USL, int nodes);
+double qf_phat2(double p0, double mu, double sigma, int n, double LSL, double USL, int nodes);
+
+double ewma_phat_arl (double lambda, double ucl, double mu, double sigma, int n, double z0, double LSL, double USL, int N, int qm);
+double ewma_phat_arl_be(double lambda, double ucl, double mu, double sigma, int n, double z0, double LSL, double USL, int N);
+double ewma_phat_crit(double lambda, double  L0, double mu, double sigma, int n, double z0, double LSL, double USL, int N, int qm);
 double ewma_phat_lambda(double L0, double mu, double sigma, double max_l, double min_l, int n, double z0, double LSL, double USL, int qm);
+
+double ewma_phat_arl2 (double lambda, double ucl, double mu, double sigma, int n, double z0, double LSL, double USL, int N, int qm, int M);
+double ewma_phat_arl2_be(double lambda, double ucl, double mu, double sigma, int n, double z0, double LSL, double USL, int N);
+double ewma_phat_crit2(double lambda, double  L0, double mu, double sigma, int n, double z0, double LSL, double USL, int N, int qm, int M);
+double ewma_phat_lambda2(double L0, double mu, double sigma, double max_l, double min_l, int n, double z0, double LSL, double USL, int qm, int M);
 
 
 /* attribute EWMA p (X follows binomial distribution) */
@@ -359,6 +398,7 @@ double *matrix(long m, long n);
 double phi(double x, double mu);
 double PHI(double x, double mu);
 double qPHI(double p);
+
 double chi(double s, int df);
 double CHI(double s, int df);
 double qCHI(double p, int df);
@@ -366,11 +406,20 @@ double nchi(double s, int df, double ncp);
 double nCHI(double s, int df, double ncp);
 double nqCHI(double p, int df, double ncp);
 
+double pdf_t(double x, int df);
+double cdf_t(double x, int df);
+double  qf_t(double x, int df);
+
+double pdf_tn(double x, int df, double ncp);
+double cdf_tn(double x, int df, double ncp);
+double  qf_tn(double x, int df, double ncp);
+
 double cdf_binom(double q, int n, double p);
 double pdf_binom(double x, int n, double p);
 
 double Tn(double z, int n);    /* Chebyshev polynomials */
 double iTn(double z, int n);   /* indefinite integrals of Chebyshev polynomials */
+double dTn(double z, int n);   /* derivatives of Chebyshev polynomials */
 
 double rho0;
 
@@ -421,7 +470,7 @@ double chi(double s, int df)
 }
 
 
-/* pdf of noncentral chisquare rv */
+/* pdf of non-central chisquare rv */
 
 double nchi(double s, int df, double ncp)
 {
@@ -435,7 +484,7 @@ double CHI(double s, int df)
  return pchisq(s,(double)df,TAIL,LOG);
 }
 
-/* cdf of noncentral chisquare rv */
+/* cdf of non-central chisquare rv */
 
 double nCHI(double s, int df, double ncp)
 {
@@ -449,12 +498,57 @@ double qCHI(double p, int df)
  return qchisq(p,(double)df,TAIL,LOG);
 }
 
-/* qf of noncentral chisquare rv */
+/* qf of non-central chisquare rv */
 
 double nqCHI(double p, int df, double ncp)
 {
  return qnchisq(p,(double)df,ncp,TAIL,LOG);
 }
+
+
+/* pdf of t distribution */
+
+double pdf_t(double x, int df)
+{
+ return dt(x,(double)df,LOG);
+}
+
+/* cdf of t distribution */
+
+double cdf_t(double x, int df)
+{
+ return pt(x,(double)df,TAIL,LOG);
+}
+
+/* quantile function of t distribution */
+
+double qf_t(double x, int df)
+{
+ return qt(x,(double)df,TAIL,LOG);
+}
+
+
+/* pdf of non-central t distribution */
+
+double pdf_tn(double x, int df, double ncp)
+{
+ return dnt(x,(double)df,ncp,LOG);
+}
+
+/* cdf of non-central t distribution */
+
+double cdf_tn(double x, int df, double ncp)
+{
+ return pnt(x,(double)df,ncp,TAIL,LOG);
+}
+
+/* quantile function of non-central t distribution */
+
+double qf_tn(double x, int df, double ncp)
+{
+ return qnt(x,(double)df,ncp,TAIL,LOG);
+}
+
 
 /* cdf of binomial rv */
 double cdf_binom(double q, int n, double p)
@@ -903,7 +997,7 @@ double BM_xc_crit(double k, double L0, double m0)
       dc = 1e-12;
       c3 = c2;
     }
-  } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-8) );
+  } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-9) );
   return c3;
 }   
 
@@ -953,7 +1047,7 @@ double xc_crit(int ctyp, double k, double L0, double hs, double m0, int N)
    if (ctyp==cusum2) L3 = xc2_iglarl ( k,c3,hs,m0,N );
    if (ctyp==cusumC) L3 = xcC_iglarl ( k,c3,hs,m0,N );
    dc = c3-c2; c1 = c2; L1 = L2; c2 = c3; L2 = L3;
- } while ( (fabs(L0-L3)>1e-5) && (fabs(dc)>1e-6) );
+ } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-9) );
  return c3;
 }
 
@@ -974,7 +1068,7 @@ double xsr1_crit(double k, double L0, double zr, double hs, double m0, int N, in
    c3 = c1 + (L0-L1)/(L2-L1) * (c2-c1);
    L3 = xsr1_iglarl(k, c3, zr, hs, m0, N, MPT);
    dc = c3-c2; c1 = c2; L1 = L2; c2 = c3; L2 = L3;
- } while ( (fabs(L0-L3)>1e-5) && (fabs(dc)>1e-6) );
+ } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-9) );
  return c3;
 }
 
@@ -1057,7 +1151,7 @@ double xe_crit(int ctyp, double l, double L0, double zr, double hs, double m0, i
    } while ( (L3 < 1.) &&  (fabs(norm)>1e-8) );
    dc = c3-c2; c1 = c2; L1 = L2; c2 = c3; L2 = L3;
    if ( L3 < 1. ) error("invalid ARL value");
- } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-8) );
+ } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-9) );
  if ( fabs(L0-L3)>1e-6 ) warning("did not converge");
  return c3;
 }
@@ -2130,7 +2224,7 @@ double scU_crit(double refk, double L0, double hs, double sigma, int df, int N, 
    c3 = c1 + (L0-L1)/(L2-L1) * (c2-c1);
    L3 = scU_iglarl_v2(refk, c3, hs, sigma, df, N, qm);
    dc = c3-c2; c1 = c2; L1 = L2; c2 = c3; L2 = L3;
- } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-8) );
+ } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-9) );
  return c3;
 }
 
@@ -2151,7 +2245,7 @@ double scL_crit(double refk, double L0, double hs, double sigma, int df, int N, 
    c3 = c1 + (L0-L1)/(L2-L1) * (c2-c1);
    L3 = scL_iglarl_v2(refk, c3, hs, sigma, df, N, qm);
    dc = c3-c2; c1 = c2; L1 = L2; c2 = c3; L2 = L3;
- } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-8) );
+ } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-9) );
  return c3;
 }
 
@@ -2172,7 +2266,7 @@ double scL_fu_crit(double refkl, double refku, double hu, double L0, double hsl,
    c3 = c1 + (L0-L1)/(L2-L1) * (c2-c1);
    L3 = sc2_iglarl_v2(refkl, refku, c3, hu, hsl, hsu, sigma, df, N, qm);
    dc = c3-c2; c1 = c2; L1 = L2; c2 = c3; L2 = L3;
- } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-8) );
+ } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-9) );
  return c3;
 }
 
@@ -2193,7 +2287,7 @@ double scU_fl_crit(double refkl, double refku, double hl, double L0, double hsl,
    c3 = c1 + (L0-L1)/(L2-L1) * (c2-c1);
    L3 = sc2_iglarl_v2(refkl, refku, hl, c3, hsl, hsu, sigma, df, N, qm);
    dc = c3-c2; c1 = c2; L1 = L2; c2 = c3; L2 = L3;
- } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-8) );
+ } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-9) );
  return c3;
 }
 
@@ -2228,7 +2322,7 @@ int sc2_crit_unbiased(double refkl, double refku, double L0, double *hl, double 
    Lp = sc2_iglarl_v2(refkl, refku, lh, h3, hsl, hsu, sigma+lmEPS, df, N, qm);      
    sl3 = (Lp-Lm)/(2.*lmEPS);
    dh = h3-h2; h1 = h2; sl1 = sl2; h2 = h3; sl2 = sl3;
- } while ( fabs(sl3)>1e-7 && fabs(dh)>1e-8 );
+ } while ( fabs(sl3)>1e-7 && fabs(dh)>1e-9 );
 
  *hl = lh; *hu = h3;
 
@@ -2862,6 +2956,63 @@ double xe2_iglarl(double l, double c, double hs, double mu, int N)
 }
 
 
+double xte2_iglarl(double l, double c, double hs, int df, double mu, int N, int subst)
+{ double *a, *g, *w, *z, arl, norm=1., arg=0., korr=1.;
+  int i, j;
+
+ a = matrix(N,N);
+ g = vector(N);
+ w = vector(N);
+ z = vector(N);
+
+ c  *= sqrt( l/(2.-l) ); 
+ hs *= sqrt( l/(2.-l) );
+
+ switch ( subst ) {
+   case IDENTITY: gausslegendre(N, -c, c, z, w); norm = 1.; break;
+   case SIN:   gausslegendre(N, -PI/2., PI/2., z, w); norm = 1.; break;
+   case SINH:  gausslegendre(N, -1., 1., z, w); norm = sinh(1.); break;
+   case TAN:   gausslegendre(N, -PI/4., PI/4., z, w); norm = 1.; break;
+ }     
+ 
+ c /= norm;
+
+ for (i=0;i<N;i++) {
+   for (j=0;j<N;j++) {
+     switch ( subst ) {
+       case IDENTITY: arg = z[j] - (1.-l)*z[i]; korr = 1.; break;
+       case SIN:   arg = c*sin(z[j]) - (1.-l)*c*sin(z[i]); korr = c*cos(z[j]); break;
+       case SINH:  arg = c*sinh(z[j]) - (1.-l)*c*sinh(z[i]); korr = c*cosh(z[j]); break;
+       case TAN:   arg = c*tan(z[j]) - (1.-l)*c*tan(z[i]); korr = c/( cos(z[j])*cos(z[j]) ); break;
+     }
+     a[i*N+j] = -w[j]/l * pdf_t( arg/l - mu, df) * korr;
+   }
+   ++a[i*N+i];
+ }
+
+ for (j=0;j<N;j++) g[j] = 1.;
+ LU_solve(a,g,N);
+
+ arl = 1.;
+ for (j=0;j<N;j++) {
+   switch ( subst ) {
+     case IDENTITY: arg = z[j] - (1.-l)*hs; korr = 1.; break;
+     case SIN:   arg = c*sin(z[j]) - (1.-l)*hs; korr = c*cos(z[j]); break;
+     case SINH:  arg = c*sinh(z[j]) - (1.-l)*hs; korr = c*cosh(z[j]); break;
+     case TAN:   arg = c*tan(z[j]) - (1.-l)*hs; korr = c/( cos(z[j])*cos(z[j]) ); break;
+   }
+   arl += w[j]/l * pdf_t( arg/l - mu, df) * g[j] * korr;
+ }
+
+ Free(a);
+ Free(g);
+ Free(w);
+ Free(z);
+
+ return arl;
+}
+
+
 double xe1_iglarl_drift(double l, double c, double zr, double hs, double delta, int m, int N, int with0)
 { double *a, *g, *w, *z, arl, *MUs, *ARLs;
   int i, j, NN, m_;
@@ -3430,6 +3581,110 @@ double xe2_Wq(double l, double c, double p, double hs, double mu, int N, int nma
 }
 
 
+double xte2_Wq(double l, double c, double p, double hs, int df, double mu, int N, int nmax, int subst)
+{ double *Sm, *Pn, *w, *z, *p0, ratio, q_minus=0., q_plus=0., mn_minus=1., mn_plus=0., enumerator=0., Wq=0., norm=1., arg=0., korr=1.;
+  int i, j, n;
+ 
+ c  *= sqrt( l/(2.-l) );
+ hs *= sqrt( l/(2.-l) );
+
+ Sm = matrix(N, N);
+ w  = vector(N);
+ z  = vector(N);
+ Pn = matrix(nmax, N);
+ p0 = vector(nmax);
+ 
+ switch ( subst ) {
+   case IDENTITY: gausslegendre(N, -c, c, z, w);         norm = 1.; break;
+   case SIN:   gausslegendre(N, -PI/2., PI/2., z, w); norm = 1.; break;
+   case SINH:  gausslegendre(N, -1., 1., z, w);       norm = sinh(1.); break;
+   case TAN:   gausslegendre(N, -PI/4., PI/4., z, w); norm = 1.; break;
+ }     
+ 
+ c /= norm;
+
+ for (i=0; i<N; i++)
+   for (j=0; j<N; j++) {
+     switch ( subst ) {
+       case IDENTITY: arg = z[j] - (1.-l)*z[i];                 korr = 1.; break;
+       case SIN:   arg = c*sin(z[j]) - (1.-l)*c*sin(z[i]);   korr = c*cos(z[j]); break;
+       case SINH:  arg = c*sinh(z[j]) - (1.-l)*c*sinh(z[i]); korr = c*cosh(z[j]); break;
+       case TAN:   arg = c*tan(z[j]) - (1.-l)*c*tan(z[i]);   korr = c/( cos(z[j])*cos(z[j]) ); break;
+     }
+     Sm[i*N+j] = w[j]/l * pdf_t( arg/l - mu, df) * korr;
+   }
+
+/* for (n=1; n<=nmax; n++) {*/
+ for (n=1; n<=100; n++) {
+
+   if ( n==1 )
+     for (i=0; i<N; i++) {
+       switch ( subst ) {
+         case IDENTITY: arg = z[i]; break;
+         case SIN:   arg = c*sin(z[i]); break;
+         case SINH:  arg = c*sinh(z[i]); break;
+         case TAN:   arg = c*tan(z[i]); break;
+       }
+       Pn[i] = cdf_t( ( c*norm - (1.-l)*arg )/l - mu, df) - cdf_t( ( -c*norm - (1.-l)*arg )/l - mu, df);
+     }
+   else
+     for (i=0; i<N; i++) {
+       Pn[(n-1)*N+i] = 0.;
+       for (j=0; j<N; j++) Pn[(n-1)*N+i] += Sm[i*N+j] * Pn[(n-2)*N+j];
+     }
+
+   if ( n==1 )
+     p0[0] = cdf_t( ( c*norm - (1.-l)*hs )/l - mu, df) - cdf_t( ( -c*norm - (1.-l)*hs )/l - mu, df);
+   else {
+     p0[n-1] = 0.;
+     for (j=0; j<N; j++) {
+       switch ( subst ) {
+         case IDENTITY: arg = z[j];         korr = 1.; break;
+         case SIN:   arg = c*sin(z[j]);  korr = c*cos(z[j]); break;
+         case SINH:  arg = c*sinh(z[j]); korr = c*cosh(z[j]); break;
+         case TAN:   arg = c*tan(z[j]);  korr = c/( cos(z[j])*cos(z[j]) ); break;
+       }
+       p0[n-1] += w[j]/l * pdf_t( ( arg - (1.-l)*hs )/l - mu, df) * Pn[(n-2)*N+j] * korr;
+     }
+   }
+
+   /*printf("%4d\t\t%.6f\n", n, p0[n-1]);*/
+   
+   if ( p0[n-1] < 1.-p ) {
+     Wq = (double)n;
+     n = nmax+1;
+   } else {     
+     mn_minus = 1.; mn_plus = 0.;
+     if ( n>1 ) {
+       for (i=0; i<N; i++) {
+         if (Pn[(n-2)*N+i]==0)
+           if (Pn[(n-1)*N+i]==0) ratio = 0.;
+           else ratio = 1.;
+         else ratio = Pn[(n-1)*N+i]/Pn[(n-2)*N+i];
+        if ( ratio<mn_minus ) mn_minus = ratio;
+        if ( ratio>mn_plus ) mn_plus = ratio;
+       }
+       enumerator = log( (1.-p)/p0[n-1] );
+       q_minus = (double)n + enumerator/log(mn_minus);
+       q_plus  = (double)n + enumerator/log(mn_plus);
+       if ( fabs( ceil(q_plus) - ceil(q_minus) ) < .5 ) {
+	 Wq = ceil(q_plus);
+	 n = nmax +1;
+       }
+     }  /* n > 1 */ 
+   } /* p0[n-1] >= 1.-p */
+ } /* n=1; n<=nmax; n++ */
+
+ Free(p0);
+ Free(Pn);
+ Free(z);
+ Free(w);
+ Free(Sm);
+
+ return Wq;
+}
+
+
 double xe2_Wqm(double l, double c, double p, double hs, int q, double mu0, double mu1, int mode, int N, int nmax)
 { double *Smatrix, *p0, *fn, *w, *z, dn, rn, cn, rn0, cn0, delta=0.,
          q_minus=2., q_plus=3., mn_minus, mn_plus, nn, fSt, aSt, ratio, enumerator=0., nq, Wq=0.;
@@ -3543,7 +3798,203 @@ double xe2_Wqm(double l, double c, double p, double hs, int q, double mu0, doubl
   cn0 = cn; rn0 = rn;
 
   if ( p0[n-1] < 1.-p ) {
-    Wq = (double)n;
+    Wq = nq;
+    n = nmax+1;
+  } else {     
+    /* computation of m_n+1^- and m_n+1^+, n=m-1,m,... */
+    mn_minus = 1.; mn_plus = 0.;
+    if ( n > q ) {
+      for (i=0; i<N; i++) {
+        if (fn[(n-2)*N+i]==0)
+          if (fn[(n-1)*N+i]==0) ratio = 0.; else ratio = 1.;
+        else ratio = fn[(n-1)*N+i]/fn[(n-2)*N+i];
+        if ( ratio<mn_minus ) mn_minus = ratio;
+        if ( ratio>mn_plus ) mn_plus = ratio;
+      }
+      enumerator = log( (1.-p)/p0[n-1] );         
+      q_minus = nq + enumerator/log(mn_minus);
+      q_plus  = nq + enumerator/log(mn_plus);
+      if ( fabs( ceil(q_plus) - ceil(q_minus) ) < .5 ) {
+	 Wq = ceil(q_plus);
+	 n = nmax +1;
+      }   
+    } /* n > q */  
+  } /* p0[n-1] >= 1.-p */
+ } /* n=q; n<=nmax; n++ */ 
+
+ Free(Smatrix);
+ Free(w);
+ Free(z);
+ Free(fn);
+ Free(p0);
+
+ return Wq;
+}
+
+
+double xte2_Wqm(double l, double c, double p, double hs, int df, int q, double mu0, double mu1, int mode, int N, int nmax, int subst)
+{ double *Smatrix, *p0, *fn, *w, *z, dn, rn, cn, rn0, cn0, delta=0.,
+         q_minus=2., q_plus=3., mn_minus, mn_plus, nn, fSt, aSt, ratio, enumerator=0., nq, Wq=0., norm=1., arg=0., korr=1.;
+  int i, j, n;
+
+ fSt = 0.5;
+ aSt = ( -2./log10(1.-fSt) - 1.)/19.;
+
+ c  *= sqrt( l/(2.-l) ); 
+ hs *= sqrt( l/(2.-l) );
+ if ( mode==fir || mode==both ) delta = 2.*hs;
+
+ Smatrix = matrix(N, N);
+ w       = vector(N);
+ z       = vector(N);
+ fn      = matrix(nmax, N);
+ p0      = vector(nmax);
+
+ switch ( subst ) {
+   case IDENTITY: gausslegendre(N, -c, c, z, w);         norm = 1.; break;
+   case SIN:   gausslegendre(N, -PI/2., PI/2., z, w); norm = 1.; break;
+   case SINH:  gausslegendre(N, -1., 1., z, w);       norm = sinh(1.); break;
+   case TAN:   gausslegendre(N, -PI/4., PI/4., z, w); norm = 1.; break;
+ }     
+ 
+ c /= norm;
+
+ rn = 1.; cn = 0.; rn0 = 1., cn0 = 0.;
+
+ /* in-control, i. e. n<=q-1 */
+ for (n=1; n<=q-1; n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=1,2,...,q-1 */
+  switch ( mode ) {
+    case vacl: rn = sqrt( 1. - pow(1.-l,2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c*norm);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c*norm);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+ 
+  /* determine f_n, n=1,2,...,q-1 */
+  if ( n==1 ) {
+    for (i=0; i<N; i++) {
+      switch ( subst ) {
+        case IDENTITY: arg = z[i]; break;
+        case SIN:   arg = c*sin(z[i]); break;
+        case SINH:  arg = c*sinh(z[i]); break;
+        case TAN:   arg = c*tan(z[i]); break;
+      }
+      if ( mode==stat )
+        fn[0*N+i] = 1./sqrt(l/(2.-l)) * pdf_t( ( cn+rn*arg )/sqrt(l/(2.-l)) - mu0, df);
+      else
+        fn[0*N+i] = rn/l * pdf_t( ( cn+rn*arg - (1.-l)*hs )/l - mu0, df);
+    }
+  } 
+  else {
+    for (i=0; i<N; i++) {
+      fn[(n-1)*N+i] = 0.;
+      for (j=0; j<N; j++) {
+	switch ( subst ) {
+          case IDENTITY: arg = cn+rn*z[i] - (1.-l)*(cn0+rn0*z[j]);                 korr = 1.; break;
+          case SIN:   arg = cn+rn*c*sin(z[i]) - (1.-l)*(cn0+rn0*c*sin(z[j]));   korr = c*cos(z[j]); break;
+          case SINH:  arg = cn+rn*c*sinh(z[i]) - (1.-l)*(cn0+rn0*c*sinh(z[j])); korr = c*cosh(z[j]); break;
+          case TAN:   arg = cn+rn*c*tan(z[i]) - (1.-l)*(cn0+rn0*c*tan(z[j]));   korr = c/( cos(z[j])*cos(z[j]) ); break;
+        }
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l * pdf_t( arg/l - mu0, df) * korr;
+      }
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0; i<N; i++) {
+    switch ( subst ) {
+      case IDENTITY: korr = 1.; break;
+      case SIN:   korr = c*cos(z[i]); break;
+      case SINH:  korr = c*cosh(z[i]); break;
+      case TAN:   korr = c/( cos(z[i])*cos(z[i]) ); break;
+    }
+    p0[n-1] += w[i] * fn[(n-1)*N+i] * korr;
+  }
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+ }
+
+ /* out-of-control, i.e. t>=q */
+ for (n=q; n<=nmax; n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=q,q+1,... */
+  switch ( mode ) {
+    case vacl: rn = sqrt( 1. - pow(1.-l,2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c*norm);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c*norm);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+
+  /* determine f_n, n=q,q+1,... */
+  if ( n==1 ) {
+    for (i=0; i<N; i++) {
+      switch ( subst ) {
+        case IDENTITY: arg = z[i]; break;
+        case SIN:   arg = c*sin(z[i]); break;
+        case SINH:  arg = c*sinh(z[i]); break;
+        case TAN:   arg = c*tan(z[i]); break;
+      }
+      if ( mode==stat )
+        fn[0*N+i] = 1./sqrt(l/(2.-l)) * pdf_t( ( cn+rn*arg )/sqrt(l/(2.-l)) - mu1, df);
+      else
+        fn[0*N+i] = rn/l * pdf_t( ( cn+rn*arg - (1.-l)*hs )/l - mu1, df);
+    }
+  }
+  else {
+    for (i=0; i<N; i++) {
+      fn[(n-1)*N+i] = 0.;
+      for (j=0; j<N; j++) {
+	switch ( subst ) {
+          case IDENTITY: arg = cn+rn*z[i] - (1.-l)*(cn0+rn0*z[j]);                 korr = 1.; break;
+          case SIN:   arg = cn+rn*c*sin(z[i]) - (1.-l)*(cn0+rn0*c*sin(z[j]));   korr = c*cos(z[j]); break;
+          case SINH:  arg = cn+rn*c*sinh(z[i]) - (1.-l)*(cn0+rn0*c*sinh(z[j])); korr = c*cosh(z[j]); break;
+          case TAN:   arg = cn+rn*c*tan(z[i]) - (1.-l)*(cn0+rn0*c*tan(z[j]));   korr = c/( cos(z[j])*cos(z[j]) ); break;
+        }
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l * pdf_t( arg/l - mu1, df) * korr;
+      }
+      if ( n==q && q>1 ) fn[(n-1)*N+i] /= p0[q-2];
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0;i<N;i++) {
+    switch ( subst ) {
+      case IDENTITY: korr = 1.; break;
+      case SIN:   korr = c*cos(z[i]); break;
+      case SINH:  korr = c*cosh(z[i]); break;
+      case TAN:   korr = c/( cos(z[i])*cos(z[i]) ); break;
+    }
+    p0[n-1] += w[i] * fn[(n-1)*N+i] * korr;
+  }
+  nq = (double)(n-q+1.);
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+
+  if ( p0[n-1] < 1.-p ) {
     Wq = nq;
     n = nmax+1;
   } else {     
@@ -3721,6 +4172,155 @@ double xe1_Wq(double l, double c, double p, double zr, double hs, double mu, int
  Free(z);
  Free(w);
  Free(atom);
+
+ return Wq;
+}
+
+
+double xe1_Wqm(double l, double c, double p, double zr, double hs, int q, double mu0, double mu1, int mode, int N, int nmax)
+{ double *Smatrix, *p0, *fn, *w, *z, rn, cn, rn0, cn0, q_minus=2., q_plus=3., mn_minus, mn_plus, nn, ratio, enumerator=0., nq, Wq=0.;
+  int i, j, n, NN;
+
+ c  *= sqrt( l/(2.-l) );
+ zr *= sqrt( l/(2.-l) );
+ hs *= sqrt( l/(2.-l) );
+
+ NN = N + 1;
+ Smatrix = matrix(NN, NN);
+ w       = vector(NN);
+ z       = vector(NN);
+ fn      = matrix(nmax, NN);
+ p0      = vector(nmax);
+
+ gausslegendre(N, zr, c, z, w);
+
+ rn = 1.; cn = 0.; rn0 = 1., cn0 = 0.;
+
+ /* in-control, i. e. n<=q-1 */
+ for (n=1;n<=q-1;n++) {
+  nn = (double) n;
+
+  /* determine r_n, n=1,2,...,q-1 */
+  if ( mode==vacl ) {
+    rn = sqrt( 1. - pow(1.-l, 2.*nn) );
+  }
+
+  /* determine f_n, n=1,2,...,q-1 */
+  if (n==1) {
+    for (i=0;i<N;i++) {
+      if ( mode==stat ) {
+        fn[0*NN+i] = 1./sqrt(l/(2.-l))*phi( (cn+rn*z[i])/sqrt(l/(2.-l)), mu0);
+      }
+      else {
+        fn[0*NN+i] = rn/l * phi( (cn+rn*z[i]-(1.-l)*hs)/l, mu0);
+      }
+    }
+    if ( mode==stat ) {
+      fn[0*NN+N] = PHI( (cn+rn*zr)/sqrt(l/(2.-l)), mu0);
+    }
+    else {
+      fn[0*NN+N] = PHI( (cn+rn*zr-(1.-l)*hs)/l, mu0);
+    }
+  }
+  else {
+    for (i=0;i<N;i++) {
+      fn[(n-1)*NN+i] = fn[(n-2)*NN+N] * rn/l * phi((cn+rn*z[i]-(1.-l)*(cn0+rn0*zr))/l, mu0);
+      for (j=0;j<N;j++) {
+        fn[(n-1)*NN+i] += w[j]*fn[(n-2)*NN+j] * rn/l
+                   *phi((cn+rn*z[i]-(1.-l)*(cn0+rn0*z[j]))/l, mu0);
+      }
+    }
+    fn[(n-1)*NN+N] = fn[(n-2)*NN+N] * PHI( (cn+rn*zr-(1.-l)*(cn0+rn0*zr))/l, mu0);
+    for (j=0;j<N;j++)
+      fn[(n-1)*NN+N] += w[j] * fn[(n-2)*NN+j] * PHI( (cn+rn*zr-(1.-l)*(cn0+rn0*z[j]))/l, mu0);
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = fn[(n-1)*NN+N];
+  for (i=0;i<N;i++) p0[n-1] += w[i] * fn[(n-1)*NN+i];
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+ }
+
+ /* out-of-control, i.e. t>=q */
+ for (n=q;n<=nmax;n++) {
+  nn = (double) n;
+
+  /* determine r_n, n=1,2,...,q-1 */
+  if ( mode==vacl ) {
+    rn = sqrt( 1. - pow(1.-l, 2.*nn) );
+  }
+
+  /* determine f_n, n=q,q+1,... */
+  if (n==1) {
+    for (i=0;i<N;i++) {
+      if ( mode==stat ) {
+        fn[0*NN+i] = 1./sqrt(l/(2.-l))*phi( (cn+rn*z[i])/sqrt(l/(2.-l)), mu1);
+      }
+      else {
+        fn[0*NN+i] = rn/l * phi( (cn+rn*z[i]-(1.-l)*hs)/l, mu1);
+      }
+    }
+    if ( mode==stat ) {
+      fn[0*NN+N] = PHI( (cn+rn*zr)/sqrt(l/(2.-l)), mu1);
+    }
+    else {
+      fn[0*NN+N] = PHI( (cn+rn*zr-(1.-l)*hs)/l, mu1);
+    }
+  }
+  else {
+    for (i=0;i<N;i++) {
+      fn[(n-1)*NN+i] = fn[(n-2)*NN+N] * rn/l * phi((cn+rn*z[i]-(1.-l)*(cn0+rn0*zr))/l, mu1);
+      for (j=0;j<N;j++) {
+        fn[(n-1)*NN+i] += w[j]*fn[(n-2)*NN+j] * rn/l * phi((cn+rn*z[i]-(1.-l)*(cn0+rn0*z[j]))/l, mu1);
+      }
+      if ( n==q && q>1 ) fn[(n-1)*NN+i] /= p0[q-2];
+    }
+    fn[(n-1)*NN+N] = fn[(n-2)*NN+N] * PHI( (cn+rn*zr-(1.-l)*(cn0+rn0*zr))/l, mu1);
+    for (j=0;j<N;j++)
+      fn[(n-1)*NN+N] += w[j] * fn[(n-2)*NN+j] * PHI( (cn+rn*zr-(1.-l)*(cn0+rn0*z[j]))/l, mu1);
+    if (n==q && q>1) fn[(n-1)*NN+N] /= p0[q-2];
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = fn[(n-1)*NN+N];
+  for (i=0;i<N;i++) p0[n-1] += w[i] * fn[(n-1)*NN+i];
+  nq = (double)(n-q+1);
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+
+  if ( p0[n-1] < 1.-p ) {
+    Wq = nq;
+    n = nmax+1;
+  } else {     
+    /* computation of m_n+1^- and m_n+1^+, n=m-1,m,... */
+    mn_minus = 1.; mn_plus = 0.;
+    if ( n > q ) {
+      for (i=0;i<NN;i++) {
+        if (fn[(n-2)*NN+i]==0)
+        if (fn[(n-1)*NN+i]==0) ratio = 0.; else ratio = 1.;
+        else ratio = fn[(n-1)*NN+i]/fn[(n-2)*NN+i];
+        if ( ratio<mn_minus ) mn_minus = ratio;
+        if ( ratio>mn_plus ) mn_plus = ratio;
+      }
+      enumerator = log( (1.-p)/p0[n-1] );         
+      q_minus = nq + enumerator/log(mn_minus);
+      q_plus  = nq + enumerator/log(mn_plus);
+      if ( fabs( ceil(q_plus) - ceil(q_minus) ) < .5 ) {
+	 Wq = ceil(q_plus);
+	 n = nmax +1;
+      }   
+    } /* n > q */  
+  } /* p0[n-1] >= 1.-p */
+ } /* n=q; n<=nmax; n++ */ 
+
+ Free(Smatrix);
+ Free(w);
+ Free(z);
+ Free(fn);
+ Free(p0);
 
  return Wq;
 }
@@ -4436,6 +5036,80 @@ double xe2_iglad (double l, double c, double mu0, double mu1, int N)
 }
 
 
+double xte2_iglad (double l, double c, int df, double mu0, double mu1, int N, int subst)
+{ double *a, *w, *z, *arl, *psi, rho, ad, nenner, norm=1., arg=0., korr=1.;
+  int i, j, status, noofit;
+
+ a = matrix(N,N);
+ arl = vector(N);
+ psi = vector(N);
+ w = vector(N);
+ z = vector(N);
+
+ c *= sqrt( l/(2.-l) );
+
+ switch ( subst ) {
+   case IDENTITY: gausslegendre(N, -c, c, z, w);         norm = 1.; break;
+   case SIN:      gausslegendre(N, -PI/2., PI/2., z, w); norm = 1.; break;
+   case SINH:     gausslegendre(N, -1., 1., z, w);       norm = sinh(1.); break;
+   case TAN:      gausslegendre(N, -PI/4., PI/4., z, w); norm = 1.; break;
+ }     
+ 
+ c /= norm;
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) {
+     switch ( subst ) {
+       case IDENTITY: arg = z[j] - (1.-l)*z[i];                 korr = 1.; break;
+       case SIN:      arg = c*sin(z[j]) - (1.-l)*c*sin(z[i]);   korr = c*cos(z[j]); break;
+       case SINH:     arg = c*sinh(z[j]) - (1.-l)*c*sinh(z[i]); korr = c*cosh(z[j]); break;
+       case TAN:      arg = c*tan(z[j]) - (1.-l)*c*tan(z[i]);   korr = c/( cos(z[j])*cos(z[j]) ); break;
+     }
+     a[i*N+j] = -w[j]/l * pdf_t( arg/l - mu1, df) * korr;
+   }
+   ++a[i*N+i];
+ }
+
+ for (j=0;j<N;j++) arl[j] = 1.;
+ LU_solve(a, arl, N);
+
+ for (i=0; i<N; i++)
+   for (j=0; j<N; j++) {
+     switch ( subst ) {
+       case IDENTITY: arg = z[i] - (1.-l)*z[j];                 korr = 1.; break;
+       case SIN:      arg = c*sin(z[i]) - (1.-l)*c*sin(z[j]);   korr = c*cos(z[j]); break;
+       case SINH:     arg = c*sinh(z[i]) - (1.-l)*c*sinh(z[j]); korr = c*cosh(z[j]); break;
+       case TAN:      arg = c*tan(z[i]) - (1.-l)*c*tan(z[j]);   korr = c/( cos(z[j])*cos(z[j]) ); break;
+     }
+     a[i*N+j] = w[j]/l * pdf_t( arg/l - mu0, df) * korr;
+   }
+
+ pmethod(N, a, &status, &rho, psi, &noofit);
+
+ ad = 0.; nenner = 0.;
+ for (j=0; j<N; j++) {
+   switch ( subst ) {
+     case IDENTITY: korr = 1.; break;
+     case SIN:      korr = c*cos(z[j]); break;
+     case SINH:     korr = c*cosh(z[j]); break;
+     case TAN:      korr = c/( cos(z[j])*cos(z[j]) ); break;
+   }
+   ad += w[j] * arl[j] * psi[j] * korr;
+   nenner += w[j] * psi[j] * korr;
+ }
+ ad /= nenner;
+ rho0 = rho;
+
+ Free(a);
+ Free(arl);
+ Free(psi);
+ Free(w);
+ Free(z);
+
+ return ad;
+}
+
+
 double xe2_igladc(double l, double c, double mu0, double mu1, double z0, int N)
 { double *a, *w, *z, *arl, *psi, rho, ad, norm, L0;
   int i, j, status, noofit, NN;
@@ -4483,6 +5157,116 @@ double xe2_igladc(double l, double c, double mu0, double mu1, double z0, int N)
    norm += w[j] * psi[j];
  }
  ad /= norm;
+ rho0 = rho;
+
+ Free(a);
+ Free(arl);
+ Free(psi);
+ Free(w);
+ Free(z);
+
+ return ad;
+}
+
+
+double xte2_igladc(double l, double c, int df, double mu0, double mu1, double z0, int N, int subst)
+{ double *a, *w, *z, *arl, *psi, rho, ad, nenner, L0, norm=1., arg=0., korr=1.;
+  int i, j, status, noofit, NN;
+
+ NN = N + 1;
+ a = matrix(NN,NN);
+ arl = vector(N);
+ psi = vector(NN);
+ w = vector(N);
+ z = vector(N);
+
+ c *= sqrt( l/(2.-l) );
+ z0 *= sqrt( l/(2.-l) );
+
+ switch ( subst ) {
+   case IDENTITY: gausslegendre(N, -c, c, z, w);         norm = 1.; break;
+   case SIN:      gausslegendre(N, -PI/2., PI/2., z, w); norm = 1.; break;
+   case SINH:     gausslegendre(N, -1., 1., z, w);       norm = sinh(1.); break;
+   case TAN:      gausslegendre(N, -PI/4., PI/4., z, w); norm = 1.; break;
+ }     
+ 
+ c /= norm;
+
+ /* ooc vector */
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) {
+     switch ( subst ) {
+       case IDENTITY: arg = z[j] - (1.-l)*z[i];                 korr = 1.; break;
+       case SIN:      arg = c*sin(z[j]) - (1.-l)*c*sin(z[i]);   korr = c*cos(z[j]); break;
+       case SINH:     arg = c*sinh(z[j]) - (1.-l)*c*sinh(z[i]); korr = c*cosh(z[j]); break;
+       case TAN:      arg = c*tan(z[j]) - (1.-l)*c*tan(z[i]);   korr = c/( cos(z[j])*cos(z[j]) ); break;
+     }
+     a[i*N+j] = -w[j]/l * pdf_t( arg/l - mu1, df) * korr;
+   }
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) arl[j] = 1.;
+ LU_solve(a, arl, N);
+ 
+ 
+ /* ooc ARL at restart point */
+ L0 = 1.;
+ for (j=0; j<N; j++) {
+   switch ( subst ) {
+     case IDENTITY: arg = z[j];         korr = 1.; break;
+     case SIN:      arg = c*sin(z[j]);  korr = c*cos(z[j]); break;
+     case SINH:     arg = c*sinh(z[j]); korr = c*cosh(z[j]); break;
+     case TAN:      arg = c*tan(z[j]);  korr = c/( cos(z[j])*cos(z[j]) ); break;
+   }
+   L0 += w[j]/l * pdf_t( ( arg - (1.-l)*z0 )/l - mu1, df) * korr * arl[j];
+ } 
+ 
+ /* left eigenvector psi */
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) {
+     switch ( subst ) {
+       case IDENTITY: arg = z[i] - (1.-l)*z[j];                 korr = 1.; break;
+       case SIN:      arg = c*sin(z[i]) - (1.-l)*c*sin(z[j]);   korr = c*cos(z[j]); break;
+       case SINH:     arg = c*sinh(z[i]) - (1.-l)*c*sinh(z[j]); korr = c*cosh(z[j]); break;
+       case TAN:      arg = c*tan(z[i]) - (1.-l)*c*tan(z[j]);   korr = c/( cos(z[j])*cos(z[j]) ); break;
+     }
+     a[i*NN+j] = w[j]/l * pdf_t( arg/l - mu0, df) * korr;
+   }
+   switch ( subst ) {
+     case IDENTITY: arg = z[i]; break;
+     case SIN:      arg = c*sin(z[i]); break;
+     case SINH:     arg = c*sinh(z[i]); break;
+     case TAN:      arg = c*tan(z[i]); break;
+   }
+   a[i*NN+N] = 1./l * pdf_t( ( arg - (1.-l)*z0 )/l - mu0, df);
+ }   
+ for (j=0;j<N;j++) {
+   switch ( subst ) {
+     case IDENTITY: arg = z[j];         korr = 1.; break;
+     case SIN:      arg = c*sin(z[j]);  korr = c*cos(z[j]); break;
+     case SINH:     arg = c*sinh(z[j]); korr = c*cosh(z[j]); break;
+     case TAN:      arg = c*tan(z[j]);  korr = c/( cos(z[j])*cos(z[j]) ); break;
+   }
+   a[N*NN+j] = w[j] * ( 1. - cdf_t( ( c*norm - (1.-l)*arg )/l - mu0, df) + cdf_t( ( -c*norm - (1.-l)*arg )/l - mu0, df) ) * korr;
+ } 
+ a[N*NN+N] = 1. - cdf_t( ( c*norm - (1.-l)*z0 )/l - mu0, df) + cdf_t( ( -c*norm - (1.-l)*z0 )/l - mu0, df);
+ 
+ pmethod(NN, a, &status, &rho, psi, &noofit);
+
+ ad = L0 * psi[N];
+ nenner = psi[N];
+ for (j=0; j<N; j++) {
+   switch ( subst ) {
+     case IDENTITY: korr = 1.; break;
+     case SIN:      korr = c*cos(z[j]); break;
+     case SINH:     korr = c*cosh(z[j]); break;
+     case TAN:      korr = c/( cos(z[j])*cos(z[j]) ); break;
+   }
+   ad += w[j] * arl[j] * psi[j] * korr;
+   nenner += w[j] * psi[j] * korr;
+ }
+ ad /= nenner;
  rho0 = rho;
 
  Free(a);
@@ -4701,6 +5485,80 @@ double xe2_sf(double l, double c, double hs, double mu, int N, int nmax, double 
 }
 
 
+double xte2_sf(double l, double c, double hs, int df, double mu, int N, int nmax, double *p0, int subst)
+{ double *Sm, *Pn, *w, *z, norm=1., arg=0., korr=1.;
+  int i, j, n;
+
+ c  *= sqrt( l/(2.-l) );
+ hs *= sqrt( l/(2.-l) );
+
+ Sm = matrix(N, N);
+ w  = vector(N);
+ z  = vector(N);
+ Pn = matrix(nmax, N);
+
+ switch ( subst ) {
+   case IDENTITY: gausslegendre(N, -c, c, z, w);         norm = 1.; break;
+   case SIN:   gausslegendre(N, -PI/2., PI/2., z, w); norm = 1.; break;
+   case SINH:  gausslegendre(N, -1., 1., z, w);       norm = sinh(1.); break;
+   case TAN:   gausslegendre(N, -PI/4., PI/4., z, w); norm = 1.; break;
+ }     
+ 
+ c /= norm;
+
+ for (i=0; i<N; i++)
+   for (j=0; j<N; j++) {
+     switch ( subst ) {
+       case IDENTITY: arg = z[j] - (1.-l)*z[i];                 korr = 1.; break;
+       case SIN:   arg = c*sin(z[j]) - (1.-l)*c*sin(z[i]);   korr = c*cos(z[j]); break;
+       case SINH:  arg = c*sinh(z[j]) - (1.-l)*c*sinh(z[i]); korr = c*cosh(z[j]); break;
+       case TAN:   arg = c*tan(z[j]) - (1.-l)*c*tan(z[i]);   korr = c/( cos(z[j])*cos(z[j]) ); break;
+     }
+     Sm[i*N+j] = w[j]/l * pdf_t( arg/l - mu, df) * korr;
+   }
+
+ for (n=1; n<=nmax; n++) {
+   if ( n==1 )
+     for (i=0; i<N; i++) {
+       switch ( subst ) {
+         case IDENTITY: arg = z[i]; break;
+         case SIN:   arg = c*sin(z[i]); break;
+         case SINH:  arg = c*sinh(z[i]); break;
+         case TAN:   arg = c*tan(z[i]); break;
+       }
+       Pn[i] = cdf_t( ( c*norm - (1.-l)*arg )/l - mu, df) - cdf_t( ( -c*norm - (1.-l)*arg )/l - mu, df);
+     }
+   else
+     for (i=0; i<N; i++) {
+       Pn[(n-1)*N+i] = 0.;
+       for (j=0; j<N; j++) Pn[(n-1)*N+i] += Sm[i*N+j] * Pn[(n-2)*N+j];
+     }
+
+   if ( n==1 )
+     p0[0] = cdf_t( ( c*norm - (1.-l)*hs )/l - mu, df) - cdf_t( ( -c*norm - (1.-l)*hs )/l - mu, df);
+   else {
+     p0[n-1] = 0.;
+     for (j=0; j<N; j++) {
+       switch ( subst ) {
+         case IDENTITY: arg = z[j];         korr = 1.; break;
+         case SIN:   arg = c*sin(z[j]);  korr = c*cos(z[j]); break;
+         case SINH:  arg = c*sinh(z[j]); korr = c*cosh(z[j]); break;
+         case TAN:   arg = c*tan(z[j]);  korr = c/( cos(z[j])*cos(z[j]) ); break;
+       }
+       p0[n-1] += w[j]/l * pdf_t( ( arg - (1.-l)*hs )/l - mu, df) * Pn[(n-2)*N+j] * korr;
+     }
+   }   
+ }
+
+ Free(Pn);
+ Free(z);
+ Free(w);
+ Free(Sm);
+
+ return 0;
+}
+
+
 double xe2_sfm(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double *p0)
 { double *Smatrix, *fn, *w, *z, dn, rn, cn, rn0, cn0, delta=0., nn, fSt, aSt;
   int i, j, n;
@@ -4808,6 +5666,177 @@ double xe2_sfm(double l, double c, double hs, int q, double mu0, double mu1, int
   /* determine P(L>n), n=1,2,...,q-1 */
   p0[n-1] = 0.;
   for (i=0; i<N; i++) p0[n-1] += w[i] * fn[(n-1)*N+i];
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+ }
+
+ Free(Smatrix);
+ Free(w);
+ Free(z);
+ Free(fn);
+
+ return 0;
+}
+
+
+double xte2_sfm(double l, double c, double hs, int df, int q, double mu0, double mu1, int mode, int N, int nmax, double *p0, int subst)
+{ double *Smatrix, *fn, *w, *z, dn, rn, cn, rn0, cn0, delta=0., nn, fSt, aSt, norm=1., arg=0., korr=1.;
+  int i, j, n;
+
+ fSt = 0.5;
+ aSt = ( -2./log10(1.-fSt) - 1.)/19.;
+
+ c  *= sqrt( l/(2.-l) ); 
+ hs *= sqrt( l/(2.-l) );
+ if ( mode==fir || mode==both ) delta = 2.*hs;
+
+ Smatrix = matrix(N, N);
+ w       = vector(N);
+ z       = vector(N);
+ fn      = matrix(nmax, N);
+
+ switch ( subst ) {
+   case IDENTITY: gausslegendre(N, -c, c, z, w);         norm = 1.; break;
+   case SIN:   gausslegendre(N, -PI/2., PI/2., z, w); norm = 1.; break;
+   case SINH:  gausslegendre(N, -1., 1., z, w);       norm = sinh(1.); break;
+   case TAN:   gausslegendre(N, -PI/4., PI/4., z, w); norm = 1.; break;
+ }     
+ 
+ c /= norm;
+
+ rn = 1.; cn = 0.; rn0 = 1., cn0 = 0.;
+
+ /* in-control, i. e. n<=q-1 */
+
+ for (n=1; n<=q-1; n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=1,2,...,q-1 */
+  switch ( mode ) {
+    case vacl: rn = sqrt( 1. - pow(1.-l,2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c*norm);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c*norm);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+ 
+  /* determine f_n, n=1,2,...,q-1 */
+  if ( n==1 ) {
+    for (i=0; i<N; i++) {
+      switch ( subst ) {
+        case IDENTITY: arg = z[i]; break;
+        case SIN:   arg = c*sin(z[i]); break;
+        case SINH:  arg = c*sinh(z[i]); break;
+        case TAN:   arg = c*tan(z[i]); break;
+      }
+      if ( mode==stat )
+        fn[0*N+i] = 1./sqrt(l/(2.-l)) * pdf_t( ( cn+rn*arg )/sqrt(l/(2.-l)) - mu0, df);
+      else
+        fn[0*N+i] = rn/l * pdf_t( ( cn+rn*arg - (1.-l)*hs )/l - mu0, df);
+    }
+  } 
+  else {
+    for (i=0; i<N; i++) {
+      fn[(n-1)*N+i] = 0.;
+      for (j=0; j<N; j++) {
+	switch ( subst ) {
+          case IDENTITY: arg = cn+rn*z[i] - (1.-l)*(cn0+rn0*z[j]);                 korr = 1.; break;
+          case SIN:   arg = cn+rn*c*sin(z[i]) - (1.-l)*(cn0+rn0*c*sin(z[j]));   korr = c*cos(z[j]); break;
+          case SINH:  arg = cn+rn*c*sinh(z[i]) - (1.-l)*(cn0+rn0*c*sinh(z[j])); korr = c*cosh(z[j]); break;
+          case TAN:   arg = cn+rn*c*tan(z[i]) - (1.-l)*(cn0+rn0*c*tan(z[j]));   korr = c/( cos(z[j])*cos(z[j]) ); break;
+        }
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l * pdf_t( arg/l - mu0, df) * korr;
+      }
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0; i<N; i++) {
+    switch ( subst ) {
+      case IDENTITY: korr = 1.; break;
+      case SIN:   korr = c*cos(z[i]); break;
+      case SINH:  korr = c*cosh(z[i]); break;
+      case TAN:   korr = c/( cos(z[i])*cos(z[i]) ); break;
+    }
+    p0[n-1] += w[i] * fn[(n-1)*N+i] * korr;
+  }
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+ }
+
+ /* out-of-control, i.e. t>=q */
+
+ for (n=q; n<=nmax; n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=q,q+1,... */
+  switch ( mode ) {
+    case vacl: rn = sqrt( 1. - pow(1.-l,2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c*norm);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c*norm);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+
+  /* determine f_n, n=q,q+1,... */
+  if ( n==1 ) {
+    for (i=0; i<N; i++) {
+      switch ( subst ) {
+        case IDENTITY: arg = z[i]; break;
+        case SIN:   arg = c*sin(z[i]); break;
+        case SINH:  arg = c*sinh(z[i]); break;
+        case TAN:   arg = c*tan(z[i]); break;
+      }
+      if ( mode==stat )
+        fn[0*N+i] = 1./sqrt(l/(2.-l)) * pdf_t( ( cn+rn*arg )/sqrt(l/(2.-l)) - mu1, df);
+      else
+        fn[0*N+i] = rn/l * pdf_t( ( cn+rn*arg - (1.-l)*hs )/l - mu1, df);
+    }
+  }
+  else {
+    for (i=0; i<N; i++) {
+      fn[(n-1)*N+i] = 0.;
+      for (j=0; j<N; j++) {
+	switch ( subst ) {
+          case IDENTITY: arg = cn+rn*z[i] - (1.-l)*(cn0+rn0*z[j]);                 korr = 1.; break;
+          case SIN:   arg = cn+rn*c*sin(z[i]) - (1.-l)*(cn0+rn0*c*sin(z[j]));   korr = c*cos(z[j]); break;
+          case SINH:  arg = cn+rn*c*sinh(z[i]) - (1.-l)*(cn0+rn0*c*sinh(z[j])); korr = c*cosh(z[j]); break;
+          case TAN:   arg = cn+rn*c*tan(z[i]) - (1.-l)*(cn0+rn0*c*tan(z[j]));   korr = c/( cos(z[j])*cos(z[j]) ); break;
+        }
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l * pdf_t( arg/l - mu1, df) * korr;
+      }
+      if ( n==q && q>1 ) fn[(n-1)*N+i] /= p0[q-2];
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0;i<N;i++) {
+    switch ( subst ) {
+      case IDENTITY: korr = 1.; break;
+      case SIN:   korr = c*cos(z[i]); break;
+      case SINH:  korr = c*cosh(z[i]); break;
+      case TAN:   korr = c/( cos(z[i])*cos(z[i]) ); break;
+    }
+    p0[n-1] += w[i] * fn[(n-1)*N+i] * korr;
+  }
 
   /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
   cn0 = cn; rn0 = rn;
@@ -5306,6 +6335,365 @@ double xe2_arlm(double l, double c, double hs, int q, double mu0, double mu1, in
 }
 
 
+int xe2_arlm_special(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double *pair)
+{ double *Smatrix, *p0, *fn, *w, *z,
+         arl0, rho, dn, rn, cn, rn0, cn0, delta=0.,
+         arl_minus=0, arl, arl_plus=0, mn_minus, mn_plus, nn,
+         fSt, aSt, ratio;
+  int i, j, n;
+
+ fSt = 0.5;
+ aSt = ( -2./log10(1.-fSt) - 1.)/19.;
+
+ c  *= sqrt( l/(2.-l) ); 
+ hs *= sqrt( l/(2.-l) );
+ if (mode==fir || mode==both) delta = 2.*hs;
+
+ Smatrix = matrix(N,N);
+ w       = vector(N);
+ z       = vector(N);
+ fn      = matrix(nmax,N);
+ p0      = vector(nmax);
+
+ gausslegendre(N,-c,c,z,w);
+
+ rn = 1.; cn = 0.; rn0 = 1., cn0 = 0.;
+
+ /* in-control, i. e. n<=q-1 */
+ for (n=1;n<=q-1;n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=1,2,...,q-1 */
+  switch (mode) {
+    case vacl: rn = sqrt( 1. - pow(1.-l, 2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+ 
+  /* determine f_n, n=1,2,...,q-1 */
+  if (n==1) {
+    for (i=0;i<N;i++)
+      if (mode==stat)
+        fn[0*N+i] = 1./sqrt(l/(2.-l))*phi( (cn+rn*z[i])/sqrt(l/(2.-l)),mu0);
+      else
+        fn[0*N+i] = rn/l * phi( (cn+rn*z[i]-(1.-l)*hs)/l,mu0);
+  } 
+  else {
+    for (i=0;i<N;i++) {
+      fn[(n-1)*N+i] = 0.;
+      for (j=0;j<N;j++) {
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l
+                   *phi((cn+rn*z[i]-(1.-l)*(cn0+rn0*z[j]))/l,mu0);
+      }
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0;i<N;i++) p0[n-1] += w[i] * fn[(n-1)*N+i];
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+ }
+
+ /* out-of-control, i.e. t>=q */
+ arl0 = 1.; rho = 0.;
+
+ for (n=q;n<=nmax;n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=q,q+1,... */
+  switch (mode) {
+    case vacl: rn = sqrt( 1. - pow(1.-l,2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+
+  /* determine f_n, n=q,q+1,... */
+  if (n==1) {
+    for (i=0;i<N;i++)
+      if (mode==stat)
+        fn[0*N+i] = 1./sqrt(l/(2.-l))*phi( (cn+rn*z[i])/sqrt(l/(2.-l)),mu1);
+      else
+        fn[0*N+i] = rn/l * phi( (cn+rn*z[i]-(1.-l)*hs)/l,mu1);
+  }
+  else {
+    for (i=0;i<N;i++) {
+      fn[(n-1)*N+i] = 0.;
+      for (j=0;j<N;j++) 
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l
+                   *phi( (cn+rn*z[i]-(1.-l)*(cn0+rn0*z[j]))/l,mu1);
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0;i<N;i++) p0[n-1] += w[i] * fn[(n-1)*N+i];
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+
+  /* computation of m_n+1^- and m_n+1^+, n=m-1,m,... */
+  mn_minus = 1.; mn_plus = 0.;
+  if (n>q) {
+   for (i=0;i<N;i++) {
+    if (fn[(n-2)*N+i]==0)
+     if (fn[(n-1)*N+i]==0) ratio = 0.; else ratio = 1.;
+    else ratio = fn[(n-1)*N+i]/fn[(n-2)*N+i];
+    if ( ratio<mn_minus ) mn_minus = ratio;
+    if ( ratio>mn_plus ) mn_plus = ratio;
+   }
+  }
+ 
+  if ( n > q ) rho = p0[n-1]/p0[n-2];
+
+  /* computation of ARL, ARL^-, and ARL^+ */
+  arl = arl0 + p0[n-1]/(1.-rho);
+  if (mn_minus<1.) arl_minus = arl0 + p0[n-1]/(1.-mn_minus);
+  else             arl_minus = -1.;
+  if (mn_plus<1.) arl_plus = arl0 + p0[n-1]/(1.-mn_plus);
+  else            arl_plus = -1.;
+  arl0 += p0[n-1]; 
+
+  if ( fabs((arl_plus-arl_minus)) < 1e-7 ) n = nmax+1;
+ }
+
+ arl = ( arl_plus + arl_minus )/2;
+ 
+ pair[0] = 1.;
+ if ( q > 1 ) pair[0] = p0[q-2];
+ pair[1] = arl;
+
+ Free(Smatrix);
+ Free(w);
+ Free(z);
+ Free(fn);
+ Free(p0);
+
+ return 0;
+}
+
+
+double xte2_arlm(double l, double c, double hs, int df, int q, double mu0, double mu1, int mode, int N, int nmax, int subst)
+{ double *Smatrix, *p0, *fn, *w, *z,
+         arl0, rho, dn, rn, cn, rn0, cn0, delta=0.,
+         arl_minus=0, arl, arl_plus=0, mn_minus, mn_plus, nn,
+         fSt, aSt, ratio, norm=1., arg=0., korr=1.;
+  int i, j, n;
+
+ fSt = 0.5;
+ aSt = ( -2./log10(1.-fSt) - 1.)/19.;
+
+ c  *= sqrt( l/(2.-l) ); 
+ hs *= sqrt( l/(2.-l) );
+ if (mode==fir || mode==both) delta = 2.*hs;
+
+ Smatrix = matrix(N,N);
+ w       = vector(N);
+ z       = vector(N);
+ fn      = matrix(nmax,N);
+ p0      = vector(nmax);
+
+ switch ( subst ) {
+   case IDENTITY: gausslegendre(N, -c, c, z, w);         norm = 1.; break;
+   case SIN:   gausslegendre(N, -PI/2., PI/2., z, w); norm = 1.; break;
+   case SINH:  gausslegendre(N, -1., 1., z, w);       norm = sinh(1.); break;
+   case TAN:   gausslegendre(N, -PI/4., PI/4., z, w); norm = 1.; break;
+ }     
+ 
+ c /= norm;
+
+ rn = 1.; cn = 0.; rn0 = 1., cn0 = 0.;
+
+ /* in-control, i. e. n<=q-1 */
+ for (n=1; n<=q-1; n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=1,2,...,q-1 */
+  switch ( mode ) {
+    case vacl: rn = sqrt( 1. - pow(1.-l, 2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c*norm);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c*norm);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+ 
+  /* determine f_n, n=1,2,...,q-1 */
+  if ( n==1 ) {
+    for (i=0; i<N; i++) {
+      switch ( subst ) {
+        case IDENTITY: arg = z[i]; break;
+        case SIN:   arg = c*sin(z[i]); break;
+        case SINH:  arg = c*sinh(z[i]); break;
+        case TAN:   arg = c*tan(z[i]); break;
+      }
+      if ( mode==stat )
+        fn[0*N+i] = 1./sqrt(l/(2.-l)) * pdf_t( ( cn+rn*arg )/sqrt(l/(2.-l)) - mu0, df);
+      else
+        fn[0*N+i] = rn/l * pdf_t( ( cn+rn*arg - (1.-l)*hs )/l - mu0, df);
+    }
+  } 
+  else {
+    for (i=0;i<N;i++) {
+      fn[(n-1)*N+i] = 0.;
+      for (j=0;j<N;j++) {
+	switch ( subst ) {
+          case IDENTITY: arg = cn+rn*z[i] - (1.-l)*(cn0+rn0*z[j]);                 korr = 1.; break;
+          case SIN:   arg = cn+rn*c*sin(z[i]) - (1.-l)*(cn0+rn0*c*sin(z[j]));   korr = c*cos(z[j]); break;
+          case SINH:  arg = cn+rn*c*sinh(z[i]) - (1.-l)*(cn0+rn0*c*sinh(z[j])); korr = c*cosh(z[j]); break;
+          case TAN:   arg = cn+rn*c*tan(z[i]) - (1.-l)*(cn0+rn0*c*tan(z[j]));   korr = c/( cos(z[j])*cos(z[j]) ); break;
+        }
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l * pdf_t( arg/l - mu0, df) * korr;
+      }
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0; i<N; i++) {
+    switch ( subst ) {
+      case IDENTITY: korr = 1.; break;
+      case SIN:   korr = c*cos(z[i]); break;
+      case SINH:  korr = c*cosh(z[i]); break;
+      case TAN:   korr = c/( cos(z[i])*cos(z[i]) ); break;
+    }
+    p0[n-1] += w[i] * fn[(n-1)*N+i] * korr;
+  }
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+ }
+
+ /* out-of-control, i.e. t>=q */
+ arl0 = 1.; rho = 0.;
+
+ for (n=q; n<=nmax; n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=q,q+1,... */
+  switch ( mode ) {
+    case vacl: rn = sqrt( 1. - pow(1.-l,2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c*norm);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c*norm);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+
+  /* determine f_n, n=q,q+1,... */
+  if ( n==1 ) {
+    for (i=0; i<N; i++) {
+      switch ( subst ) {
+        case IDENTITY: arg = z[i]; break;
+        case SIN:   arg = c*sin(z[i]); break;
+        case SINH:  arg = c*sinh(z[i]); break;
+        case TAN:   arg = c*tan(z[i]); break;
+      }
+      if ( mode==stat )
+        fn[0*N+i] = 1./sqrt(l/(2.-l)) * pdf_t( ( cn+rn*arg )/sqrt(l/(2.-l)) - mu1, df);
+      else
+        fn[0*N+i] = rn/l * pdf_t( ( cn+rn*arg - (1.-l)*hs )/l - mu1, df);
+    }
+  }
+  else {
+    for (i=0; i<N; i++) {
+      fn[(n-1)*N+i] = 0.;
+      for (j=0; j<N; j++) {
+	switch ( subst ) {
+          case IDENTITY: arg = cn+rn*z[i] - (1.-l)*(cn0+rn0*z[j]);                 korr = 1.; break;
+          case SIN:   arg = cn+rn*c*sin(z[i]) - (1.-l)*(cn0+rn0*c*sin(z[j]));   korr = c*cos(z[j]); break;
+          case SINH:  arg = cn+rn*c*sinh(z[i]) - (1.-l)*(cn0+rn0*c*sinh(z[j])); korr = c*cosh(z[j]); break;
+          case TAN:   arg = cn+rn*c*tan(z[i]) - (1.-l)*(cn0+rn0*c*tan(z[j]));   korr = c/( cos(z[j])*cos(z[j]) ); break;
+        }
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l * pdf_t( arg/l - mu1, df) * korr;
+      }
+      if ( n==q && q>1 ) fn[(n-1)*N+i] /= p0[q-2];
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0;i<N;i++) {
+    switch ( subst ) {
+      case IDENTITY: korr = 1.; break;
+      case SIN:   korr = c*cos(z[i]); break;
+      case SINH:  korr = c*cosh(z[i]); break;
+      case TAN:   korr = c/( cos(z[i])*cos(z[i]) ); break;
+    }
+    p0[n-1] += w[i] * fn[(n-1)*N+i] * korr;
+  }
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+
+  /* computation of m_n+1^- and m_n+1^+, n=m-1,m,... */
+  mn_minus = 1.; mn_plus = 0.;
+  if ( n>q ) {
+   for (i=0; i<N; i++) {
+    if (fn[(n-2)*N+i]==0)
+     if (fn[(n-1)*N+i]==0) ratio = 0.; else ratio = 1.;
+    else ratio = fn[(n-1)*N+i]/fn[(n-2)*N+i];
+    if ( ratio<mn_minus ) mn_minus = ratio;
+    if ( ratio>mn_plus ) mn_plus = ratio;
+   }
+  }
+ 
+  if ( n>q ) rho = p0[n-1]/p0[n-2];
+
+  /* computation of ARL, ARL^-, and ARL^+ */
+  arl = arl0 + p0[n-1]/(1.-rho);
+  if ( mn_minus<1. ) arl_minus = arl0 + p0[n-1]/(1.-mn_minus);
+  else               arl_minus = -1.;
+  if ( mn_plus<1. ) arl_plus = arl0 + p0[n-1]/(1.-mn_plus);
+  else              arl_plus = -1.;
+  arl0 += p0[n-1]; 
+
+  if ( fabs((arl_plus-arl_minus)) < 1e-7 ) n = nmax+1;
+ }
+
+ arl = (arl_plus+arl_minus)/2; rho0 = rho;
+
+ Free(Smatrix);
+ Free(w);
+ Free(z);
+ Free(fn);
+ Free(p0);
+
+ return arl;
+}
+
+
 double xe2_arlm_hom(double l, double c, double hs, int q, double mu0, double mu1, int N, double *ced)
 { double *fn, *w, *z, *a, *arl, norm;
   int i, j, n;
@@ -5351,6 +6739,108 @@ double xe2_arlm_hom(double l, double c, double hs, int q, double mu0, double mu1
       norm += w[j] * fn[(n-1)*N+j];
     }
     ced[n] /= norm;
+  }
+ 
+  Free(w);
+  Free(z);
+  Free(fn);
+  Free(a);
+  Free(arl);
+
+  return 0;
+}
+
+
+double xte2_arlm_hom(double l, double c, double hs, int df, int q, double mu0, double mu1, int N, double *ced, int subst)
+{ double *fn, *w, *z, *a, *arl, nenner=1., norm=1., arg=0., korr=1.;
+  int i, j, n;
+  
+  w   = vector(N);
+  z   = vector(N);
+  fn  = matrix(q+1, N);
+  a   = matrix(N,N);
+  arl = vector(N);
+  
+  c  *= sqrt( l/(2.-l) ); 
+  hs *= sqrt( l/(2.-l) );
+
+  switch ( subst ) {
+    case IDENTITY: gausslegendre(N, -c, c, z, w); norm = 1.; break;
+    case SIN:   gausslegendre(N, -PI/2., PI/2., z, w); norm = 1.; break;
+    case SINH:  gausslegendre(N, -1., 1., z, w); norm = sinh(1.); break;
+    case TAN:   gausslegendre(N, -PI/4., PI/4., z, w); norm = 1.; break;
+  }     
+ 
+  c /= norm;
+
+  for (i=0;i<N;i++) {
+    for (j=0;j<N;j++) {
+      switch ( subst ) {
+        case IDENTITY: arg = z[j] - (1.-l)*z[i]; korr = 1.; break;
+        case SIN:   arg = c*sin(z[j]) - (1.-l)*c*sin(z[i]); korr = c*cos(z[j]); break;
+        case SINH:  arg = c*sinh(z[j]) - (1.-l)*c*sinh(z[i]); korr = c*cosh(z[j]); break;
+        case TAN:   arg = c*tan(z[j]) - (1.-l)*c*tan(z[i]); korr = c/( cos(z[j])*cos(z[j]) ); break;
+      }
+      a[i*N+j] = -w[j]/l * pdf_t( arg/l - mu1, df) * korr;
+    }
+    ++a[i*N+i];
+  }
+
+  for (j=0;j<N;j++) arl[j] = 1.;
+  LU_solve(a,arl,N);
+ 
+  /* q == 1 */
+  ced[0] = 1.;
+  for (j=0; j<N; j++) {
+    switch ( subst ) {
+      case IDENTITY: arg = z[j] - (1.-l)*hs; korr = 1.; break;
+      case SIN:   arg = c*sin(z[j]) - (1.-l)*hs; korr = c*cos(z[j]); break;
+      case SINH:  arg = c*sinh(z[j]) - (1.-l)*hs; korr = c*cosh(z[j]); break;
+      case TAN:   arg = c*tan(z[j]) - (1.-l)*hs; korr = c/( cos(z[j])*cos(z[j]) ); break;
+    }
+    ced[0] += w[j]/l * pdf_t( arg/l - mu1, df) * arl[j] * korr;
+  }
+  
+  /* density sequence for q > 1 */
+  for (n=1; n<=q-1; n++) {    
+    if ( n==1 ) {
+      for (i=0; i<N; i++) {
+	switch ( subst ) {
+	  case IDENTITY: arg = z[i]; break;
+          case SIN:   arg = c*sin(z[i]); break;
+          case SINH:  arg = c*sinh(z[i]); break;
+          case TAN:   arg = c*tan(z[i]); break;
+        }
+	fn[0*N+i] = pdf_t( ( arg - (1.-l)*hs )/l - mu0, df)/l;
+      }
+    } else {
+      for (i=0; i<N; i++) {
+        fn[(n-1)*N+i] = 0.;
+        for (j=0; j<N; j++) {
+	  switch ( subst ) {
+            case IDENTITY: arg = z[i] - (1.-l)*z[j];                 korr = 1.; break;
+            case SIN:   arg = c*sin(z[i]) - (1.-l)*c*sin(z[j]);   korr = c*cos(z[j]); break;
+            case SINH:  arg = c*sinh(z[i]) - (1.-l)*c*sinh(z[j]); korr = c*cosh(z[j]); break;
+            case TAN:   arg = c*tan(z[i]) - (1.-l)*c*tan(z[j]);   korr = c/( cos(z[j])*cos(z[j]) ); break;
+          }
+	  fn[(n-1)*N+i] += w[j] * fn[(n-2)*N+j] * pdf_t( arg/l - mu0, df)/l * korr;
+	}
+      }
+    }
+ 
+    ced[n] = 0.;
+    nenner = 0.;
+    for (j=0; j<N; j++) {
+      switch ( subst ) {
+        case IDENTITY: korr = 1.; break;
+        case SIN:   korr = c*cos(z[j]); break;
+        case SINH:  korr = c*cosh(z[j]); break;
+        case TAN:   korr = c/( cos(z[j])*cos(z[j]) ); break;
+      }
+      ced[n] += w[j] * fn[(n-1)*N+j] * arl[j] * korr; 
+      nenner += w[j] * fn[(n-1)*N+j] * korr;
+    }
+    ced[n] /= nenner;
   }
  
   Free(w);
@@ -5451,53 +6941,70 @@ double xe2_iglarl_prerun_BOTH(double l, double c, double hs, double mu, int pn, 
 /* 2. ARL (varying limits and conditional) */
 
 double xe2_arlm_prerun_MU(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate)
-{ double *w, *z, b, result, dn, sdn;
-  int i, Nlocal;
+{ double *w, *z, b, result1, result0, dn, sdn, *pair;
+  int i, Nlocal, fahne;
 
   w = vector(qm);
   z = vector(qm);
+  pair = vector(2);
   dn = (double)pn;
   sdn = sqrt(dn);
   b = -qPHI(truncate/2.)/sdn;
   gausslegendre(qm, -b, b, z, w);
   Nlocal = qm_for_l_and_c(l, c);  
-  result = 0.;
-  for (i=0; i<qm; i++) result += w[i] * sdn*phi( z[i]*sdn, 0.) * xe2_arlm(l, c, hs, q, z[i]+mu0, z[i]+mu1, mode, Nlocal, nmax);    
+  result1 = 0.;
+  result0 = 0.;
+  for (i=0; i<qm; i++) {
+    fahne = xe2_arlm_special(l, c, hs, q, z[i]+mu0, z[i]+mu1, mode, Nlocal, nmax, pair);
+    if ( fahne!= 0 ) warning("something happened with xe2_arlm_special");
+    result1 += w[i] * sdn*phi( z[i]*sdn, 0.) * pair[1];
+    result0 += w[i] * sdn*phi( z[i]*sdn, 0.) * pair[0];
+  }
+  result1 /= result0;
+  Free(pair);
   Free(w);
   Free(z);
-  return result;
+  return result1;
 }
 
 
 double xe2_arlm_prerun_SIGMA(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate)
-{ double *w, *z, b1, b2, result, ddf;
-  int i, Nlocal;
+{ double *w, *z, b1, b2, result1, result0, ddf, *pair;
+  int i, Nlocal, fahne;
  
   w = vector(qm);
   z = vector(qm);
+  pair = vector(2);
   ddf = (double)(pn-1);  
   b1 = sqrt(qCHI(     truncate/2., pn-1)/ddf);
   b2 = sqrt(qCHI(1. - truncate/2., pn-1)/ddf); 
   gausslegendre(qm, b1, b2, z, w);  
-  result = 0.;
+  result1 = 0.;
+  result0 = 0.;
   for (i=0; i<qm; i++) {
     Nlocal = qm_for_l_and_c(l, z[i]*c);
-    result += w[i] * 2.*ddf*z[i]*chi( ddf*z[i]*z[i], pn-1) * xe2_arlm(l, z[i]*c, hs, q, mu0, mu1, mode, Nlocal, nmax);
+    fahne = xe2_arlm_special(l, z[i]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, pair);
+    if ( fahne!= 0 ) warning("something happened with xe2_arlm_special");
+    result1 += w[i] * 2.*ddf*z[i]*chi( ddf*z[i]*z[i], pn-1) * pair[1];
+    result0 += w[i] * 2.*ddf*z[i]*chi( ddf*z[i]*z[i], pn-1) * pair[0];
   }
+  result1 /= result0;
+  Free(pair);  
   Free(w);
   Free(z);
-  return result;
+  return result1;
 }
 
 
 double xe2_arlm_prerun_BOTH(double l, double c, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate)
-{ double *w1, *z1, *w2, *z2, b, b1, b2, result, dn, sdn, ddf;
-  int i, j, Nlocal;
+{ double *w1, *z1, *w2, *z2, b, b1, b2, result1, result0, dn, sdn, ddf, *pair;
+  int i, j, Nlocal, fahne;
 
   w1 = vector(qm1);
   z1 = vector(qm1);
   w2 = vector(qm2);
   z2 = vector(qm2);  
+  pair = vector(2);
   dn = (double)pn;
   sdn = sqrt(dn);
   b = -qPHI(truncate/2.)/sdn;  
@@ -5508,23 +7015,32 @@ double xe2_arlm_prerun_BOTH(double l, double c, double hs, int q, double mu0, do
   w2 = vector(qm2);
   z2 = vector(qm2);
   gausslegendre(qm2, b1, b2, z2, w2);    
-  result = 0.;
+  result1 = 0.;
+  result0 = 0.;
   for (j=0; j<qm2; j++) {
     Nlocal = qm_for_l_and_c(l, z2[j]*c);
-    for (i=0; i<qm1; i++)     
-      result += w1[i]*sdn*phi( z1[i]*sdn, 0.) * w2[j]*2.*ddf*z2[j]*chi( ddf*z2[j]*z2[j], df) * xe2_arlm(l, z2[j]*c, hs, q, z1[i]+mu0, z1[i]+mu1, mode, Nlocal, nmax);
+    for (i=0; i<qm1; i++) {
+      fahne = xe2_arlm_special(l, z2[j]*c, hs, q, z1[i]+mu0, z1[i]+mu1, mode, Nlocal, nmax, pair);
+      if ( fahne!= 0 ) warning("something happened with xe2_arlm_special");
+      result1 += w1[i]*sdn*phi( z1[i]*sdn, 0.) * w2[j]*2.*ddf*z2[j]*chi( ddf*z2[j]*z2[j], df) * pair[1];
+      result0 += w1[i]*sdn*phi( z1[i]*sdn, 0.) * w2[j]*2.*ddf*z2[j]*chi( ddf*z2[j]*z2[j], df) * pair[0];
+    }
   }
+  result1 /= result0;
+  Free(pair);
   Free(w1);
   Free(z1);
   Free(w2);
   Free(z2);  
-  return result;
+  return result1;
 }
+
 
 
 /* some helper functions */
 
-double xe2_sf_deluxe(double l, double c, double hs, double mu, int N, int nmax, double *p0, int *nstop, double *rho)
+
+double xe2_sf_deluxe(double l, double c, double hs, double mu, int N, int nmax, double BOUND, double *p0, int *nstop, double *rho)
 { double *Sm, *Pn, *w, *z, mn_minus=1., mn_plus=0., ratio;
   int i, j, n;
 
@@ -5572,7 +7088,7 @@ double xe2_sf_deluxe(double l, double c, double hs, double mu, int N, int nmax, 
        if ( ratio>mn_plus ) mn_plus = ratio;
      }
      *rho = (mn_minus + mn_plus)/2.;
-     if ( fabs(mn_plus - mn_minus) < FINALeps ) {       
+     if ( fabs(mn_plus - mn_minus) < BOUND ) {       
        *nstop = n;
        n = nmax + 1;
      }
@@ -5588,7 +7104,127 @@ double xe2_sf_deluxe(double l, double c, double hs, double mu, int N, int nmax, 
 }
 
 
-double xe2_sfm_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double *p0, int *nstop, double *rho)
+double xe2_sfm_simple(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double *p0)
+{ double *Smatrix, *fn, *w, *z, dn, rn, cn, rn0, cn0, delta=0., nn, fSt, aSt;
+  int i, j, n;
+
+ fSt = 0.5;
+ aSt = ( -2./log10(1.-fSt) - 1.)/19.;
+
+ c  *= sqrt( l/(2.-l) ); 
+ hs *= sqrt( l/(2.-l) );
+ if ( mode==fir || mode==both ) delta = 2.*hs;
+
+ Smatrix = matrix(N, N);
+ w       = vector(N);
+ z       = vector(N);
+ fn      = matrix(nmax, N);
+
+ gausslegendre(N, -c, c, z, w);
+
+ rn = 1.; cn = 0.; rn0 = 1., cn0 = 0.;
+
+ /* in-control, i. e. n<=q-1 */
+
+ for (n=1; n<=q-1; n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=1,2,...,q-1 */
+  switch ( mode ) {
+    case vacl: rn = sqrt( 1. - pow(1.-l,2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+ 
+  /* determine f_n, n=1,2,...,q-1 */
+  if ( n==1 ) {
+    for (i=0; i<N; i++)
+      if ( mode==stat )
+        fn[0*N+i] = 1./sqrt(l/(2.-l))*phi( (cn+rn*z[i])/sqrt(l/(2.-l)),mu0);
+      else
+        fn[0*N+i] = rn/l * phi( (cn+rn*z[i]-(1.-l)*hs)/l,mu0);
+  } 
+  else {
+    for (i=0; i<N; i++) {
+      fn[(n-1)*N+i] = 0.;
+      for (j=0; j<N; j++) {
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l*phi((cn+rn*z[i]-(1.-l)*(cn0+rn0*z[j]))/l,mu0);
+      }
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0; i<N; i++) p0[n-1] += w[i] * fn[(n-1)*N+i];
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+ }
+
+ /* out-of-control, i.e. t>=q */
+
+ for (n=q; n<=nmax; n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=q,q+1,... */
+  switch ( mode ) {
+    case vacl: rn = sqrt( 1. - pow(1.-l,2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+
+  /* determine f_n, n=q,q+1,... */
+  if ( n==1 ) {
+    for (i=0; i<N; i++)
+      if ( mode==stat )
+        fn[0*N+i] = 1./sqrt(l/(2.-l))*phi( (cn+rn*z[i])/sqrt(l/(2.-l)),mu1);
+      else
+        fn[0*N+i] = rn/l * phi( (cn+rn*z[i]-(1.-l)*hs)/l,mu1);
+  }
+  else {
+    for (i=0; i<N; i++) {
+      fn[(n-1)*N+i] = 0.;
+      for (j=0; j<N; j++) 
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l*phi( (cn+rn*z[i]-(1.-l)*(cn0+rn0*z[j]))/l,mu1);
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0; i<N; i++) p0[n-1] += w[i] * fn[(n-1)*N+i];
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+ }
+
+ Free(Smatrix);
+ Free(w);
+ Free(z);
+ Free(fn);
+
+ return 0;
+}
+
+
+double xe2_sfm_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double BOUND, double *p0, int *nstop, double *rho)
 { double *Smatrix, *fn, *w, *z, dn, rn, cn, rn0, cn0, delta=0., nn, fSt, aSt, mn_minus, mn_plus, ratio;
   int i, j, n;
 
@@ -5686,7 +7322,6 @@ double xe2_sfm_deluxe(double l, double c, double hs, int q, double mu0, double m
        fn[(n-1)*N+i] = 0.;
        for (j=0; j<N; j++) 
          fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j]*rn/l*phi( (cn+rn*z[i]-(1.-l)*(cn0+rn0*z[j]))/l, mu1);
-       if ( n==q && q>1 ) fn[(n-1)*N+i] /= p0[q-2];
      }
    }
 
@@ -5707,7 +7342,7 @@ double xe2_sfm_deluxe(double l, double c, double hs, int q, double mu0, double m
        if ( ratio>mn_plus ) mn_plus = ratio;
      }
      *rho = (mn_minus + mn_plus)/2.;
-     if ( fabs(mn_plus - mn_minus) < FINALeps ) {
+     if ( fabs(mn_plus - mn_minus) < BOUND ) {
        *nstop = n;
        n = nmax + 1;
      }
@@ -5723,9 +7358,11 @@ double xe2_sfm_deluxe(double l, double c, double hs, int q, double mu0, double m
 }
 
 
+
 /* Survival function P(L>n) */
 
-double xe2_sf_prerun_MU_deluxe(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double *p0)
+
+double xe2_sf_prerun_MU_deluxe(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double BOUND, double *p0)
 { double *ww, *zz, b, dn, sdn, *SF, rho;
   int i, m, n, nstop, Nlocal;
 
@@ -5743,7 +7380,7 @@ double xe2_sf_prerun_MU_deluxe(double l, double c, double hs, double mu, int pn,
 
  Nlocal = qm_for_l_and_c(l, c);
  for (i=0; i<qm; i++) {     
-   m = xe2_sf_deluxe(l, c, hs, zz[i]+mu, Nlocal, nmax, SF, &nstop, &rho);
+   m = xe2_sf_deluxe(l, c, hs, zz[i]+mu, Nlocal, nmax, BOUND, SF, &nstop, &rho);
    if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
    if ( nstop > 0 ) {
      for (n=0; n<nstop; n++)  p0[n] += ww[i] * SF[n];
@@ -5792,7 +7429,7 @@ double xe2_sf_prerun_MU(double l, double c, double hs, double mu, int pn, int nm
 }
 
 
-double xe2_sfm_prerun_MU_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double *p0)
+double xe2_sfm_prerun_MU_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double BOUND, double *p0)
 { double *ww, *zz, b, dn, sdn, *SF, rho;
   int i, m, n, nstop, Nlocal;
 
@@ -5810,7 +7447,7 @@ double xe2_sfm_prerun_MU_deluxe(double l, double c, double hs, int q, double mu0
 
  Nlocal = qm_for_l_and_c(l, c);
  for (i=0; i<qm; i++) {     
-   m = xe2_sfm_deluxe(l, c, hs, q, zz[i]+mu0, zz[i]+mu1, mode, Nlocal, nmax, SF, &nstop, &rho);
+   m = xe2_sfm_deluxe(l, c, hs, q, zz[i]+mu0, zz[i]+mu1, mode, Nlocal, nmax, BOUND, SF, &nstop, &rho);
    if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
    if ( nstop > 0 ) {
      for (n=0; n<nstop; n++)  p0[n] += ww[i] * SF[n];
@@ -5820,12 +7457,15 @@ double xe2_sfm_prerun_MU_deluxe(double l, double c, double hs, int q, double mu0
    }
  }
  
+ if ( q > 1 ) for (n=q-1; n<nmax; n++) p0[n] /= p0[q-2];
+ 
  Free(ww);
  Free(zz); 
  Free(SF);
  
  return 0;
 }
+
 
 double xe2_sfm_prerun_MU(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double *p0)
 { double *ww, *zz, b, dn, sdn, *SF;
@@ -5845,10 +7485,12 @@ double xe2_sfm_prerun_MU(double l, double c, double hs, int q, double mu0, doubl
  
  Nlocal = qm_for_l_and_c(l, c);
  for (i=0; i<qm; i++) {     
-   m = xe2_sfm(l, c, hs, q, zz[i]+mu0, zz[i]+mu1, mode, Nlocal, nmax, SF);
+   m = xe2_sfm_simple(l, c, hs, q, zz[i]+mu0, zz[i]+mu1, mode, Nlocal, nmax, SF);
    if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sfm");
    for (n=0; n<nmax; n++)  p0[n] += ww[i] * SF[n];
  }
+ 
+ if ( q > 1 ) for (n=q-1; n<nmax; n++) p0[n] /= p0[q-2];
  
  Free(ww);
  Free(zz); 
@@ -5858,7 +7500,7 @@ double xe2_sfm_prerun_MU(double l, double c, double hs, int q, double mu0, doubl
 }
 
 
-double xe2_sf_prerun_SIGMA_deluxe(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double *p0)
+double xe2_sf_prerun_SIGMA_deluxe(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double BOUND, double *p0)
 { double *ww, *zz, b1, b2, ddf, *SF, rho;
   int i, m, n, nstop, Nlocal;
 
@@ -5876,7 +7518,7 @@ double xe2_sf_prerun_SIGMA_deluxe(double l, double c, double hs, double mu, int 
  
  for (i=0; i<qm; i++) {
     Nlocal = qm_for_l_and_c(l, zz[i]*c);
-    m = xe2_sf_deluxe(l, zz[i]*c, hs, mu, Nlocal, nmax, SF, &nstop, &rho);
+    m = xe2_sf_deluxe(l, zz[i]*c, hs, mu, Nlocal, nmax, BOUND, SF, &nstop, &rho);
     if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
     if ( nstop > 0 ) {
       for (n=0; n<nstop; n++)  p0[n] += ww[i] * SF[n];
@@ -5925,7 +7567,7 @@ double xe2_sf_prerun_SIGMA(double l, double c, double hs, double mu, int pn, int
 }
 
 
-double xe2_sfm_prerun_SIGMA_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double *p0)
+double xe2_sfm_prerun_SIGMA_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double BOUND, double *p0)
 { double *ww, *zz, b1, b2, ddf, *SF, rho;
   int i, m, n, nstop, Nlocal;
 
@@ -5943,7 +7585,7 @@ double xe2_sfm_prerun_SIGMA_deluxe(double l, double c, double hs, int q, double 
  
  for (i=0; i<qm; i++) {
     Nlocal = qm_for_l_and_c(l, zz[i]*c);
-    m = xe2_sfm_deluxe(l, zz[i]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, SF, &nstop, &rho);
+    m = xe2_sfm_deluxe(l, zz[i]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, BOUND, SF, &nstop, &rho);
     if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
     if ( nstop > 0 ) {
       for (n=0; n<nstop; n++)  p0[n] += ww[i] * SF[n];
@@ -5952,6 +7594,8 @@ double xe2_sfm_prerun_SIGMA_deluxe(double l, double c, double hs, int q, double 
       for (n=0; n<nmax; n++)  p0[n] += ww[i] * SF[n];
     }
  }  
+ 
+ if ( q > 1 ) for (n=q-1; n<nmax; n++) p0[n] /= p0[q-2];
  
  Free(ww);
  Free(zz); 
@@ -5979,10 +7623,12 @@ double xe2_sfm_prerun_SIGMA(double l, double c, double hs, int q, double mu0, do
  
  for (i=0; i<qm; i++) {
     Nlocal = qm_for_l_and_c(l, zz[i]*c);
-    m = xe2_sfm(l, zz[i]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, SF);
+    m = xe2_sfm_simple(l, zz[i]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, SF);
     if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sfm");
     for (n=0; n<nmax; n++)  p0[n] += ww[i] * SF[n];
  }  
+ 
+ if ( q > 1 ) for (n=q-1; n<nmax; n++) p0[n] /= p0[q-2];
  
  Free(ww);
  Free(zz); 
@@ -5992,7 +7638,7 @@ double xe2_sfm_prerun_SIGMA(double l, double c, double hs, int q, double mu0, do
 }
 
 
-double xe2_sf_prerun_BOTH_deluxe(double l, double c, double hs, double mu, int pn, int df, int nmax, int qm1, int qm2, double truncate, double *p0)
+double xe2_sf_prerun_BOTH_deluxe(double l, double c, double hs, double mu, int pn, int df, int nmax, int qm1, int qm2, double truncate, double BOUND, double *p0)
 { double *ww1, *zz1, *ww2, *zz2, b, b1, b2, dn, sdn, ddf, *SF, rho;
   int i, j, m, n, nstop, Nlocal;
 
@@ -6019,7 +7665,7 @@ double xe2_sf_prerun_BOTH_deluxe(double l, double c, double hs, double mu, int p
  for (i=0; i<qm1; i++) {
    for (j=0; j<qm2; j++) {
      Nlocal = qm_for_l_and_c(l, zz2[j]*c);
-     m = xe2_sf_deluxe(l, zz2[j]*c, hs, zz1[i]+mu, Nlocal, nmax, SF, &nstop, &rho);
+     m = xe2_sf_deluxe(l, zz2[j]*c, hs, zz1[i]+mu, Nlocal, nmax, BOUND, SF, &nstop, &rho);
      if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
      if ( nstop > 0 ) {
        for (n=0; n<nstop; n++)  p0[n] += ww1[i] * ww2[j] * SF[n];
@@ -6084,7 +7730,7 @@ double xe2_sf_prerun_BOTH(double l, double c, double hs, double mu, int pn, int 
 
 
 
-double xe2_sfm_prerun_BOTH_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate, double *p0)
+double xe2_sfm_prerun_BOTH_deluxe(double l, double c, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate, double BOUND, double *p0)
 { double *ww1, *zz1, *ww2, *zz2, b, b1, b2, dn, sdn, ddf, *SF, rho;
   int i, j, m, n, nstop, Nlocal;
 
@@ -6111,7 +7757,7 @@ double xe2_sfm_prerun_BOTH_deluxe(double l, double c, double hs, int q, double m
  for (i=0; i<qm1; i++) {
    for (j=0; j<qm2; j++) {
      Nlocal = qm_for_l_and_c(l, zz2[j]*c);
-     m = xe2_sfm_deluxe(l, zz2[j]*c, hs, q, zz1[i]+mu0, zz1[i]+mu1, mode, Nlocal, nmax, SF, &nstop, &rho);
+     m = xe2_sfm_deluxe(l, zz2[j]*c, hs, q, zz1[i]+mu0, zz1[i]+mu1, mode, Nlocal, nmax, BOUND, SF, &nstop, &rho);
      if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
      if ( nstop > 0 ) {
        for (n=0; n<nstop; n++)  p0[n] += ww1[i] * ww2[j] * SF[n];
@@ -6121,6 +7767,8 @@ double xe2_sfm_prerun_BOTH_deluxe(double l, double c, double hs, int q, double m
      }
    }
  }
+ 
+ if ( q > 1 ) for (n=q-1; n<nmax; n++) p0[n] /= p0[q-2];
  
  Free(ww1);
  Free(zz1); 
@@ -6159,11 +7807,13 @@ double xe2_sfm_prerun_BOTH(double l, double c, double hs, int q, double mu0, dou
  for (i=0; i<qm1; i++) {
    for (j=0; j<qm2; j++) {
      Nlocal = qm_for_l_and_c(l, zz2[j]*c);
-     m = xe2_sfm(l, zz2[j]*c, hs, q, zz1[i]+mu0, zz1[i]+mu1, mode, Nlocal, nmax, SF);
+     m = xe2_sfm_simple(l, zz2[j]*c, hs, q, zz1[i]+mu0, zz1[i]+mu1, mode, Nlocal, nmax, SF);
      if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sfm");
      for (n=0; n<nmax; n++)  p0[n] += ww1[i] * ww2[j] * SF[n];
    }
  }
+ 
+ if ( q > 1 ) for (n=q-1; n<nmax; n++) p0[n] /= p0[q-2];
  
  Free(ww1);
  Free(zz1); 
@@ -6177,7 +7827,8 @@ double xe2_sfm_prerun_BOTH(double l, double c, double hs, int q, double mu0, dou
 
 /* quantile function */
 
-double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double mu, int pn, int nmax, int qm, double truncate)
+
+double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double mu, int pn, int nmax, int qm, double truncate, double BOUND)
 { double *ww, *zz, b, dn, sdn, *SF, *p0, rho, *rhomany, *SFlast, Lp=-1., sf_level_adj;
   int i, j, n, nstop, nstop_, nn, nsm, qnspecial=0, Nlocal;
 
@@ -6199,7 +7850,7 @@ double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double m
  
  qnspecial = (qm+1) / 2;
   
- j = xe2_sf_deluxe(l, c, hs, zz[qnspecial]+mu, Nlocal, nmax, SF, &nsm, &rho);
+ j = xe2_sf_deluxe(l, c, hs, zz[qnspecial]+mu, Nlocal, nmax, BOUND, SF, &nsm, &rho);
  if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
  n = nsm;
  
@@ -6209,7 +7860,7 @@ double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double m
  } else {
    nstop = nsm;
    
-   j = xe2_sf_deluxe(l, c, hs, zz[qnspecial+1]+mu, Nlocal, nmax, SF, &nstop_, &rho);
+   j = xe2_sf_deluxe(l, c, hs, zz[qnspecial+1]+mu, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
    if ( nstop_ > nsm ) nsm = nstop_;
    if ( nstop_ < 1) nsm = nmax;
@@ -6218,7 +7869,7 @@ double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double m
      while ( nstop_ >= nstop && nsm<nmax ) {
        nstop = nstop_;
        i++;
-       j = xe2_sf_deluxe(l, c, hs, zz[qnspecial+i]+mu, Nlocal, nmax, SF, &nstop_, &rho);
+       j = xe2_sf_deluxe(l, c, hs, zz[qnspecial+i]+mu, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
        if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
        if ( nstop_ > nsm ) nsm = nstop_;
        if ( nstop_ < 1) nsm = nmax;
@@ -6226,7 +7877,7 @@ double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double m
    }
    
    nstop = n;
-   j = xe2_sf_deluxe(l, c, hs, zz[qnspecial-1]+mu, Nlocal, nmax, SF, &nstop_, &rho);
+   j = xe2_sf_deluxe(l, c, hs, zz[qnspecial-1]+mu, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
    if ( nstop_ > nsm ) nsm = nstop_;
    if ( nstop_ < 1) nsm = nmax;
@@ -6235,7 +7886,7 @@ double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double m
      while ( nstop_ >= nstop && nsm<nmax ) {
        nstop = nstop_;
        i++;
-       j = xe2_sf_deluxe(l, c, hs, zz[qnspecial-i]+mu, Nlocal, nmax, SF, &nstop_, &rho);
+       j = xe2_sf_deluxe(l, c, hs, zz[qnspecial-i]+mu, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
        if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
        if ( nstop_ > nsm ) nsm = nstop_;
        if ( nstop_ < 1) nsm = nmax;
@@ -6247,7 +7898,7 @@ double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double m
  for (n=0; n<nmax; n++) p0[n] = 0.;
  
  for (i=0; i<qm; i++) {
-   j = xe2_sf_deluxe(l, c, hs, zz[i]+mu, Nlocal, nn, SF, &nstop, &rho);
+   j = xe2_sf_deluxe(l, c, hs, zz[i]+mu, Nlocal, nn, BOUND, SF, &nstop, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
    if ( nstop < 1 ) {
      nstop = nn;
@@ -6261,17 +7912,17 @@ double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double m
    SFlast[i] = SF[nstop-1] * pow(rho, nn-nstop);
  } 
  
- sf_level_adj = 1.-p;
+ sf_level_adj = 1. - p;
  if ( p0[nn-1] <= sf_level_adj ) { 
    n = nn-1;
    while (  p0[n] <= sf_level_adj &&  n > 0  ) n--;
-   if ( p0[n] > 1.-p ) Lp = (double)(n+2); else Lp = 1.;
+   if ( p0[n] > 1.-p ) Lp = (double)( n + 2 ); else Lp = 1.;
  } else {
    for (n=nn; n<nmax; n++) {
       p0[n] = 0.;
       for (i=0; i<qm; i++) p0[n] += ww[i] * SFlast[i] * pow(rhomany[i], n-nn+1);
       if (  p0[n] <= sf_level_adj  ) {
-        Lp = (double)(n+1);
+        Lp = (double)( n + 1 );
         n = nmax+1;
       }
    }
@@ -6288,7 +7939,7 @@ double xe2_Wq_prerun_MU_deluxe(double l, double c, double p, double hs, double m
 }
 
 
-double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate)
+double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double BOUND)
 { double *ww, *zz, b, dn, sdn, *SF, *p0, rho, *rhomany, *SFlast, Lp=-1., sf_level_adj;
   int i, j, n, nstop, nstop_, nn, nsm, qnspecial=0, Nlocal;
 
@@ -6310,7 +7961,7 @@ double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, 
  
  qnspecial = (qm+1) / 2;
  
- j = xe2_sfm_deluxe(l, c, hs, q, zz[qnspecial]+mu0, zz[qnspecial]+mu1, mode, Nlocal, nmax, SF, &nsm, &rho);
+ j = xe2_sfm_deluxe(l, c, hs, q, zz[qnspecial]+mu0, zz[qnspecial]+mu1, mode, Nlocal, nmax, BOUND, SF, &nsm, &rho);
  if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
  n = nsm;
   
@@ -6320,7 +7971,7 @@ double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, 
  } else {
    nstop = nsm;
    
-   j = xe2_sfm_deluxe(l, c, hs, q, zz[qnspecial+1]+mu0, zz[qnspecial+1]+mu1, mode, Nlocal, nmax, SF, &nstop_, &rho);
+   j = xe2_sfm_deluxe(l, c, hs, q, zz[qnspecial+1]+mu0, zz[qnspecial+1]+mu1, mode, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
    if ( nstop_ > nsm ) nsm = nstop_;
    if ( nstop_ < 1) nsm = nmax;
@@ -6329,7 +7980,7 @@ double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, 
      while ( nstop_ >= nstop && nsm<nmax) {
        nstop = nstop_;
        i++;
-       j = xe2_sfm_deluxe(l, c, hs, q, zz[qnspecial+i]+mu0, zz[qnspecial+i]+mu1, mode, Nlocal, nmax, SF, &nstop_, &rho);
+       j = xe2_sfm_deluxe(l, c, hs, q, zz[qnspecial+i]+mu0, zz[qnspecial+i]+mu1, mode, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
        if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
        if ( nstop_ > nsm ) nsm = nstop_;
        if ( nstop_ < 1) nsm = nmax;
@@ -6337,7 +7988,7 @@ double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, 
    }
    
    nstop = n;
-   j = xe2_sfm_deluxe(l, c, hs, q, zz[qnspecial-1]+mu0, zz[qnspecial-1]+mu1, mode, Nlocal, nmax, SF, &nstop_, &rho);
+   j = xe2_sfm_deluxe(l, c, hs, q, zz[qnspecial-1]+mu0, zz[qnspecial-1]+mu1, mode, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
    if ( nstop_ > nsm ) nsm = nstop_;
    if ( nstop_ < 1) nsm = nmax;
@@ -6346,7 +7997,7 @@ double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, 
      while ( nstop_ >= nstop && nsm<nmax ) {
        nstop = nstop_;
        i++;
-       j = xe2_sfm_deluxe(l, c, hs, q, zz[qnspecial-i]+mu0, zz[qnspecial-i]+mu1, mode, Nlocal, nmax, SF, &nstop_, &rho);
+       j = xe2_sfm_deluxe(l, c, hs, q, zz[qnspecial-i]+mu0, zz[qnspecial-i]+mu1, mode, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
        if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
        if ( nstop_ > nsm ) nsm = nstop_;
        if ( nstop_ < 1) nsm = nmax;
@@ -6358,7 +8009,7 @@ double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, 
  for (n=0; n<nmax; n++) p0[n] = 0.;
  
  for (i=0; i<qm; i++) {
-   j = xe2_sfm_deluxe(l, c, hs, q, zz[i]+mu0, zz[i]+mu1, mode, Nlocal, nn, SF, &nstop, &rho);
+   j = xe2_sfm_deluxe(l, c, hs, q, zz[i]+mu0, zz[i]+mu1, mode, Nlocal, nn, BOUND, SF, &nstop, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
    if ( nstop < 1 ) {
      nstop = nn;
@@ -6371,18 +8022,19 @@ double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, 
    }
    SFlast[i] = SF[nstop-1] * pow(rho, nn-nstop);
  } 
- 
- sf_level_adj = 1.-p;
+
+ sf_level_adj = 1. - p;
+ if ( q > 1 ) sf_level_adj *= p0[q-2];
  if ( p0[nn-1] <= sf_level_adj ) { 
    n = nn-1;
    while (  p0[n] <= sf_level_adj &&  n > 0  ) n--;
-   if ( p0[n] > 1.-p ) Lp = (double)(n+2); else Lp = 1.;
+   if ( p0[n] > sf_level_adj ) Lp = (double)( n + 2 - q + 1 ); else Lp = 1.;
  } else {
    for (n=nn; n<nmax; n++) {
       p0[n] = 0.;
       for (i=0; i<qm; i++) p0[n] += ww[i] * SFlast[i] * pow(rhomany[i], n-nn+1);
       if (  p0[n] <= sf_level_adj  ) {
-        Lp = (double)(n+1);
+        Lp = (double)( n + 1  -  q + 1 );
         n = nmax+1;
       }
    }
@@ -6399,7 +8051,7 @@ double xe2_Wqm_prerun_MU_deluxe(double l, double c, double p, double hs, int q, 
 }
 
 
-double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, double mu, int pn, int nmax, int qm, double truncate)
+double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, double mu, int pn, int nmax, int qm, double truncate, double BOUND)
 { double *ww, *zz, b1, b2, ddf, *SF, *p0, rho, *rhomany, *SFlast, Lp=-1., sf_level_adj;
   int i, j, n, nstop, nstop_, nsm, nn, qnspecial=0, Nlocal;
 
@@ -6421,7 +8073,7 @@ double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, doubl
  qnspecial = (qm+1) / 2;
  
  Nlocal = qm_for_l_and_c(l, zz[qnspecial]*c);
- j = xe2_sf_deluxe(l, zz[qnspecial]*c, hs, mu, Nlocal, nmax, SF, &nsm, &rho);
+ j = xe2_sf_deluxe(l, zz[qnspecial]*c, hs, mu, Nlocal, nmax, BOUND, SF, &nsm, &rho);
  if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
  n = nsm;
  
@@ -6432,7 +8084,7 @@ double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, doubl
    nstop = nsm;
    
    Nlocal = qm_for_l_and_c(l, zz[qnspecial+1]*c);
-   j = xe2_sf_deluxe(l, zz[qnspecial+1]*c, hs, mu, Nlocal, nmax, SF, &nstop_, &rho);
+   j = xe2_sf_deluxe(l, zz[qnspecial+1]*c, hs, mu, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
    if ( nstop_ > nsm ) nsm = nstop_;
    if ( nstop_ < 1) nsm = nmax;
@@ -6442,7 +8094,7 @@ double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, doubl
        nstop = nstop_;
        i++;
        Nlocal = qm_for_l_and_c(l, zz[qnspecial+i]*c);
-       j = xe2_sf_deluxe(l, zz[qnspecial+i]*c, hs, mu, Nlocal, nmax, SF, &nstop_, &rho);
+       j = xe2_sf_deluxe(l, zz[qnspecial+i]*c, hs, mu, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
        if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
        if ( nstop_ > nsm ) nsm = nstop_;
        if ( nstop_ < 1) nsm = nmax;
@@ -6451,7 +8103,7 @@ double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, doubl
  
    nstop = n;
    Nlocal = qm_for_l_and_c(l, zz[qnspecial-1]*c);
-   j = xe2_sf_deluxe(l, zz[qnspecial-1]*c, hs, mu, Nlocal, nmax, SF, &nstop_, &rho);
+   j = xe2_sf_deluxe(l, zz[qnspecial-1]*c, hs, mu, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
    if ( nstop_ > nsm ) nsm = nstop_;
    if ( nstop_ < 1) nsm = nmax;
@@ -6461,7 +8113,7 @@ double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, doubl
        nstop = nstop_;
        i++;
        Nlocal = qm_for_l_and_c(l, zz[qnspecial-i]*c);
-       j = xe2_sf_deluxe(l, zz[qnspecial-i]*c, hs, mu, Nlocal, nmax, SF, &nstop_, &rho);
+       j = xe2_sf_deluxe(l, zz[qnspecial-i]*c, hs, mu, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
        if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
        if ( nstop_ > nsm ) nsm = nstop_;
        if ( nstop_ < 1) nsm = nmax;
@@ -6474,7 +8126,7 @@ double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, doubl
  
  for (i=0; i<qm; i++) {
    Nlocal = qm_for_l_and_c(l, zz[i]*c);
-   j = xe2_sf_deluxe(l, zz[i]*c, hs, mu, Nlocal, nn, SF, &nstop, &rho);
+   j = xe2_sf_deluxe(l, zz[i]*c, hs, mu, Nlocal, nn, BOUND, SF, &nstop, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
    if ( nstop < 1 ) {
      nstop = nn;
@@ -6488,17 +8140,17 @@ double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, doubl
    SFlast[i] = SF[nstop-1] * pow(rho, nn-nstop);
  } 
  
- sf_level_adj = 1.-p;
+ sf_level_adj = 1. - p;
  if ( p0[nn-1] <= sf_level_adj ) { 
    n = nn-1;
    while (  p0[n] <= sf_level_adj &&  n > 0  ) n--;
-   if ( p0[n] > 1.-p ) Lp = (double)(n+2); else Lp = 1.;
+   if ( p0[n] > 1.-p ) Lp = (double)( n + 2 ); else Lp = 1.;
  } else {
    for (n=nn; n<nmax; n++) {
       p0[n] = 0.;
       for (i=0; i<qm; i++) p0[n] += ww[i] * SFlast[i] * pow(rhomany[i], n-nn+1);
       if (  p0[n] <= sf_level_adj  ) {
-        Lp = (double)(n+1);
+        Lp = (double)( n + 1 );
         n = nmax+1;
       }
    }
@@ -6515,7 +8167,7 @@ double xe2_Wq_prerun_SIGMA_deluxe(double l, double c, double p, double hs, doubl
 }
 
 
-double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate)
+double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int mode, int nmax, int qm, double truncate, double BOUND)
 { double *ww, *zz, b1, b2, ddf, *SF, *p0, rho, *rhomany, *SFlast, Lp=-1., sf_level_adj;
   int i, j, n, nstop, nstop_, nsm, nn, qnspecial=0, Nlocal;
 
@@ -6537,7 +8189,7 @@ double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int 
  qnspecial = (qm+1) / 2;
 
  Nlocal = qm_for_l_and_c(l, zz[qnspecial]*c);
- j = xe2_sfm_deluxe(l, zz[qnspecial]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, SF, &nsm, &rho);
+ j = xe2_sfm_deluxe(l, zz[qnspecial]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, BOUND, SF, &nsm, &rho);
  if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
  n = nsm;
  
@@ -6548,7 +8200,7 @@ double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int 
    nstop = nsm;
    
    Nlocal = qm_for_l_and_c(l, zz[qnspecial+1]*c);
-   j = xe2_sfm_deluxe(l, zz[qnspecial+1]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, SF, &nstop_, &rho);
+   j = xe2_sfm_deluxe(l, zz[qnspecial+1]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
    if ( nstop_ > nsm ) nsm = nstop_;
    if ( nstop_ < 1) nsm = nmax;
@@ -6558,7 +8210,7 @@ double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int 
        nstop = nstop_;
        i++;
        Nlocal = qm_for_l_and_c(l, zz[qnspecial+i]*c);
-       j = xe2_sfm_deluxe(l, zz[qnspecial+i]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, SF, &nstop_, &rho);
+       j = xe2_sfm_deluxe(l, zz[qnspecial+i]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
        if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
        if ( nstop_ > nsm ) nsm = nstop_;
        if ( nstop_ < 1) nsm = nmax;
@@ -6567,7 +8219,7 @@ double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int 
  
    nstop = n;
    Nlocal = qm_for_l_and_c(l, zz[qnspecial-1]*c);
-   j = xe2_sfm_deluxe(l, zz[qnspecial-1]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, SF, &nstop_, &rho);
+   j = xe2_sfm_deluxe(l, zz[qnspecial-1]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
    if ( nstop_ > nsm ) nsm = nstop_;
    if ( nstop_ < 1) nsm = nmax;
@@ -6577,7 +8229,7 @@ double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int 
        nstop = nstop_;
        i++;
        Nlocal = qm_for_l_and_c(l, zz[qnspecial-i]*c);
-       j = xe2_sfm_deluxe(l, zz[qnspecial-i]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, SF, &nstop_, &rho);
+       j = xe2_sfm_deluxe(l, zz[qnspecial-i]*c, hs, q, mu0, mu1, mode, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
        if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
        if ( nstop_ > nsm ) nsm = nstop_;
        if ( nstop_ < 1) nsm = nmax;
@@ -6590,7 +8242,7 @@ double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int 
  
  for (i=0; i<qm; i++) {
    Nlocal = qm_for_l_and_c(l, zz[i]*c);
-   j = xe2_sfm_deluxe(l, zz[i]*c, hs, q, mu0, mu1, mode, Nlocal, nn, SF, &nstop, &rho);
+   j = xe2_sfm_deluxe(l, zz[i]*c, hs, q, mu0, mu1, mode, Nlocal, nn, BOUND, SF, &nstop, &rho);
    if ( j != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
    if ( nstop < 1 ) {
      nstop = nn;
@@ -6604,17 +8256,18 @@ double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int 
    SFlast[i] = SF[nstop-1] * pow(rho, nn-nstop);
  } 
  
- sf_level_adj = 1.-p;
+ sf_level_adj = 1. - p;
+ if ( q > 1 ) sf_level_adj *= p0[q-2];
  if ( p0[nn-1] <= sf_level_adj ) { 
    n = nn-1;
    while (  p0[n] <= sf_level_adj &&  n > 0  ) n--;
-   if ( p0[n] > 1.-p ) Lp = (double)(n+2); else Lp = 1.;
+   if ( p0[n] > sf_level_adj ) Lp = (double)( n + 2 - q + 1 ); else Lp = 1.;
  } else {
    for (n=nn; n<nmax; n++) {
       p0[n] = 0.;
       for (i=0; i<qm; i++) p0[n] += ww[i] * SFlast[i] * pow(rhomany[i], n-nn+1);
       if (  p0[n] <= sf_level_adj  ) {
-        Lp = (double)(n+1);
+        Lp = (double)( n + 1  -  q + 1 );
         n = nmax+1;
       }
    }
@@ -6631,7 +8284,7 @@ double xe2_Wqm_prerun_SIGMA_deluxe(double l, double c, double p, double hs, int 
 }
 
 
-double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double mu, int pn, int df, int nmax, int qm1, int qm2, double truncate)  
+double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double mu, int pn, int df, int nmax, int qm1, int qm2, double truncate, double BOUND)  
 { double *ww1, *zz1, *ww2, *zz2, b, b1, b2, dn, sdn, ddf, *p0, *SF, rho, *rhomany, *SFlast, Lp=-1., sf_level_adj;
   int i, j, m, n, nstop, nstop_, nn, nsm, qnspecial1=0, qnspecial2=0, Nlocal;
  
@@ -6661,7 +8314,7 @@ double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double
  qnspecial2 = qm2 - 1;
  
  Nlocal = qm_for_l_and_c(l, zz2[qnspecial2]*c);
- m = xe2_sf_deluxe(l, zz2[qnspecial2]*c, hs, zz1[qnspecial1]+mu, Nlocal, nmax, SF, &nsm, &rho);
+ m = xe2_sf_deluxe(l, zz2[qnspecial2]*c, hs, zz1[qnspecial1]+mu, Nlocal, nmax, BOUND, SF, &nsm, &rho);
  if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
  
  if ( nsm < 1 ) { /* did not converge yet -- should be the rare case */
@@ -6670,7 +8323,7 @@ double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double
  } else {
    nstop = nsm;
    
-   m = xe2_sf_deluxe(l, zz2[qnspecial2]*c, hs, zz1[qnspecial1-1]+mu, Nlocal, nmax, SF, &nstop_, &rho);
+   m = xe2_sf_deluxe(l, zz2[qnspecial2]*c, hs, zz1[qnspecial1-1]+mu, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
    if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
    if ( nstop_ > nsm ) nsm = nstop_;
    if ( nstop_ < 1) nsm = nmax;
@@ -6679,7 +8332,7 @@ double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double
      while ( nstop_ >= nstop && nsm<nmax ) {
        nstop = nstop_;
        i++;
-       m = xe2_sf_deluxe(l, zz2[qnspecial2]*c, hs, zz1[qnspecial1-i]+mu, Nlocal, nmax, SF, &nstop_, &rho);
+       m = xe2_sf_deluxe(l, zz2[qnspecial2]*c, hs, zz1[qnspecial1-i]+mu, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
        if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
        if ( nstop_ > nsm ) nsm = nstop_;
        if ( nstop_ < 1) nsm = nmax;
@@ -6693,7 +8346,7 @@ double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double
  for (i=0; i<qm1; i++) {
    for (j=0; j<qm2; j++) {
      Nlocal = qm_for_l_and_c(l, zz2[j]*c);
-     m = xe2_sf_deluxe(l, zz2[j]*c, hs, zz1[i]+mu, Nlocal, nn, SF, &nstop, &rho);
+     m = xe2_sf_deluxe(l, zz2[j]*c, hs, zz1[i]+mu, Nlocal, nn, BOUND, SF, &nstop, &rho);
      if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sf_deluxe");
      if ( nstop < 1 ) {
        nstop = nn;
@@ -6708,11 +8361,11 @@ double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double
    }
  }
  
- sf_level_adj = 1.-p;
+ sf_level_adj = 1. - p;
  if ( p0[nn-1] <= sf_level_adj ) { 
    n = nn-1;
    while (  p0[n] <= sf_level_adj &&  n > 0  ) n--;
-   if ( p0[n] > 1.-p ) Lp = (double)(n+2); else Lp = 1.;
+   if ( p0[n] > 1.-p ) Lp = (double)( n + 2 ); else Lp = 1.;
  } else {
    for (n=nn; n<nmax; n++) {
       p0[n] = 0.;
@@ -6720,7 +8373,7 @@ double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double
 	for (j=0; j<qm2; j++)
           p0[n] += ww1[i] * ww2[j] * SFlast[i + j*qm1] * pow(rhomany[i + j*qm1], n-nn+1);
       if (  p0[n] <= sf_level_adj  ) {
-        Lp = (double)(n+1);
+        Lp = (double)( n + 1 );
         n = nmax+1;
       }
    }
@@ -6739,7 +8392,7 @@ double xe2_Wq_prerun_BOTH_deluxe(double l, double c, double p, double hs, double
 }
 
 
-double xe2_Wqm_prerun_BOTH_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate)  
+double xe2_Wqm_prerun_BOTH_deluxe(double l, double c, double p, double hs, int q, double mu0, double mu1, int pn, int df, int mode, int nmax, int qm1, int qm2, double truncate, double BOUND)  
 { double *ww1, *zz1, *ww2, *zz2, b, b1, b2, dn, sdn, ddf, *p0, *SF, rho, *rhomany, *SFlast, Lp=-1., sf_level_adj;
   int i, j, m, n, nstop, nstop_, nn, nsm, qnspecial1=0, qnspecial2=0, Nlocal;
  
@@ -6769,7 +8422,7 @@ double xe2_Wqm_prerun_BOTH_deluxe(double l, double c, double p, double hs, int q
  qnspecial2 = qm2 - 1;
  
  Nlocal = qm_for_l_and_c(l, zz2[qnspecial2]*c);
- m = xe2_sfm_deluxe(l, zz2[qnspecial2]*c, hs, q, zz1[qnspecial1]+mu0, zz1[qnspecial1]+mu1, mode, Nlocal, nmax, SF, &nsm, &rho);
+ m = xe2_sfm_deluxe(l, zz2[qnspecial2]*c, hs, q, zz1[qnspecial1]+mu0, zz1[qnspecial1]+mu1, mode, Nlocal, nmax, BOUND, SF, &nsm, &rho);
  if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
  
  if ( nsm < 1 ) { /* did not converge yet -- should be the rare case */
@@ -6778,7 +8431,7 @@ double xe2_Wqm_prerun_BOTH_deluxe(double l, double c, double p, double hs, int q
  } else {
    nstop = nsm;
    
-   m = xe2_sfm_deluxe(l, zz2[qnspecial2]*c, hs, q, zz1[qnspecial1-1]+mu0, zz1[qnspecial1-1]+mu1, mode, Nlocal, nmax, SF, &nstop_, &rho);
+   m = xe2_sfm_deluxe(l, zz2[qnspecial2]*c, hs, q, zz1[qnspecial1-1]+mu0, zz1[qnspecial1-1]+mu1, mode, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
    if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
    if ( nstop_ > nsm ) nsm = nstop_;
    if ( nstop_ < 1) nsm = nmax;
@@ -6787,7 +8440,7 @@ double xe2_Wqm_prerun_BOTH_deluxe(double l, double c, double p, double hs, int q
      while ( nstop_ >= nstop && nsm<nmax ) {
        nstop = nstop_;
        i++;
-       m = xe2_sfm_deluxe(l, zz2[qnspecial2]*c, hs, q, zz1[qnspecial1-i]+mu0, zz1[qnspecial1-i]+mu1, mode, Nlocal, nmax, SF, &nstop_, &rho);
+       m = xe2_sfm_deluxe(l, zz2[qnspecial2]*c, hs, q, zz1[qnspecial1-i]+mu0, zz1[qnspecial1-i]+mu1, mode, Nlocal, nmax, BOUND, SF, &nstop_, &rho);
        if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
        if ( nstop_ > nsm ) nsm = nstop_;
        if ( nstop_ < 1) nsm = nmax;
@@ -6801,7 +8454,7 @@ double xe2_Wqm_prerun_BOTH_deluxe(double l, double c, double p, double hs, int q
  for (i=0; i<qm1; i++) {
    for (j=0; j<qm2; j++) {
      Nlocal = qm_for_l_and_c(l, zz2[j]*c);
-     m = xe2_sfm_deluxe(l, zz2[j]*c, hs, q, zz1[i]+mu0, zz1[i]+mu1, mode, Nlocal, nn, SF, &nstop, &rho);
+     m = xe2_sfm_deluxe(l, zz2[j]*c, hs, q, zz1[i]+mu0, zz1[i]+mu1, mode, Nlocal, nn, BOUND, SF, &nstop, &rho);
      if ( m != 0 ) warning("trouble with internal [package spc] function xe2_sfm_deluxe");
      if ( nstop < 1 ) {
        nstop = nn;
@@ -6816,19 +8469,20 @@ double xe2_Wqm_prerun_BOTH_deluxe(double l, double c, double p, double hs, int q
    }
  }
  
- sf_level_adj = 1.-p;
+ sf_level_adj = 1. - p;
+ if ( q > 1 ) sf_level_adj *= p0[q-2];
  if ( p0[nn-1] <= sf_level_adj ) { 
    n = nn-1;
    while (  p0[n] <= sf_level_adj &&  n > 0  ) n--;
-   if ( p0[n] > 1.-p ) Lp = (double)(n+2); else Lp = 1.;
+   if ( p0[n] > sf_level_adj ) Lp = (double)( n + 2 - q + 1 ); else Lp = 1.;
  } else {
    for (n=nn; n<nmax; n++) {
       p0[n] = 0.;
       for (i=0; i<qm1; i++)
-	for (j=0; j<qm2; j++)
+        for (j=0; j<qm2; j++)
           p0[n] += ww1[i] * ww2[j] * SFlast[i + j*qm1] * pow(rhomany[i + j*qm1], n-nn+1);
       if (  p0[n] <= sf_level_adj  ) {
-        Lp = (double)(n+1);
+        Lp = (double)( n + 1  -  q + 1 );
         n = nmax+1;
       }
    }
@@ -6945,7 +8599,7 @@ double xc2_igladR (double k, double h, double mu0, double mu1, int r)
 double Tn(double z, int n)
 { double result=1.;
 
- if (fabs(z)<1-1e-12) {
+ if ( fabs(z)<1-1e-12 ) {
    switch (n) {
      case 0: result = 1.; break;
      case 1: result = z; break;
@@ -6971,6 +8625,26 @@ double iTn(double z, int n)
    case 2: result = 2.*z*z*z/3. - z; break;
  }
  if ( n > 2 ) result = ( Tn(z,n+1)/(n+1.) - Tn(z,n-1)/(n-1.) )/2.;
+ return result;
+}
+
+
+/* -------------- derivatives of Chebyshev polynomials on [-1,1] ----------------- */ 
+double dTn(double z, int n)
+{ double result=1., dn;
+ dn = (double)n;
+ if ( fabs(z)<1-1e-12 ) {
+   switch (n) {
+     case 0: result = 0.; break;
+     case 1: result = 1.; break;
+     case 2: result = 4.*z; break;
+     case 3: result = 12.*z*z-3.; break;
+     case 4: result = 32.*z*z*z-16.*z; break;
+     case 5: result = 80.*pow(z,4.)-60.*z*z+5.; break;
+   }
+   if ( n > 5 ) result = dn * ( Tn(z,n-1) - z*Tn(z,n) ) / (1.-z*z);
+ }
+ else { if ( z<0. && (n % 2 == 0) ) result = -dn*dn; else result = dn*dn; }
  return result;
 }
 
@@ -7475,13 +9149,13 @@ double seU_Wq_prerun_SIGMA_deluxe(double l, double cu, double p, double hs, doub
  if ( p0[nn-1] <= sf_level_adj ) { 
    n = nn-1;
    while (  p0[n] <= sf_level_adj &&  n > 0  ) n--;
-   if ( p0[n] > 1.-p ) Lp = (double)(n+2); else Lp = 1.;
+   if ( p0[n] > 1.-p ) Lp = (double)( n + 2 ); else Lp = 1.;
  } else {
    for (n=nn; n<nmax; n++) {
       p0[n] = 0.;
       for (i=0; i<qm2; i++) p0[n] += ww[i] * SFlast[i] * pow(rhomany[i], n-nn+1);
       if (  p0[n] <= sf_level_adj  ) {
-        Lp = (double)(n+1);
+        Lp = (double)( n + 1 );
         n = nmax+1;
       }
    }
@@ -7652,7 +9326,7 @@ double seU_crit(double l, double L0, double hs, double sigma, int df, int N, int
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
    L3 = seU_iglarl(l,s3,hs,sigma,df,N,qm);
    ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
- } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-8 );
+ } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-9 );
 
  return s3;
 }
@@ -7675,7 +9349,7 @@ double stdeU_crit(double l, double L0, double hs, double sigma, int df, int N, i
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
    L3 = stdeU_iglarl(l,s3,hs,sigma,df,N,qm);
    ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
- } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-8 );
+ } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-9 );
 
  return s3;
 }
@@ -7697,7 +9371,7 @@ double seU_crit_prerun_SIGMA(double l, double L0, double hs, double sigma, int d
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
    L3 = seU_iglarl_prerun_SIGMA(l, s3, hs, sigma, df1, df2, N, qm1, qm2, truncate);
    ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
- } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-7 );
+ } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-9 );
 
  return s3;
 }
@@ -8511,13 +10185,13 @@ double se2_Wq_prerun_SIGMA_deluxe(double l, double cl, double cu, double p, doub
  if ( p0[nn-1] <= sf_level_adj ) { 
    n = nn-1;
    while (  p0[n] <= sf_level_adj &&  n > 0  ) n--;
-   if ( p0[n] > 1.-p ) Lp = (double)(n+2); else Lp = 1.;
+   if ( p0[n] > 1.-p ) Lp = (double)( n + 2 ); else Lp = 1.;
  } else {
    for (n=nn; n<nmax; n++) {
       p0[n] = 0.;
       for (i=0; i<qm2; i++) p0[n] += ww[i] * SFlast[i] * pow(rhomany[i], n-nn+1);
       if (  p0[n] <= sf_level_adj  ) {
-        Lp = (double)(n+1);
+        Lp = (double)( n + 1 );
         n = nmax+1;
       }
    }
@@ -8727,7 +10401,7 @@ double se2lu_crit(double l, double L0, double cl, double hs, double sigma, int d
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
    L3 = se2_iglarl(l,cl,s3,hs,sigma,df,N,qm);
    ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
- } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-7 );
+ } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-9 );
 
  return s3;
 }
@@ -8749,7 +10423,7 @@ double stde2lu_crit(double l, double L0, double cl, double hs, double sigma, int
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
    L3 = stde2_iglarl(l, cl, s3, hs, sigma, df, N, qm);
    ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
- } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-8 );
+ } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-9 );
 
  return s3;
 }
@@ -8771,7 +10445,7 @@ double se2lu_crit_prerun_SIGMA(double l, double L0, double cl, double hs, double
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
    L3 = se2_iglarl_prerun_SIGMA(l, cl, s3, hs, sigma, df1, df2, N, qm1, qm2, truncate);
    ds = s3 - s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
- } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-7 );
+ } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-9 );
 
  return s3;
 }
@@ -8884,7 +10558,7 @@ double se2fu_crit(double l, double L0, double cu, double hs, double sigma,  int 
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
    L3 = se2_iglarl(l,s3,cu,hs,sigma,df,N,qm);
    ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
- } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-8 );
+ } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-9 );
  
  return s3;
 }
@@ -8918,7 +10592,7 @@ double stde2fu_crit(double l, double L0, double cu, double hs, double sigma,  in
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
    L3 = stde2_iglarl(l, s3, cu, hs, sigma, df, N,qm);
    ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
- } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-8 );
+ } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-9 );
  
  return s3;
 }
@@ -8949,7 +10623,7 @@ double se2fu_crit_prerun_SIGMA(double l, double L0, double cu, double hs, double
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
    L3 = se2_iglarl_prerun_SIGMA(l, s3, cu, hs, sigma, df1, df2, N, qm1, qm2, truncate);
    ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
- } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-7 );
+ } while ( fabs(L0-L3)>1e-6 && fabs(ds)>1e-9 );
 
  return s3;
 }
@@ -9075,7 +10749,7 @@ int se2_crit_prerun_SIGMA(double l, double L0, double *cl, double *cu, double hs
    Lp = se2_iglarl_prerun_SIGMA(l, csl, s3, hs, sigma+lmEPS, df1, df2, N, qm1, qm2, truncate);
    sl3 = (Lp-Lm)/(2.*lmEPS);
    ds = s3-s2; s1 = s2; sl1 = sl2; s2 = s3; sl2 = sl3;
- } while ( fabs(sl3)>1e-6 && fabs(ds)>1e-7 );
+ } while ( fabs(sl3)>1e-6 && fabs(ds)>1e-9 );
 
  *cl = csl; *cu = s3;
 
@@ -9112,7 +10786,7 @@ int se2_crit_unbiased(double l, double L0, double *cl, double *cu, double hs, do
    Lp = se2_iglarl(l,csl,s3,hs,sigma+lmEPS,df,N,qm);
    sl3 = (Lp-Lm)/(2.*lmEPS);
    ds = s3-s2; s1 = s2; sl1 = sl2; s2 = s3; sl2 = sl3;
- } while ( fabs(sl3)>1e-7 && fabs(ds)>1e-8 );
+ } while ( fabs(sl3)>1e-7 && fabs(ds)>1e-9 );
 
  *cl = csl; *cu = s3;
 
@@ -9149,7 +10823,7 @@ int stde2_crit_unbiased(double l, double L0, double *cl, double *cu, double hs, 
    Lp = stde2_iglarl(l, csl, s3, hs, sigma+lmEPS, df, N, qm);
    sl3 = (Lp-Lm)/(2.*lmEPS);
    ds = s3-s2; s1 = s2; sl1 = sl2; s2 = s3; sl2 = sl3;
- } while ( fabs(sl3)>1e-7 && fabs(ds)>1e-8 );
+ } while ( fabs(sl3)>1e-7 && fabs(ds)>1e-9 );
 
  *cl = csl; *cu = s3;
 
@@ -9196,7 +10870,7 @@ int se2_crit_eqtails(double l, double L0, double *cl, double *cu, double hs, dou
    uARL2 =  seU_iglarl(l, u2, hs, sigma, df, N, qm);
    ARL22 =  se2_iglarl(l, l2, u2, hs, sigma, df, N, qm);
    
- } while (  (fabs(L0-ARL22)>1e-6 || fabs(lARL2-uARL2)>1e-6) && (fabs(l2-l1)>1e-8 || fabs(u2-u1)>1e-8)  );
+ } while (  (fabs(L0-ARL22)>1e-6 || fabs(lARL2-uARL2)>1e-6) && (fabs(l2-l1)>1e-9 || fabs(u2-u1)>1e-9)  );
 
  *cl = l2; *cu = u2;
 
@@ -9243,7 +10917,7 @@ int stde2_crit_eqtails(double l, double L0, double *cl, double *cu, double hs, d
    uARL2 =  stdeU_iglarl(l, u2, hs, sigma, df, N, qm);
    ARL22 =  stde2_iglarl(l, l2, u2, hs, sigma, df, N, qm);
    
- } while (  (fabs(L0-ARL22)>1e-6 || fabs(lARL2-uARL2)>1e-6) && (fabs(l2-l1)>1e-8 || fabs(u2-u1)>1e-8)  );
+ } while (  (fabs(L0-ARL22)>1e-6 || fabs(lARL2-uARL2)>1e-6) && (fabs(l2-l1)>1e-9 || fabs(u2-u1)>1e-9)  );
 
  *cl = l2; *cu = u2;
 
@@ -9270,7 +10944,7 @@ double se2_crit_sym(double l, double L0, double hs, double sigma, int df, int N,
       L3 = se2_iglarl(l, cl3, cu3, hs, sigma, df, N, qm);
       du = cu3-cu2; cu1 = cu2; L1 = L2; cu2 = cu3; L2 = L3;
       if ( L3 < 1. ) error("invalid ARL value");
-    } while ( (fabs(L0-L3)>1e-6) && (fabs(du)>1e-8) ); 
+    } while ( (fabs(L0-L3)>1e-6) && (fabs(du)>1e-9) ); 
   } else {
     error("symmetric design not possible");
     cu3 = -1.;
@@ -9300,7 +10974,7 @@ double stde2_crit_sym(double l, double L0, double hs, double sigma, int df, int 
       L3 = stde2_iglarl(l, cl3, cu3, hs, sigma, df, N, qm);
       du = cu3-cu2; cu1 = cu2; L1 = L2; cu2 = cu3; L2 = L3;
       if ( L3 < 1. ) error("invalid ARL value");
-    } while ( (fabs(L0-L3)>1e-7) && (fabs(du)>1e-8) ); 
+    } while ( (fabs(L0-L3)>1e-7) && (fabs(du)>1e-9) ); 
   } else {
     error("symmetric design not possible");
     cu3 = -1.;
@@ -9417,7 +11091,7 @@ int se2_q_crit_class(double l, int L0, double alpha, double *cl, double *cu, dou
    if ( result != 0 ) warning("trouble in se2_q_crit_class [package spc]");
    A22 = 1. - SF[L0-1];
    
- } while (  (fabs(alpha-A22)>1e-9 || fabs(lA2-uA2)>1e-9) && (fabs(l2-l1)>1e-8 || fabs(u2-u1)>1e-8)  );
+ } while (  (fabs(alpha-A22)>1e-9 || fabs(lA2-uA2)>1e-9) && (fabs(l2-l1)>1e-9 || fabs(u2-u1)>1e-9)  );
 
  *cl = l2; *cu = u2;
  
@@ -10321,13 +11995,13 @@ double seUR_Wq_prerun_SIGMA_deluxe(double l, double cl, double cu, double p, dou
  if ( p0[nn-1] <= sf_level_adj ) { 
    n = nn-1;
    while (  p0[n] <= sf_level_adj &&  n > 0  ) n--;
-   if ( p0[n] > 1.-p ) Lp = (double)(n+2); else Lp = 1.;
+   if ( p0[n] > 1.-p ) Lp = (double)( n + 2 ); else Lp = 1.;
  } else {
    for (n=nn; n<nmax; n++) {
       p0[n] = 0.;
       for (i=0; i<qm2; i++) p0[n] += ww[i] * SFlast[i] * pow(rhomany[i], n-nn+1);
       if (  p0[n] <= sf_level_adj  ) {
-        Lp = (double)(n+1);
+        Lp = (double)( n + 1 );
         n = nmax+1;
       }
    }
@@ -11767,13 +13441,13 @@ double seLR_Wq_prerun_SIGMA_deluxe(double l, double cl, double cu, double p, dou
  if ( p0[nn-1] <= sf_level_adj ) { 
    n = nn-1;
    while (  p0[n] <= sf_level_adj &&  n > 0  ) n--;
-   if ( p0[n] > 1.-p ) Lp = (double)(n+2); else Lp = 1.;
+   if ( p0[n] > 1.-p ) Lp = (double)( n + 2 ); else Lp = 1.;
  } else {
    for (n=nn; n<nmax; n++) {
       p0[n] = 0.;
       for (i=0; i<qm2; i++) p0[n] += ww[i] * SFlast[i] * pow(rhomany[i], n-nn+1);
       if (  p0[n] <= sf_level_adj  ) {
-        Lp = (double)(n+1);
+        Lp = (double)( n + 1 );
         n = nmax+1;
       }
    }
@@ -12220,7 +13894,7 @@ double mxewma_arl_0a2(double lambda, double ce, int p, double hs, int N)
  LU_solve(a, g, N);
 
  arl = 1.;
- for (j=0; j<N; j++) arl += w[j] * nchi( z[j]*z[j]/r2, p, rr*hs*hs)/r2 * g[j] * 2.*z[j];
+ for (j=0; j<N; j++) arl += w[j] * nchi( z[j]*z[j]/r2, p, rr*hs)/r2 * g[j] * 2.*z[j];
 
  Free(a);
  Free(g);
@@ -12807,7 +14481,7 @@ double sign (double x) {
 }
 
 
-/* collocation with two halfs in the same step */
+/* collocation with two halfs in the same step + sin() */
 double mxewma_arl_1b(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1)
 { double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, *g, dN,
          term1, term2, term2a, term2b, innen, arl, mean, sigma, eta, u, u2, uu, v, v2, alpha;
@@ -13093,6 +14767,99 @@ double mxewma_arl_1b2(double lambda, double ce, int p, double delta, double hs, 
  return arl; 
 }
 
+
+/* collocation with two halfs in the same step + sinh() instead of sin() */
+double mxewma_arl_1b4(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1)
+{ double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, *g, dN,
+         term1, term2, term2a, term2b, innen, arl, mean, sigma, eta, u, u2, uu, v, v2, norm;
+  int r, s, i, j, k, l, N2, N3, p1;  
+ 
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+ g = vector(N2);  
+ z0 = vector(qm0);
+ w0 = vector(qm0);
+ z1 = vector(qm1);
+ w1 = vector(qm1);
+
+ ce *= lambda/(2.-lambda); 
+ hs *= lambda/(2.-lambda);
+
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ dN = (double)N;
+ p1 = p - 1; 
+
+ /* canonical Gauss-Legendre nodes and weights */
+ gausslegendre(qm0,  0., 1., z0, w0);
+ gausslegendre(qm1,  0., 1., z1, w1);
+ norm = sinh(1.);
+ 
+ for (s=0; s<N; s++) {   
+   b = cos(PI*(2.*(s+1.)-1.)/2./dN); /* Chebyshev nodes */
+   mean = rdc + (1.-lambda)*b;
+   for (r=0; r<N; r++) {          
+     a = 1/2. * ( 1. + cos(PI*(2.*(r+1.)-1.)/2./dN) ); /* Chebyshev nodes */
+     eta = rr * ce*(1. - b*b)*a;
+     for (i=0; i<N; i++) {
+       for (j=0; j<N; j++) {
+	 term1 = Tn( 2.*a-1., i) * Tn( b, j);
+	 term2a = 0.;
+	 term2b = 0.;
+         for (k=0; k<qm1; k++) {
+	   innen = 0.;
+	   v = sinh(z1[k])/norm;
+	   v2 = v*v;
+	   if ( i==0 ) {
+	     uu = ce * (1.-v2) / r2;
+	     innen = nCHI(uu, p1, eta);
+	   } else {
+	     for (l=0; l<qm0; l++) {
+	       u = z0[l];
+	       u2 = u*u;
+	       /*uu = ce * (1.-v2*v2) * u2 / r2;*/
+	       uu = ce * (1. - v2) * u2/ r2;
+	       innen += w0[l] * Tn( 2.*u2-1., i) * nchi( uu, p1, eta ) * 2.*u;
+	     } /* l = 0 .. qm-1*/
+	     innen *= ce * (1. - v2) / r2;
+	   }
+	   /*term2a += w1[k] * Tn(  v2, j) * phi( ( v2-mean)/sigma, 0.)/sigma * innen * ce * (1. - v2*v2) / r2 * 2.*v;
+	   term2b += w1[k] * Tn( -v2, j) * phi( (-v2-mean)/sigma, 0.)/sigma * innen * ce * (1. - v2*v2) / r2 * 2.*v;*/
+	   term2a += w1[k] * Tn(  v, j) * phi( ( v-mean)/sigma, 0.)/sigma * cosh(z1[k])/norm * innen;
+	   term2b += w1[k] * Tn( -v, j) * phi( (-v-mean)/sigma, 0.)/sigma * cosh(z1[k])/norm * innen;
+         } /* k = 0 .. qm-1*/
+         term2 = term2a + term2b;         
+         M[r*N3 + s*N2 + i*N + j] = term1 - term2;
+       } /* j = 0 .. n-1 */
+     } /* i = 0 .. n-1 */
+   } /* r = 0 .. n-1 */
+ } /* s = 0 .. n-1 */
+
+ for (i=0; i<N2; i++) g[i] = 1.;
+ LU_solve(M, g, N2);
+
+ b = 0.;
+ a = 0.;
+ arl = 0.;
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) {
+     arl += g[i*N + j] * Tn( 2.*a-1., i) * Tn( b, j);
+   }
+ }
+ 
+ Free(w0);
+ Free(z0);
+ Free(w1);
+ Free(z1);
+ Free(g);
+ Free(M);
+ 
+ return arl; 
+}
 
 /* Radau/Gauß-Legendre Nyström -- Rigdon 1995b */
 double mxewma_arl_1c(double lambda, double ce, int p, double delta, double hs, int N)
@@ -15217,6 +16984,7 @@ int xse2fu_crit(double lx, double ls, double L0, double *cx, double *csl, double
  xARL2 = xe2_iglarl(lx,x2,hsx,mu,Nx);
  sARL2 = se2_iglarl(ls,s2,csu,hss,sigma,df,Ns,qm);
  xsARL22 = xse2_arl(lx,ls,x2,s2,csu,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+ /*printf("cx = %.4f,\tcsk = %.4f,\tcsu = %.4f\t,\txARL = %.2f,\tsARL = %.2f,\txsARL = %.2f\n", x2, s2, csu, xARL2, sARL2, xsARL22);*/
  do {
    xARL1 = xe2_iglarl(lx,x1,hsx,mu,Nx);
    sARL1 = se2_iglarl(ls,s1,csu,hss,sigma,df,Ns,qm);
@@ -15241,6 +17009,7 @@ int xse2fu_crit(double lx, double ls, double L0, double *cx, double *csl, double
    xARL2 = xe2_iglarl(lx,x2,hsx,mu,Nx);
    sARL2 = se2_iglarl(ls,s2,csu,hss,sigma,df,Ns,qm);
    xsARL22 = xse2_arl(lx,ls,x2,s2,csu,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+   /*printf("cx = %.4f,\tcsk = %.4f,\tcsu = %.4f\t,\txARL = %.2f,\tsARL = %.2f,\txsARL = %.2f\n", x2, s2, csu, xARL2, sARL2, xsARL22);*/
  } while (  (fabs(L0-xsARL22)>1e-6 || fabs(xARL2-sARL2)>1e-6) && (fabs(x2-x1)>1e-8 || fabs(s2-s1)>1e-8)   );
 
  *cx = x2; *csl = s2;
@@ -15255,12 +17024,14 @@ int xse2_crit(double lx, double ls, double L0, double *cx, double *csl, double *
 
  cl = 0.;
  flag = xseU_crit(lx,ls,L0,&x,&s1,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+ /*printf("cx = %.4f,\tcsl = %.4f,\tcsu = %.4f\n", x, cl, s1);*/
 
  Lm = xseU_arl(lx,ls,x,s1,hsx,hss,mu,sigma-lmEPS,df,Nx,Ns,nmax,qm);
  Lp = xseU_arl(lx,ls,x,s1,hsx,hss,mu,sigma+lmEPS,df,Nx,Ns,nmax,qm);
  sl1 = (Lp-Lm)/(2.*lmEPS);
  s2 = s1 + .15;
  flag = xse2fu_crit(lx,ls,L0,&x,&cl,s2,hsx,hss,mu,sigma,df,Nx,Ns,nmax,qm);
+ /*printf("cx = %.4f,\tcsl = %.4f,\tcsu = %.4f\n", x, cl, s2);*/
  Lm = xse2_arl(lx,ls,x,cl,s2,hsx,hss,mu,sigma-lmEPS,df,Nx,Ns,nmax,qm);
  Lp = xse2_arl(lx,ls,x,cl,s2,hsx,hss,mu,sigma+lmEPS,df,Nx,Ns,nmax,qm);
  sl2 = (Lp-Lm)/(2.*lmEPS);
@@ -15271,6 +17042,7 @@ int xse2_crit(double lx, double ls, double L0, double *cx, double *csl, double *
    Lm = xse2_arl(lx,ls,x,cl,s3,hsx,hss,mu,sigma-lmEPS,df,Nx,Ns,nmax,qm);
    Lp = xse2_arl(lx,ls,x,cl,s3,hsx,hss,mu,sigma+lmEPS,df,Nx,Ns,nmax,qm);
    sl3 = (Lp-Lm)/(2.*lmEPS);
+   /*printf("cx = %.4f,\tcsl = %.4f,\tcsu = %.4f\t,\tslope = %.6f\n", x, cl, s3, sl3);*/
    ds = s3-s2; s1 = s2; sl1 = sl2; s2 = s3; sl2 = sl3;
  } while ( fabs(sl3)>1e-6 && fabs(ds)>1e-7 );
 
@@ -15341,14 +17113,26 @@ double WK_h_invers_sigma(double p, double mu, double LSL, double USL)
 }
 
 
+/* alpha, the upper limit of the cdf (and pdf) definite integral */
+double wk_alpha(double p, double sigma, int n, double LSL, double USL)
+{ double alpha, dn, zphalf;
+ dn = (double)n;
+ zphalf = qPHI(p/2.);
+ alpha = (dn-1.)/sigma/sigma * (USL-LSL)*(USL-LSL)/4. / (zphalf*zphalf);
+ return alpha;
+}
+
+
 /* cdf of h(xbar, sigma0=1) for X ~ N(mu, sigma) */
 
 double cdf_phat(double p, double mu, double sigma, int n, double LSL, double USL)
-{ double result, pstar, mu_of_p, dn;
+{ double result, pstar, mu_of_p, dn, centre;
  dn = (double)n;
  result = 0.;
  if ( p >= 1. ) result = 1.;
- pstar = WK_h(0., 1., LSL, USL);
+ centre = (LSL+USL)/2.;
+ /*pstar = WK_h(centre, sigma, LSL, USL);*/
+ pstar = WK_h(centre, 1., LSL, USL);
  if ( pstar < p && p < 1. ) {
    mu_of_p = WK_h_invers_mu(p, 1., LSL, USL);
    result = PHI( (mu_of_p - mu)*sqrt(dn)/sigma, 0. ) - PHI( (-mu_of_p - mu)*sqrt(dn)/sigma, 0. );
@@ -15360,10 +17144,12 @@ double cdf_phat(double p, double mu, double sigma, int n, double LSL, double USL
 /* pdf of h(xbar, sigma0=1) for X ~ N(mu, sigma) */
 
 double pdf_phat(double p, double mu, double sigma, int n, double LSL, double USL)
-{ double result, pstar, mu_of_p, dn;
+{ double result, pstar, mu_of_p, dn, centre;
  dn = (double)n;
  result = 0.;
- pstar = WK_h(0., 1., LSL, USL);
+ centre = (LSL+USL)/2.;
+ /*pstar = WK_h(centre, sigma, LSL, USL);*/
+ pstar = WK_h(centre, 1., LSL, USL);
  if ( pstar < p && p < 1. ) {
    mu_of_p = WK_h_invers_mu(p, 1., LSL, USL);
    result = sqrt(dn)*( phi( (mu_of_p - mu)*sqrt(dn)/sigma, 0. ) + phi( (-mu_of_p - mu)*sqrt(dn)/sigma, 0. ) ) / wk_h_mu(mu_of_p, 1., LSL, USL)/sigma;
@@ -15372,8 +17158,138 @@ double pdf_phat(double p, double mu, double sigma, int n, double LSL, double USL
 }
 
 
+/* quantile function of h(xbar, sigma0=1) for X ~ N(mu, sigma) */
+
+double qf_phat(double p0, double mu, double sigma, int n, double LSL, double USL)
+{ double pstar, centre, c1, c2, c3, p1, p2, p3, dc, cstep;
+ centre = (LSL+USL)/2.;
+ pstar = WK_h(centre, sigma, LSL, USL);
+ c2 = pstar;
+ p2 = 0.;
+ cstep = p0/1e3;
+ do {
+   c1 = c2;
+   p1 = p2;
+   c2 += cstep;
+   p2 = cdf_phat(c2, mu, sigma, n, LSL, USL);
+ } while ( p2 < p0 );
+ if ( c2 <= pstar + cstep + 1e-9 ) {
+   c1 = c2 - cstep/2.;
+   p1 = cdf_phat(c1, mu, sigma, n, LSL, USL);
+ }
+ do {
+   c3 = c1 + ( p0 - p1 )/( p2 - p1 ) * ( c2 - c1 );
+   p3 = cdf_phat(c3, mu, sigma, n, LSL, USL);
+   dc = c3 - c2; c1 = c2; p1 = p2; c2 = c3; p2 = p3;
+ } while ( fabs( p0 - p3 )>1e-10 && fabs(dc)>1e-10 );
+ return c3; 
+}
+
+
+/* integrand for cdf of h(xbar, s) for X ~ N(mu, sigma) */
+
+double wk_cdf_i(double y, double p, double mu, double sigma, int n, double LSL, double USL)
+{ double result, alpha, x, s, mu_p, dn, atrim;
+  dn = (double)n;
+  alpha = wk_alpha(p, sigma, n, LSL, USL);
+  atrim = qCHI(0.9999999999, n-1);
+  if ( atrim < alpha ) alpha = atrim;
+  x = alpha - pow(y,2.);
+  s = sigma * sqrt( x/(dn-1.) );
+  mu_p = WK_h_invers_mu(p, s, LSL, USL);
+  result = PHI( (mu_p-mu)*sqrt(dn)/sigma, 0.) - PHI( (-mu_p-mu)*sqrt(dn)/sigma, 0.);
+  result *= chi(x, n-1) * 2*y;
+ return result;
+}
+
+/* cdf of h(xbar, s) for X ~ N(mu, sigma) */
+
+double cdf_phat2(double p, double mu, double sigma, int n, double LSL, double USL, int nodes)
+{ double result, alpha, *w, *z, xl, xu, atrim;
+  int i;  
+ w = vector(nodes);
+ z = vector(nodes); 
+ result = 0.;
+ if ( p >= 1. ) result = 1.;
+ xl = 0.;
+ if ( 0. < p && p < 1. ) {
+   alpha = wk_alpha(p, sigma, n, LSL, USL);
+   atrim = qCHI(0.9999999999, n-1);
+   if ( atrim < alpha ) alpha = atrim;
+   xu = pow(alpha,0.5);
+   gausslegendre(nodes, xl, xu, z, w);
+   for (i=0; i<nodes; i++) result += w[i] * wk_cdf_i(z[i], p, mu, sigma, n, LSL, USL);   
+ } 
+ Free(z);
+ Free(w); 
+ return result;
+}
+
+/* integrand for pdf of h(xbar, s) for X ~ N(mu, sigma) */
+
+double wk_pdf_i(double y, double p, double mu, double sigma, int n, double LSL, double USL)
+{ double result, alpha, x, s, mu_p, dn;
+  dn = (double)n;
+  alpha = wk_alpha(p, sigma, n, LSL, USL);
+  x = alpha - y*y;
+  s = sigma * sqrt( x/(dn-1.) );
+  mu_p = WK_h_invers_mu(p, s, LSL, USL);  
+  result = ( phi( (mu_p-mu)*sqrt(dn)/sigma, 0.) + phi( (-mu_p-mu)*sqrt(dn)/sigma, 0.) ) * sqrt(dn)/sigma;
+  result /= wk_h_mu(mu_p, s, LSL, USL);
+  result *= chi(x, n-1) * 2.*y;  
+  return result;
+}
+
+/* pdf of h(xbar, s) for X ~ N(mu, sigma) */
+
+double pdf_phat2(double p, double mu, double sigma, int n, double LSL, double USL, int nodes)
+{ double result, alpha, *w, *z, xl, xu;
+  int i;  
+ w = vector(nodes);
+ z = vector(nodes); 
+ result = 0.;
+ xl = 0.;
+ if ( 0. < p && p < 1. ) {
+   alpha = wk_alpha(p, sigma, n, LSL, USL);
+   xu = sqrt(alpha);
+   gausslegendre(nodes, xl, xu, z, w);
+   for (i=0; i<nodes; i++) result += w[i] * wk_pdf_i(z[i], p, mu, sigma, n, LSL, USL);
+ } 
+ Free(z);
+ Free(w); 
+ return result;
+}
+
+/* quantile function of h(xbar, s) for X ~ N(mu, sigma) */
+
+double qf_phat2(double p0, double mu, double sigma, int n, double LSL, double USL, int nodes)
+{ double c1, c2, c3, p1, p2, p3, dc, cstep;
+ c2 = 0.;
+ p2 = 0.;
+ cstep = p0/1e3;
+ do {
+   c1 = c2;
+   p1 = p2;
+   c2 += cstep;
+   p2 = cdf_phat2(c2, mu, sigma, n, LSL, USL, nodes);
+ } while ( p2 < p0 );
+ if ( c2 <= cstep + 1e-9 ) {
+   c1 = c2 - cstep/2.;
+   p1 = cdf_phat2(c1, mu, sigma, n, LSL, USL, nodes);
+ }
+ do {
+   c3 = c1 + ( p0 - p1 )/( p2 - p1 ) * ( c2 - c1 );
+   p3 = cdf_phat2(c3, mu, sigma, n, LSL, USL, nodes);
+   dc = c3 - c2; c1 = c2; p1 = p2; c2 = c3; p2 = p3;
+ } while ( fabs( p0 - p3 )>1e-10 && fabs(dc)>1e-10 );
+ return c3; 
+}
+
+
+/* collocation */
+
 double ewma_phat_arl(double lambda, double ucl, double mu, double sigma, int n, double z0, double LSL, double USL, int N, int qm)
-{ double *a, *g, *w, *z, arl, Hij, dN, xl, xu, za, ll, pstar, xi;
+{ double *a, *g, *w, *z, arl, Hij, dN, xl, xu, za, ll, pstar, xi, centre;
   int i, j, k;
 
  dN = (double)N;
@@ -15382,7 +17298,9 @@ double ewma_phat_arl(double lambda, double ucl, double mu, double sigma, int n, 
  w = vector(qm);
  z = vector(qm);
  
- pstar = WK_h(0., 1., LSL, USL);
+ centre = (LSL+USL)/2.;
+ /*pstar = WK_h(centre, sigma, LSL, USL);*/
+ pstar = WK_h(centre, 1., LSL, USL);
 
  for (i=0; i<N; i++) {
    xi = pstar + (ucl - pstar)/2. * (1.+cos(PI*(2.*(i+1.)-1.)/2./dN));
@@ -15415,9 +17333,125 @@ double ewma_phat_arl(double lambda, double ucl, double mu, double sigma, int n, 
 }
 
 
+double ewma_phat_arl_be(double lambda, double ucl, double mu, double sigma, int n, double z0, double LSL, double USL, int N)
+{ double *a, *g, w, arl, dN, pstar, centre;
+  int i, j;
+  
+ dN = (double)N;
+ 
+ a = matrix(N,N);
+ g = vector(N);
+ 
+ centre = (LSL+USL)/2.;
+ /*pstar = WK_h(centre, sigma, LSL, USL);*/
+ pstar = WK_h(centre, 1., LSL, USL);
+ 
+ w = (ucl - pstar)/dN; 
+ 
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++)
+     a[i*N+j] = - ( cdf_phat( pstar + ((j+1)*w-(1.-lambda)*(i+0.5)*w)/lambda, mu, sigma, n, LSL, USL) - 
+                    cdf_phat( pstar + (    j*w-(1.-lambda)*(i+0.5)*w)/lambda, mu, sigma, n, LSL, USL) );
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ LU_solve(a, g, N);
+
+ arl = 1.;
+ for (j=0;j<N;j++)
+   arl += ( cdf_phat( (pstar+(j+1)*w-(1.-lambda)*z0)/lambda, mu, sigma, n, LSL, USL) -
+            cdf_phat( (pstar+    j*w-(1.-lambda)*z0)/lambda, mu, sigma, n, LSL, USL) ) * g[j];
+
+ Free(g);
+ Free(a);
+
+ return arl;
+}
+
+
+/* collocation */
+
+double ewma_phat_arl2(double lambda, double ucl, double mu, double sigma, int n, double z0, double LSL, double USL, int N, int qm, int M)
+{ double *a, *g, *w, *z, arl, Hij, dN, xl, xu, za, xi, dM, x, FF;
+  int i, j, k, nodes=30;
+  
+ dN = (double)N;
+ dM = (double)M;
+ 
+ a = matrix(N,N);
+ g = vector(N);
+ w = vector(qm);
+ z = vector(qm);
+
+ for (i=0; i<N; i++) {
+   xi = ucl/2. * (1.+cos(PI*(2.*(i+1.)-1.)/2./dN));
+   za = (1.-lambda)*xi;
+   FF = cdf_phat2( (ucl-za)/lambda, mu, sigma, n, LSL, USL, nodes);
+   a[i*N] = 1. - FF;   
+   xl = 0.; 
+   xu = pow(ucl - za, 1./dM);
+   gausslegendre(qm, xl, xu, z, w);   
+   for (j=1; j<N; j++) {
+     Hij = 0.;
+     for (k=0; k<qm; k++) {
+       x = pow(z[k],dM) + za;
+       Hij += w[k] * dTn( 2.*x/ucl-1. ,j)*2./ucl * cdf_phat2( (x-za)/lambda, mu, sigma, n, LSL, USL, nodes) * dM*pow(z[k],dM-1.);
+     }
+     a[i*N+j] = Tn( 2.*xi/ucl - 1., j) - (FF - Hij);
+   }
+ }
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ LU_solve(a, g, N);
+ arl = g[0];
+ for (j=1;j<N;j++) arl += g[j] * Tn( 2.*z0/ucl-1., j);
+
+ Free(z);
+ Free(w);
+ Free(g);
+ Free(a);
+
+ return arl;
+}
+
+
+double ewma_phat_arl2_be(double lambda, double ucl, double mu, double sigma, int n, double z0, double LSL, double USL, int N)
+{ double *a, *g, w, arl, dN;
+  int i, j, nodes=30;
+  
+ dN = (double)N;
+ w = ucl/dN;
+ 
+ a = matrix(N,N);
+ g = vector(N);
+ 
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++)
+     a[i*N+j] = - ( cdf_phat2( ((j+1)*w-(1.-lambda)*(i+0.5)*w)/lambda, mu, sigma, n, LSL, USL, nodes) - 
+                    cdf_phat2( (    j*w-(1.-lambda)*(i+0.5)*w)/lambda, mu, sigma, n, LSL, USL, nodes) );
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ LU_solve(a, g, N);
+
+ arl = 1.;
+ for (j=0;j<N;j++)
+   arl += ( cdf_phat2( ((j+1)*w-(1.-lambda)*z0)/lambda, mu, sigma, n, LSL, USL, nodes) -
+            cdf_phat2( (    j*w-(1.-lambda)*z0)/lambda, mu, sigma, n, LSL, USL, nodes) ) * g[j];
+
+ Free(g);
+ Free(a);
+
+ return arl;
+}
+
+
 double ewma_phat_crit(double lambda, double L0, double mu, double sigma, int n, double z0, double LSL, double USL, int N, int qm)
-{ double c1, c2, c3, L1, L2, L3, dc, pstar, cstep;
- pstar = WK_h(0., 1., LSL, USL);
+{ double c1, c2, c3, L1, L2, L3, dc, pstar, cstep, centre;
+ centre = (LSL+USL)/2.;
+ pstar = WK_h(centre, sigma, LSL, USL);
  c2 = pstar;
  cstep = lambda/10.;
  do {
@@ -15430,6 +17464,30 @@ double ewma_phat_crit(double lambda, double L0, double mu, double sigma, int n, 
  do {
    c3 = c1 + ( L0 - L1 )/( L2 - L1 ) * ( c2 - c1 );
    L3 = ewma_phat_arl(lambda, c3, mu, sigma, n, z0, LSL, USL, N, qm);
+   dc = c3 - c2; c1 = c2; L1 = L2; c2 = c3; L2 = L3;
+ } while ( fabs( L0 - L3 )>1e-6 && fabs(dc)>1e-12 );
+ return c3;
+}
+
+
+double ewma_phat_crit2(double lambda, double L0, double mu, double sigma, int n, double z0, double LSL, double USL, int N, int qm, int M)
+{ double c1, c2, c3, L1, L2, L3, dc, cstep;
+ c2 = 0.;
+ L2 = 0.;
+ cstep = lambda/10.;
+ do {
+   c1 = c2;
+   L1 = L2;
+   c2 += cstep;
+   L2 = ewma_phat_arl2(lambda, c2, mu, sigma, n, z0, LSL, USL, N, qm, M);
+ } while ( L2 < L0 );
+ if ( c2 <= cstep + 1e-9 ) {
+   c1 = c2 - cstep/2.;
+   L1 = ewma_phat_arl2(lambda, c1, mu, sigma, n, z0, LSL, USL, N, qm, M);
+ }
+ do {
+   c3 = c1 + ( L0 - L1 )/( L2 - L1 ) * ( c2 - c1 );
+   L3 = ewma_phat_arl2(lambda, c3, mu, sigma, n, z0, LSL, USL, N, qm, M);
    dc = c3 - c2; c1 = c2; L1 = L2; c2 = c3; L2 = L3;
  } while ( fabs( L0 - L3 )>1e-6 && fabs(dc)>1e-12 );
  return c3;
@@ -15465,6 +17523,35 @@ double ewma_phat_lambda(double L0, double mu, double sigma, double max_l, double
      N = N_of_l(lambda);      
      cE  = ewma_phat_crit(lambda, L0, 0., sigma, n, z0, LSL, USL, N, qm);      
      L1_ = ewma_phat_arl(lambda, cE, mu, sigma, n, z0, LSL, USL, N, qm);
+     if ( L1_ > L1 && i < 23 ) i = 21;
+     L1 = L1_;
+   }
+   ldelta /= 10.;
+   one *= -1.;
+ }
+ if ( i < 23 ) lambda -= 10.*ldelta*one;
+ return lambda;
+}
+
+
+double ewma_phat_lambda2(double L0, double mu, double sigma, double max_l, double min_l, int n, double z0, double LSL, double USL, int qm, int M)
+{ double dn, cS, cE, ldelta, one, L1, L1_, lambda;
+  int i, j, N;
+ lambda = 1.;
+ dn = (double)n;
+ cS = qPHI( 1. - 1./(2.*L0) )/sqrt(dn)*sigma;
+ cE = WK_h( cS, 1., LSL, USL );
+ L1 = 1./( PHI( (-cS-mu)*sqrt(dn)/sigma, 0.) + 1. - PHI( (cS-mu)*sqrt(dn)/sigma, 0.) );
+ ldelta = .1;
+ one = 1; 
+ for (j=0; j<4; j++) {
+   for (i=0; i<20; i++) {
+     lambda = lambda - ldelta*one;
+     if ( lambda <= min_l ) { lambda = min_l; i = 23; }
+     if ( lambda >= max_l ) { lambda = max_l; i = 23; }      
+     N = N_of_l(lambda);      
+     cE  = ewma_phat_crit2(lambda, L0, 0., sigma, n, z0, LSL, USL, N, qm, M);      
+     L1_ = ewma_phat_arl2 (lambda, cE, mu, sigma, n, z0, LSL, USL, N, qm, M);
      if ( L1_ > L1 && i < 23 ) i = 21;
      L1 = L1_;
    }

@@ -1,6 +1,6 @@
 Package: spc
-Version: 0.5.0
-Date: 2012-11-13
+Version: 0.5.1
+Date: 2015-05-18
 Title: Statistical Process Control -- Collection of Some Useful
         Functions
 Author: Sven Knoth
@@ -18,7 +18,7 @@ Description: Evaluation of control charts by means of
         (sampling plans, capability indices ...).
 License: GPL (>= 2)
 URL: http://www.r-project.org
-Packaged: 2014-02-03 22:17:03 UTC; knoth
 NeedsCompilation: yes
+Packaged: 2015-05-18 19:14:36 UTC; knoth
 Repository: CRAN
-Date/Publication: 2014-02-04 00:07:47
+Date/Publication: 2015-05-18 22:40:54

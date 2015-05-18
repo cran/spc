@@ -21,7 +21,7 @@ mewma.arl <- function(l, c, p, delta=0, hs=0, r=20, ntype=NULL, qm0=20, qm1=qm0)
     }
   }
   
-  qtyp <- pmatch(tolower(ntype), c("gl", "co", "ra", "cc", "mc", "sr", "co2", "gl2", "gl3", "gl4", "gl5", "co3")) - 1
+  qtyp <- pmatch(tolower(ntype), c("gl", "co", "ra", "cc", "mc", "sr", "co2", "gl2", "gl3", "gl4", "gl5", "co3", "co4")) - 1
   if ( is.na(qtyp) )		stop("invalid type of numerical algorithm")
 
   arl <- .C("mewma_arl", as.double(l), as.double(c),

@@ -6,7 +6,7 @@ control charts monitoring normal mean
 if the in-control mean, standard deviation, or both are estimated by a pre run.}
 \usage{xewma.sf.prerun(l, c, mu, n, zr=0, hs=0, sided="one", limits="fix", q=1,
 size=100, df=NULL, estimated="mu", qm.mu=30, qm.sigma=30,
-truncate=1e-10, tail_approx=TRUE)}
+truncate=1e-10, tail_approx=TRUE, bound=1e-10)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{c}{critical value (similar to alarm limit) of the EWMA control chart.}
@@ -31,6 +31,7 @@ values are needed.}
 \item{qm.sigma}{number of quadrature nodes for convoluting the standard deviation uncertainty.}
 \item{truncate}{size of truncated tail.}
 \item{tail_approx}{Controls whether the geometric tail approximation is used (is faster) or not.}
+\item{bound}{control when the geometric tail kicks in; the larger the quicker and less accurate; \code{bound} should be larger than 0 and less than 0.001.}
 }
 \details{
 The survival function P(L>n) and derived from it also the cdf P(L<=n) and

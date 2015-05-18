@@ -15,6 +15,7 @@
 #define GL4 9
 #define GL5 10
 #define CO3 11
+#define CO4 12
 
 double mxewma_arl_0a(double lambda, double ce, int p, double hs, int N);
 double mxewma_arl_0a2(double lambda, double ce, int p, double hs, int N);
@@ -33,6 +34,7 @@ double mxewma_arl_1a5(double lambda, double ce, int p, double delta, double hs, 
 double mxewma_arl_1b(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1);
 double mxewma_arl_1b2(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1);
 double mxewma_arl_1b3(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1);
+double mxewma_arl_1b4(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1);
 double mxewma_arl_1c(double lambda, double ce, int p, double delta, double hs, int N);
 double mxewma_arl_1d(double lambda, double ce, int p, double delta, double hs, int N);
 double mxewma_arl_1e(double lambda, double ce, int p, double delta, double hs, int N);
@@ -59,6 +61,7 @@ void mewma_arl(double *l, double *c, int *p, double *delta, double *hs, int *r, 
    if ( *qtype == CO )  *arl = mxewma_arl_1b(*l, *c, *p, *delta, *hs, *r, *qm0, *qm1);
    if ( *qtype == CO2 ) *arl = mxewma_arl_1b2(*l, *c, *p, *delta, *hs, *r, *qm0, *qm1);
    if ( *qtype == CO3 ) *arl = mxewma_arl_1b3(*l, *c, *p, *delta, *hs, *r, *qm0, *qm1);
+   if ( *qtype == CO4 ) *arl = mxewma_arl_1b4(*l, *c, *p, *delta, *hs, *r, *qm0, *qm1);
    if ( *qtype == RA ) *arl = mxewma_arl_1c(*l, *c, *p, *delta, *hs, *r);
    if ( *qtype == CC ) *arl = mxewma_arl_1d(*l, *c, *p, *delta, *hs, *r);
    if ( *qtype == MC ) *arl = mxewma_arl_1e(*l, *c, *p, *delta, *hs, *r);

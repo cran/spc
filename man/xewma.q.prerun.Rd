@@ -6,11 +6,11 @@
 for EWMA control charts monitoring normal mean
 if the in-control mean, standard deviation, or both are estimated by a pre run.}
 \usage{xewma.q.prerun(l, c, mu, p, zr=0, hs=0, sided="two", limits="fix", q=1, size=100,
-df=NULL, estimated="mu", qm.mu=30, qm.sigma=30, truncate=1e-10)
+df=NULL, estimated="mu", qm.mu=30, qm.sigma=30, truncate=1e-10, bound=1e-10)
 
 xewma.q.crit.prerun(l, L0, mu, p, zr=0, hs=0, sided="two", limits="fix", size=100,
-df=NULL, estimated="mu", qm.mu=30, qm.sigma=30, truncate=1e-10, c.error=1e-10,
-p.error=1e-9, OUTPUT=FALSE)}
+df=NULL, estimated="mu", qm.mu=30, qm.sigma=30, truncate=1e-10, bound=1e-10,
+c.error=1e-10, p.error=1e-9, OUTPUT=FALSE)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{c}{critical value (similar to alarm limit) of the EWMA control chart.}
@@ -35,6 +35,7 @@ If the pre run is collected in batches, then also other values are needed.}
 \item{qm.mu}{number of quadrature nodes for convoluting the mean uncertainty.}
 \item{qm.sigma}{number of quadrature nodes for convoluting the standard deviation uncertainty.}
 \item{truncate}{size of truncated tail.}
+\item{bound}{control when the geometric tail kicks in; the larger the quicker and less accurate; \code{bound} should be larger than 0 and less than 0.001.}
 \item{L0}{in-control quantile value.}
 \item{c.error}{error bound for two succeeding values of the critical value during
 applying the secant rule.}

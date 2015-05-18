@@ -5,11 +5,13 @@
 \title{Compute ARLs of EWMA phat control charts}
 \description{Computation of the (zero-state) Average Run Length (ARL), upper control limit (ucl)
 for given in-control ARL, and lambda for minimal out-of control ARL at given shift.}
-\usage{phat.ewma.arl(lambda, ucl, mu, n, z0, sigma=1, LSL=-3, USL=3, N=15, qm=15)
+\usage{phat.ewma.arl(lambda, ucl, mu, n, z0, sigma=1, type="known", LSL=-3, USL=3, N=15,
+qm=25, ntype="coll")
 
-phat.ewma.crit(lambda, L0, mu, n, z0, sigma=1, LSL=-3, USL=3, N=15, qm=15)
+phat.ewma.crit(lambda, L0, mu, n, z0, sigma=1, type="known", LSL=-3, USL=3, N=15, qm=25)
 
-phat.ewma.lambda(L0, mu, n, z0, sigma=1, max_l=1, min_l=.001, LSL=-3, USL=3, qm=15)
+phat.ewma.lambda(L0, mu, n, z0, sigma=1, type="known", max_l=1, min_l=.001, LSL=-3, USL=3,
+qm=25)
 }
 \arguments{
 \item{lambda}{smoothing parameter of the EWMA control chart.}
@@ -18,11 +20,14 @@ phat.ewma.lambda(L0, mu, n, z0, sigma=1, max_l=1, min_l=.001, LSL=-3, USL=3, qm=
 \item{mu}{true mean or mean where the ARL should be minimized (then the in-control mean is simply 0).}
 \item{n}{subgroup size.}
 \item{z0}{so-called headstart (gives fast initial response).}
+\item{type}{choose whether the standard deviation is given and fixed (\code{"known"}) or estimated and potentially monitored (\code{"estimated"}).}
 \item{sigma}{actual standard deviation of the data -- the in-control value is 1.}
 \item{max_l, min_l}{maximal and minimal value for optimal lambda search.}
 \item{LSL,USL}{lower and upper specification limit, respectively.}
 \item{N}{size of collocation base, dimension of the resulting linear equation system is equal to \code{N}.}
 \item{qm}{number of nodes for collocation quadratures.}
+\item{ntype}{switch between the default method \code{coll} (collocation) and the classic one \code{markov} (Markov chain approximation)
+for calculating the ARL numerically.}
 }
 \details{
 The three implemented functions allow to apply a new type control chart. Basically, lower and upper
@@ -50,7 +55,7 @@ h.mu <- function(mu) pnorm(LSL-mu) + pnorm(mu-USL)
 ewma <- function(x, lambda=0.1, z0=0) filter(lambda*x, 1-lambda, m="r", init=z0)
 
 # parameters
-LSL <- -3 # lower specification limit
+LSL <- -3       # lower specification limit
 USL <-  3	# upper specification limit
 n <- 5		# batch size
 lambda <- 0.1	# EWMA smoothing parameter

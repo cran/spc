@@ -14,12 +14,17 @@
 #define test 6
 
 double xe1_Wq(double l, double c, double p, double zr, double hs, double mu, int N, int nmax);
+double xe1_Wqm(double l, double c, double p, double zr, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
 double xe2_Wq(double l, double c, double p, double hs, double mu, int N, int nmax);
 double xe2_Wqm(double l, double c, double p, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
 
 void xewma_q(int *ctyp, double *l, double *c, double *p, double *zr, double *hs, double *mu, int *ltyp, int *r, int *q, double *tq)
 { int nmax=1000000;
- if ( *ctyp==ewma1 )  *tq = xe1_Wq(*l, *c, *p, *zr, *hs, *mu, *r, nmax);
+  
+ if ( *ctyp==ewma1 && *ltyp==fix && *q==1 )  *tq = xe1_Wq(*l, *c, *p, *zr, *hs, *mu, *r, nmax);
+ if ( *ctyp==ewma1 && *ltyp==fix && *q>1 )   *tq = xe1_Wqm(*l, *c, *p, *zr, *hs, *q, 0., *mu, *ltyp, *r, nmax);
+ if ( *ctyp==ewma1 && *ltyp>fix )            *tq = xe1_Wqm(*l, *c, *p, *zr, *hs, *q, 0., *mu, *ltyp, *r, nmax);
+ 
  if ( *ctyp==ewma2 && *ltyp==fix && *q==1 )  *tq = xe2_Wq(*l, *c, *p, *hs, *mu, *r, nmax);
  if ( *ctyp==ewma2 && *ltyp==fix && *q>1 )   *tq = xe2_Wqm(*l, *c, *p, *hs, *q, 0., *mu, *ltyp, *r, nmax);
  if ( *ctyp==ewma2 && *ltyp>fix )            *tq = xe2_Wqm(*l, *c, *p, *hs, *q, 0., *mu, *ltyp, *r, nmax);

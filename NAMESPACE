@@ -11,9 +11,10 @@ export("xshewhartrunsrules.ad", "xshewhartrunsrules.arl", "xshewhartrunsrules.cr
        "xsewma.arl", "xsewma.crit", "xsewma.sf", "xsewma.q.crit", "xsewma.q",
        "xewma.arl.prerun", "xewma.q.prerun", "xewma.sf.prerun",
        "xewma.crit.prerun", "xewma.q.crit.prerun",
+       "xtewma.arl", "xtewma.ad", "xtewma.sf", "xtewma.q", "xtewma.q.crit",
        "xDcusum.arl", "xDewma.arl", "xDgrsr.arl", "xDshewhartrunsrules.arl", "xDshewhartrunsrulesFixedm.arl",
        "p.ewma.arl",
-       "phat.ewma.arl", "phat.ewma.crit", "phat.ewma.lambda",
+       "phat.ewma.arl", "phat.ewma.crit", "phat.ewma.lambda", "dphat", "pphat", "qphat",
        "s.res.ewma.arl", "x.res.ewma.arl", "xs.res.ewma.arl", "xs.res.ewma.pms",
        "quadrature.nodes.weights",   
        "tol.lim.fac")
