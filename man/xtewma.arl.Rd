@@ -73,7 +73,9 @@ lambda <- 0.1
 cE <- 2.703
 df <- c(4, 6, 8, 10, 15, 20, 30, 40, 50)
 L0 <- rep(NA, length(df))
-for ( i in 1:length(df) ) L0[i] <- round(xtewma.arl(lambda, cE*sqrt(df/(df-2)), df, 0), digits=0)
+for ( i in 1:length(df) ) {
+  L0[i] <- round(xtewma.arl(lambda, cE*sqrt(df[i]/(df[i]-2)), df[i], 0), digits=0)
+}
 data.frame(df, L0)
 }
 \keyword{ts}

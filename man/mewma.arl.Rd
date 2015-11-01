@@ -1,16 +1,21 @@
 \name{mewma.arl}
 \alias{mewma.arl}
+\alias{mewma.arl.f}
+\alias{mewma.ad}
 \title{Compute ARLs of MEWMA control charts}
 \description{Computation of the (zero-state) Average Run Length (ARL)
 for multivariate exponentially weighted moving average (MEWMA) charts monitoring multivariate normal mean.}
-\usage{mewma.arl(l, c, p, delta=0, hs=0, r=20, ntype=NULL, qm0=20, qm1=qm0)}
+\usage{mewma.arl(l, cE, p, delta=0, hs=0, r=20, ntype=NULL, qm0=20, qm1=qm0)
+
+mewma.arl.f(l, cE, p, delta=0, r=20, ntype=NULL, qm0=20, qm1=qm0)
+
+mewma.ad(l, cE, p, delta=0, r=20, n=20, type="cond", hs=0, ntype=NULL, qm0=20, qm1=qm0)}
 \arguments{
 \item{l}{smoothing parameter lambda of the MEWMA control chart.}
-\item{c}{alarm threshold of the MEWMA control chart.}
+\item{cE}{alarm threshold of the MEWMA control chart.}
 \item{p}{dimension of multivariate normal distribution.}
 \item{delta}{magnitude of the potential change, \code{delta=0} refers to the in-control state.}
-\item{hs}{so-called headstart (enables fast initial response) -- must be non-negative. Note that in the current implementation it
-is only available for \code{delta} = 0. More work is in progress.}
+\item{hs}{so-called headstart (enables fast initial response) -- must be non-negative.}
 \item{r}{number of quadrature nodes -- dimension of the resulting linear equation system
 for \code{delta} = 0. For non-zero \code{delta} this dimension is mostly r^2 (Markov chain approximation leads
 to some larger values). Caution: If \code{ntype} is set to \code{"co"} (collocation), then values of \code{r}
@@ -30,6 +35,9 @@ For \code{delta} larger than 0, some more values besides the others are possible
 If it is set to \code{NULL} (the default), then for \code{delta}=0 then \code{"gl2"} is chosen.
 If \code{delta} larger than 0, then for \code{p} equal 2 or 4 \code{"gl3"} and for all other values \code{"gl5"} is taken.
 \code{"ra"} denotes the method used in Rigdon (1995a). \code{"mc"} denotes the Markov chain approximation.}
+\item{type}{switch between \code{"cond"} and \code{"cycl"} for differentiating between the conditional
+(no false alarm) and the cyclical (after false alarm re-start in \code{hs}), respectively.}
+\item{n}{number of quadrature nodes for Calculating the steady-state ARL integral(s).}
 \item{qm0,qm1}{number of collocation quadrature nodes for the out-of-control case (\code{qm0} for the inner integral,
 \code{qm1} for the outer one), that is, for positive \code{delta},
 and for the in-control case (now only \code{qm0} is deployed) if via \code{ntype} the collocation procedure is requested.}
@@ -49,7 +57,8 @@ The related papers are Runger and Prabhu (1996) and Molnau et al. (2001).
 The idea of the Clenshaw-Curtis quadrature was taken from
 Capizzi and Masarotto (2010), who successfully deployed a modified Clenshaw-Curtis quadrature
 to calculate the ARL of combined (univariate) Shewhart-EWMA charts. It turns out that it works also nicely for the
-MEWMA ARL.
+MEWMA ARL. The version \code{mewma.arl.f()} without the argument \code{hs} provides the ARL as function of one (in-control)
+or two (out-of-control) arguments.
 }
 \value{Returns a single value which is simply the zero-state ARL.}
 \references{

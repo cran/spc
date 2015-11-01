@@ -1,4 +1,7 @@
 useDynLib(spc)
+## imports
+import("stats")
+## exports
 export("xshewhartrunsrules.ad", "xshewhartrunsrules.arl", "xshewhartrunsrules.crit", "xshewhartrunsrules.matrix",
        "xewma.ad", "xewma.arl", "xewma.crit", "xewma.q", "xewma.sf", "xewma.q.crit",
        "xcusum.ad", "xcusum.arl", "xcusum.crit.L0h", "xcusum.crit.L0L1", "xcusum.crit", "xcusum.q", "xcusum.sf",
@@ -7,11 +10,12 @@ export("xshewhartrunsrules.ad", "xshewhartrunsrules.arl", "xshewhartrunsrules.cr
        "sewma.sf.prerun", "sewma.arl.prerun", "sewma.q.crit.prerun", "sewma.q.prerun", "sewma.crit.prerun",
        "lns2ewma.arl", "lns2ewma.crit",
        "scusum.arl", "scusum.crit",
-       "mewma.arl", "mewma.crit",
+       "mewma.arl", "mewma.crit", "mewma.psi", "mewma.arl.f", "mewma.ad",
        "xsewma.arl", "xsewma.crit", "xsewma.sf", "xsewma.q.crit", "xsewma.q",
        "xewma.arl.prerun", "xewma.q.prerun", "xewma.sf.prerun",
        "xewma.crit.prerun", "xewma.q.crit.prerun",
        "xtewma.arl", "xtewma.ad", "xtewma.sf", "xtewma.q", "xtewma.q.crit",
+       "xtcusum.arl",
        "xDcusum.arl", "xDewma.arl", "xDgrsr.arl", "xDshewhartrunsrules.arl", "xDshewhartrunsrulesFixedm.arl",
        "p.ewma.arl",
        "phat.ewma.arl", "phat.ewma.crit", "phat.ewma.lambda", "dphat", "pphat", "qphat",

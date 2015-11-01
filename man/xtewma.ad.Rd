@@ -25,7 +25,7 @@ equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}
 }
 \details{
-\code{xewma.ad} determines the steady-state Average Run Length (ARL)
+\code{xtewma.ad} determines the steady-state Average Run Length (ARL)
 by numerically solving the related ARL integral equation by means
 of the Nystroem method based on Gauss-Legendre quadrature
 and using the power method for deriving the largest in magnitude

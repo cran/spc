@@ -38,4 +38,6 @@ void sewma_sf
  if ( result != 0 ) warning("trouble in sewma_sf [package spc]");
 
  for (i=0; i<*n; i++) sf[i] = p0[i];
+ 
+ Free(p0);
 }

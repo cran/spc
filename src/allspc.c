@@ -42,6 +42,8 @@ double xc1_iglarl_drift(double k, double h, double hs, double delta, int m, int 
 double xc1_iglarl_drift_wo_m(double k, double h, double hs, double delta, int *m, int N, int with0);
 double xc1_iglarlm_drift(double k, double h, double hs, int q, double delta, int N, int nmax, int with0);
 
+double xtc1_iglarl(double k, double h, double hs, int df, double mu, int N, int subst);
+
 double xc1_Wq(double k, double h, double p, double hs, double mu, int N, int nmax);
 double xc1_sf(double k, double h, double hs, double mu, int N, int nmax, double *p0);
 double xc1_arlm(double k, double h, double hs, int q, double mu0, double mu1, int N, int nmax);
@@ -53,6 +55,8 @@ double xc2_be_arl(double k, double h, double hs1, double hs2, double mu, int N);
 double xc2_iglad (double k, double h, double mu0, double mu1, int N);
 double xc2_iglarl_drift(double k, double h, double hs, double delta, int m, int N, int drift0); /* it is not accurate */
 double xc2_iglarl_drift_wo_m(double k, double h, double hs, double delta, int *m, int N, int drift0); /* it is not accurate */
+
+double xtc2_iglarl(double k, double h, double hs, int df, double mu, int N, int subst);
 
 /* Crosier's two-sided CUSUM */
 double xcC_iglarl(double k, double h, double hs, double mu, int N);
@@ -257,11 +261,25 @@ double mxewma_arl_0d(double lambda, double ce, int p, double hs, int N); /* Clen
 double mxewma_arl_0e(double lambda, double ce, int p, double hs, int N); /* Markov chain (Runger/Prabhu) */
 double mxewma_arl_0f(double lambda, double ce, int p, double hs, int N); /* Simpson rule (poor performance) */
 
-double mxewma_arl_1a(double lambda, double ce, int p, double delta, double hs, int N); /* GL class */
+double mxewma_arl_f_0a(double lambda, double ce, int p, int N, double *ARL, double *w, double *z);
+double mxewma_arl_f_0a2(double lambda, double ce, int p, int N, double *ARL, double *w, double *z);
+double mxewma_arl_f_0b(double lambda, double ce, int p, int N, int qm, double *ARL);
+double mxewma_arl_f_0c(double lambda, double ce, int p, int N, double *ARL, double *w, double *z);
+double mxewma_arl_f_0d(double lambda, double ce, int p, int N, double *ARL, double *w, double *z);
+double mxewma_arl_f_0e(double lambda, double ce, int p, int N, double *ARL, double *z);
+double mxewma_arl_f_0f(double lambda, double ce, int p, int N, double *ARL, double *w, double *z);
+
+double mxewma_arl_1a (double lambda, double ce, int p, double delta, double hs, int N); /* GL class */
 double mxewma_arl_1a2(double lambda, double ce, int p, double delta, double hs, int N); /* GL mod */
-double mxewma_arl_1a3(double lambda, double ce, int p, double delta, double hs, int N); /* GL again mod sin */
+double mxewma_arl_1a3(double lambda, double ce, int p, double delta, double hs, int N); /* GL again mod sin, default for 2 and 4 */
 double mxewma_arl_1a4(double lambda, double ce, int p, double delta, double hs, int N); /* GL again mod tan */
-double mxewma_arl_1a5(double lambda, double ce, int p, double delta, double hs, int N); /* GL again mod sinh */
+double mxewma_arl_1a5(double lambda, double ce, int p, double delta, double hs, int N); /* GL again mod sinh, default for all other p */
+
+double mxewma_arl_f_1a (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1); /* GL class */
+double mxewma_arl_f_1a2(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1); /* GL mod */
+double mxewma_arl_f_1a3(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1); /* GL again mod sin, default for 2 and 4 */
+double mxewma_arl_f_1a4(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1); /* GL again mod tan */
+double mxewma_arl_f_1a5(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1); /* GL again mod sinh, default for all other p */
 
 double mxewma_arl_1b(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1); /* collocation */
 double mxewma_arl_1b2(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1); /* collocation, trimmed support of outer integral */
@@ -272,7 +290,22 @@ double mxewma_arl_1d(double lambda, double ce, int p, double delta, double hs, i
 double mxewma_arl_1e(double lambda, double ce, int p, double delta, double hs, int N); /* Markov chain (Runger/Prabhu) */
 double mxewma_arl_1f(double lambda, double ce, int p, double delta, double hs, int N); /* Simpson rule (poor performance) */
 
+double mxewma_arl_f_1b (double lambda, double ce, int p, double delta, int N, int qm0, int qm1, double *g); /* collocation with two halfs in the same step + sin() */
+double mxewma_arl_f_1b3(double lambda, double ce, int p, double delta, int N, int qm0, int qm1, double *g); /* collocation with two halfs in the same step */
+double mxewma_arl_f_1b2(double lambda, double ce, int p, double delta, int N, int qm0, int qm1, double *g); /* collocation with shrinked supports of the outer integral */
+double mxewma_arl_f_1b4(double lambda, double ce, int p, double delta, int N, int qm0, int qm1, double *g); /* collocation with two halfs in the same step + sinh() instead of sin() */
+
+double mxewma_arl_f_1c (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1); /* GL + Radau (Rigdon) */
+double mxewma_arl_f_1d (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1); /* Clenshaw-Curtis */
+double mxewma_arl_f_1e (double lambda, double ce, int p, double delta, int N, double *g, int *dQ); /* Markov Chain (Runger/Prabhu) */
+double mxewma_arl_f_1f (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z); /* Simpson rule */
+
 double mxewma_crit(double lambda, double L0, int p, double hs, int N);
+
+double mxewma_psi (double lambda, double ce, int p, int N, double *PSI, double *w, double *z);
+double mxewma_psiS(double lambda, double ce, int p, double hs, int N, double *PSI, double *w, double *z);
+
+double mxewma_ad (double lambda, double ce, int p, double delta, int N, int qm2, int psi_type, double hs, int qtype, int qm0, int qm1);
 
 
 /* incorporate pre-run uncertainty */
@@ -1231,6 +1264,85 @@ double xc1_iglarl (double k, double h, double hs, double mu, int N)
 }
 
 
+double xtc1_iglarl(double k, double h, double hs, int df, double mu, int N, int subst)
+{ double *a, *g, *w, *z, arl, norm=1., arg=0., korr=1.;
+  int i, j, NN;
+
+ NN = N + 1;
+ a = matrix(NN,NN);
+ g = vector(NN);
+ w = vector(N);
+ z = vector(N);
+ 
+ switch ( subst ) {
+   case IDENTITY: gausslegendre(N, 0,      h, z, w); norm = 1.; break;
+   case SIN:      gausslegendre(N, 0., PI/2., z, w); norm = 1.; break;
+   case SINH:     gausslegendre(N, 0.,    1., z, w); norm = sinh(1.); break;
+   case TAN:      gausslegendre(N, 0., PI/4., z, w); norm = 1.; break;
+ }     
+ 
+ h /= norm; 
+
+ for (i=0;i<N;i++) {
+   for (j=0;j<N;j++) {
+     switch ( subst ) {
+       case IDENTITY: arg =       z[j]   + k -         z[i]; korr = 1.; break;
+       case SIN:      arg = h*sin(z[j])  + k -  h*sin(z[i]); korr = h*cos(z[j]); break;
+       case SINH:     arg = h*sinh(z[j]) + k - h*sinh(z[i]); korr = h*cosh(z[j]); break;
+       case TAN:      arg = h*tan(z[j])  + k -  h*tan(z[i]); korr = h/( cos(z[j])*cos(z[j]) ); break;
+     }
+     a[i*NN+j] = -w[j] * pdf_t( arg - mu, df) * korr;
+   }  
+   ++a[i*NN+i];
+   switch ( subst ) {
+       case IDENTITY: arg = k -         z[i]; break;
+       case SIN:      arg = k -  h*sin(z[i]); break;
+       case SINH:     arg = k - h*sinh(z[i]); break;
+       case TAN:      arg = k -  h*tan(z[i]); break;
+   }
+   a[i*NN+N] = - cdf_t(arg - mu, df);
+ }
+ 
+ for (j=0;j<N;j++) {
+   switch ( subst ) {
+     case IDENTITY: arg =       z[j]   + k; korr = 1.; break;
+     case SIN:      arg = h*sin(z[j])  + k; korr = h*cos(z[j]); break;
+     case SINH:     arg = h*sinh(z[j]) + k; korr = h*cosh(z[j]); break;
+     case TAN:      arg = h*tan(z[j])  + k; korr = h/( cos(z[j])*cos(z[j]) ); break;
+   }
+   a[N*NN+j] = -w[j] * pdf_t( arg - mu, df) * korr;
+ }  
+ a[N*NN+N] = 1. - cdf_t(k - mu, df);
+
+ for (j=0;j<NN;j++) g[j] = 1.;
+ LU_solve(a, g, NN);  
+ 
+ switch ( subst ) {
+     case IDENTITY: arg = k -         hs; korr = 1.; break;
+     case SIN:      arg = k -  h*sin(hs); korr = h*cos(z[j]); break;
+     case SINH:     arg = k - h*sinh(hs); korr = h*cosh(z[j]); break;
+     case TAN:      arg = k -  h*tan(hs); korr = h/( cos(z[j])*cos(z[j]) ); break;
+ }
+ arl = 1. + cdf_t(k - hs - mu, df) * g[N]; 
+ for (j=0;j<N;j++) {
+   switch ( subst ) {
+     case IDENTITY: arg =       z[j]   + k -         hs; korr = 1.; break;
+     case SIN:      arg = h*sin(z[j])  + k -  h*sin(hs); korr = h*cos(z[j]); break;
+     case SINH:     arg = h*sinh(z[j]) + k - h*sinh(hs); korr = h*cosh(z[j]); break;
+     case TAN:      arg = h*tan(z[j])  + k -  h*tan(hs); korr = h/( cos(z[j])*cos(z[j]) ); break;
+   }
+   arl += w[j] * pdf_t( arg - mu, df) * korr * g[j];
+ }
+
+ Free(a);
+ Free(g);
+ Free(w);
+ Free(z);
+
+ return arl;
+}
+
+
 double xc1_Wq(double k, double h, double p, double hs, double mu, int N, int nmax)
 { double *Pn, *w, *z, *p0, *atom, ratio, q_minus=0., q_plus=0., mn_minus=1., mn_plus=0., enumerator=0., Wq=0.;
   int i, j, n;
@@ -1693,6 +1805,23 @@ double xc2_iglarl(double k, double h, double hs, double mu, int N)
  arl2 = xc1_iglarl(k,h,hs,mu,N);
  arl3 = xc1_iglarl(k,h,0.,-mu,N);
  arl4 = xc1_iglarl(k,h,hs,-mu,N);
+ arl = ( arl2*arl3 + arl1*arl4 - arl1*arl3 ) / ( arl1 + arl3 );
+ return arl;
+}
+
+
+double xtc2_iglarl(double k, double h, double hs, int df, double mu, int N, int subst)
+{ double arl1, arl2, arl3, arl4, arl;
+
+/* relation between 1- and 2-sided CUSUM schemes due to Lucas/Crosier 1982,
+   Technometrics 24, 199-205;
+   only for headstart hs smaller than h/2 + k !!
+*/
+
+ arl1 = xtc1_iglarl(k, h, 0., df,  mu, N, subst);
+ arl2 = xtc1_iglarl(k, h, hs, df,  mu, N, subst);
+ arl3 = xtc1_iglarl(k, h, 0., df, -mu, N, subst);
+ arl4 = xtc1_iglarl(k, h, hs, df, -mu, N, subst);
  arl = ( arl2*arl3 + arl1*arl4 - arl1*arl3 ) / ( arl1 + arl3 );
  return arl;
 }
@@ -11408,6 +11537,7 @@ double stdeUR_iglarl(double l, double cl, double cu, double hs, double sigma, in
        t0 = cl/pow(1.-l,(double)qi);
        t1 = t0/(1.-l);
        if ( t1>cu ) t1 = cu;
+       if ( t0<xl ) x0 = xl; else x0 = t0; /* Hong Kong & Inez */
        x1 = t1;
 
        if ( i>0 && j==1 && qi==i ) {
@@ -13846,7 +13976,7 @@ double mxewma_arl_0a(double lambda, double ce, int p, double hs, int N)
  rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
  r2 = lambda*lambda;
  
- gausslegendre(N, 0, ce, z, w);
+ gausslegendre(N, 0., ce, z, w);
 
  for (i=0; i<N; i++) {
    for (j=0; j<N; j++) a[i*N+j] = -w[j] * nchi( z[j]/r2, p, rr*z[i] ) / r2;
@@ -13865,6 +13995,32 @@ double mxewma_arl_0a(double lambda, double ce, int p, double hs, int N)
  Free(z);
 
  return arl;
+}
+
+
+double mxewma_arl_f_0a(double lambda, double ce, int p, int N, double *g, double *w, double *z)
+{ double *a, rr, r2;
+  int i, j;
+
+ a = matrix(N, N);
+
+ ce *= lambda/(2.-lambda); 
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
+ r2 = lambda*lambda;
+ 
+ gausslegendre(N, 0., ce, z, w);
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[i*N+j] = -w[j] * nchi( z[j]/r2, p, rr*z[i] ) / r2;
+   ++a[i*N+i];
+ } 
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ LU_solve(a, g, N);
+
+ Free(a);
+
+ return 0.;
 }
 
 
@@ -13904,6 +14060,31 @@ double mxewma_arl_0a2(double lambda, double ce, int p, double hs, int N)
  return arl;
 }
 
+
+double mxewma_arl_f_0a2(double lambda, double ce, int p, int N, double *g, double *w, double *z)
+{ double *a, rr, r2;
+  int i, j;
+
+ a = matrix(N, N);
+
+ ce *= lambda/(2.-lambda); 
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
+ r2 = lambda*lambda;
+ 
+ gausslegendre(N, 0., sqrt(ce), z, w);
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[i*N+j] = -w[j] * nchi( z[j]*z[j]/r2, p, rr*z[i]*z[i] ) / r2 * 2.*z[j];
+   ++a[i*N+i];
+ } 
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ LU_solve(a, g, N);
+
+ Free(a);
+
+ return 0.;
+}
 
 /* collocation */
 double mxewma_arl_0b(double lambda, double ce, int p, double hs, int N, int qm)
@@ -13946,6 +14127,40 @@ double mxewma_arl_0b(double lambda, double ce, int p, double hs, int N, int qm)
 }
 
 
+double mxewma_arl_f_0b(double lambda, double ce, int p, int N, int qm, double *g)
+{ double *a, *w, *z, rr, r2, xi, dN;
+  int i, j, k;
+  
+ a = matrix(N, N);
+ w = vector(qm);
+ z = vector(qm);
+ 
+ ce *= lambda/(2.-lambda); 
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
+ r2 = lambda*lambda;
+ dN = (double)N;
+ 
+ gausslegendre(qm, 0, sqrt(ce), z, w);
+ 
+  for (i=0; i<N; i++) {
+   xi = ce/2. * ( 1. + cos(PI*(2.*(i+1.)-1.)/2./dN) );
+   for (j=0; j<N; j++) {
+     a[i*N+j] = Tn( (2.*xi-ce)/ce, j);
+     for (k=0; k<qm; k++) a[i*N+j] -= w[k] * Tn( (2.*z[k]*z[k]-ce)/ce, j) * 2.*z[k] * nchi( z[k]*z[k]/r2, p, rr*xi ) / r2;
+   }
+ } 
+ 
+ for (j=0; j<N; j++) g[j] = 1.;
+ LU_solve(a, g, N);
+
+ Free(a);
+ Free(w);
+ Free(z);
+
+ return 0.;
+}
+
+
 /* Rigdon's approach -- Radau quadrature */
 double mxewma_arl_0c(double lambda, double ce, int p, double hs, int N)
 { double *a, *g, *w, *z, arl, rr, r2;
@@ -13983,6 +14198,33 @@ double mxewma_arl_0c(double lambda, double ce, int p, double hs, int N)
 
  return arl;
 }
+
+
+double mxewma_arl_f_0c(double lambda, double ce, int p, int N, double *g, double *w, double *z)
+{ double *a, rr, r2;
+  int i, j;
+
+ a = matrix(N, N);
+
+ ce *= lambda/(2.-lambda); 
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
+ r2 = lambda*lambda;
+ 
+ radau(N, 0., ce, z, w);
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[i*N+j] = -w[j] * nchi( z[j]/r2, p, rr*z[i] ) / r2;
+   ++a[i*N+i];
+ } 
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ LU_solve(a, g, N);
+
+ Free(a);
+
+ return 0.;
+}
+
 
 
 /* Clenshaw–Curtis quadrature */ 
@@ -14031,6 +14273,42 @@ double mxewma_arl_0d(double lambda, double ce, int p, double hs, int N)
 }
 
 
+double mxewma_arl_f_0d(double lambda, double ce, int p, int N, double *g, double *w, double *z)
+{ double *a, rr, r2, dN;
+  int i, j;
+
+ a = matrix(N, N);
+ 
+ dN = (double)N;
+ ce *= lambda/(2.-lambda); 
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
+ r2 = lambda*lambda;
+ 
+ /* nodes */
+ for (i=0; i<N; i++) z[i] = ce * ( ( cos( i*PI/(dN-1.) ) + 1.)/2. );
+
+ /* weights */
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[i*N+j] = cos( i*j*PI/(dN-1.) );
+ } 
+ for (j=0; j<N; j++) w[j] = iTn(1.,j) - iTn(-1,j);
+ LU_solve(a, w, N);
+ 
+ /* usual linear equation system */
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[i*N+j] = -w[j] * nchi( z[j]/r2, p, rr*z[i] ) / r2 * (ce/2.);
+   ++a[i*N+i];
+ } 
+ for (j=0; j<N; j++) g[j] = 1.;
+ LU_solve(a, g, N);
+ 
+ Free(a);
+
+ return 0.;
+}
+
+
+
 /* Markov chain (Runger and Prabhu 1996) */ 
 double mxewma_arl_0e(double lambda, double ce, int p, double hs, int N)
 { double *a, *g, arl, rr, w, ncp, wl;
@@ -14046,7 +14324,7 @@ double mxewma_arl_0e(double lambda, double ce, int p, double hs, int N)
  wl = w*w/(lambda*lambda);
 
  for (i=0; i<N; i++) {
-   ncp = (w*i*i*w)*rr;
+   ncp = (w*i*i*w) * rr;
    a[i*N] = -nCHI( 0.25*wl, p, ncp );
    for (j=1; j<N; j++) a[i*N+j] = -( nCHI( (j+.5)*(j+.5)*wl, p, ncp ) - nCHI( (j-.5)*(j-.5)*wl, p, ncp ) );
    ++a[i*N+i];
@@ -14060,6 +14338,32 @@ double mxewma_arl_0e(double lambda, double ce, int p, double hs, int N)
  Free(g);
 
  return arl;
+}
+
+
+double mxewma_arl_f_0e(double lambda, double ce, int p, int N, double *g, double *z)
+{ double *a, rr, w, ncp, wl;
+  int i, j;
+
+ a = matrix(N, N);
+
+ ce = sqrt( ce * lambda/(2.-lambda) ); 
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
+ w = 2.*ce/(2.*N-1.);
+ wl = w*w/(lambda*lambda);
+
+ for (i=0; i<N; i++) {
+   ncp = (w*i*i*w)*rr;
+   a[i*N] = -nCHI( 0.25*wl, p, ncp );
+   for (j=1; j<N; j++) a[i*N+j] = -( nCHI( (j+.5)*(j+.5)*wl, p, ncp ) - nCHI( (j-.5)*(j-.5)*wl, p, ncp ) );
+   ++a[i*N+i];
+ } 
+ for (j=0; j<N; j++) { g[j] = 1.; z[j] = w*(j+.5); }
+ LU_solve(a, g, N);
+
+ Free(a);
+
+ return 0.;
 }
 
 
@@ -14106,6 +14410,39 @@ double mxewma_arl_0f(double lambda, double ce, int p, double hs, int N)
  Free(z);
 
  return arl;
+}
+
+
+double mxewma_arl_f_0f(double lambda, double ce, int p, int N, double *g, double *w, double *z)
+{ double *a, rr, r2, b;
+  int i, j;
+
+ a = matrix(N, N);
+
+ ce *= lambda/(2.-lambda); 
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
+ r2 = lambda*lambda;
+ 
+ b = ce/((double)N-1.);
+ for (i=0; i<N; i++) {
+   z[i] = (double)i * b;
+   if ( (i+1) % 2 == 0 )   w[i] = 4.;
+   if ( (i+1) % 2 == 1 )   w[i] = 2.;
+   if ( i==0 || i==(N-1) ) w[i] = 1.;
+   w[i] *= b/3.;
+ }
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[i*N+j] = -w[j] * nchi( z[j]/r2, p, rr*z[i] ) / r2;
+   ++a[i*N+i];
+ } 
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ LU_solve(a, g, N);
+
+ Free(a);
+
+ return 0.;
 }
 
 
@@ -14180,6 +14517,51 @@ double mxewma_arl_1a(double lambda, double ce, int p, double delta, double hs, i
 }
 
 
+double mxewma_arl_f_1a(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1)
+{ double rdc, r2, rr, *M, term1, term2, mean, sigma, eta, korr;
+  int i, j, k, l, N2, N3, p1;
+
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+
+ ce *= lambda/(2.-lambda); 
+ 
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ p1 = p - 1;
+ 
+ gausslegendre(N,  0., 1., z0, w0);
+ gausslegendre(N, -1., 1., z1, w1);     
+ 
+ for (i=0; i<N; i++) {
+   mean = rdc + (1.-lambda)*z1[i];
+   for (j=0; j<N; j++) {
+     eta = rr * ce * (1. - z1[i]*z1[i]) * z0[j];
+     for (k=0; k<N; k++) {
+       korr = ce * (1.-z1[k]*z1[k]) / r2;
+       term1 = w1[k] * phi( ( z1[k]-mean)/sigma, 0.)/sigma * korr;
+       for (l=0; l<N; l++) {
+	 term2 = w0[l] * nchi( korr*z0[l], p1, eta );
+         M[i*N3 + j*N2 + k*N + l] = - term1 * term2;
+       } /* l = 0 .. N-1 */
+     } /* k = 0 .. N-1 */
+     ++M[i*N3 + j*N2 + i*N + j];
+   } /* j = 0 .. N-1 */
+ } /* i = 0 .. N-1 */
+
+ for (j=0; j<N2; j++) g[j] = 1.;
+ LU_solve(M, g, N2);
+ 
+ Free(M);
+ 
+ return 0.; 
+}
+
+
 /* GL Nyström with inner argument changed */
 double mxewma_arl_1a2(double lambda, double ce, int p, double delta, double hs, int N)
 { double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, *g, term1, term2,arl, mean, sigma, eta, korr;
@@ -14248,6 +14630,51 @@ double mxewma_arl_1a2(double lambda, double ce, int p, double delta, double hs, 
  Free(M);
  
  return arl; 
+}
+
+
+double mxewma_arl_f_1a2(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1)
+{ double rdc, r2, rr, *M, term1, term2, mean, sigma, eta, korr;
+  int i, j, k, l, N2, N3, p1;
+
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+
+ ce *= lambda/(2.-lambda); 
+ 
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ p1 = p - 1;
+ 
+ gausslegendre(N,  0., 1., z0, w0);
+ gausslegendre(N, -1., 1., z1, w1);     
+ 
+ for (i=0; i<N; i++) {
+   mean = rdc + (1.-lambda)*z1[i];
+   for (j=0; j<N; j++) {
+     eta = rr * ce * (1. - z1[i]*z1[i]) * z0[j]*z0[j];
+     for (k=0; k<N; k++) {
+       korr = ce * (1.-z1[k]*z1[k]) / r2;
+       term1 = w1[k] * phi( ( z1[k]-mean)/sigma, 0.)/sigma * korr;
+       for (l=0; l<N; l++) {
+	 term2 = w0[l] * nchi( korr*z0[l]*z0[l], p1, eta ) * 2.*z0[l];
+         M[i*N3 + j*N2 + k*N + l] = - term1 * term2;
+       } /* l = 0 .. N-1 */
+     } /* k = 0 .. N-1 */
+     ++M[i*N3 + j*N2 + i*N + j];
+   } /* j = 0 .. N-1 */
+ } /* i = 0 .. N-1 */
+
+ for (j=0; j<N2; j++) g[j] = 1.;
+ LU_solve(M, g, N2);
+ 
+ Free(M);
+ 
+ return 0.; 
 }
 
 
@@ -14325,6 +14752,53 @@ double mxewma_arl_1a3(double lambda, double ce, int p, double delta, double hs, 
 }
 
 
+double mxewma_arl_f_1a3(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1)
+{ double rdc, r2, rr, *M, term1, term2, mean, sigma, eta, korr, vi, vk;
+  int i, j, k, l, N2, N3, p1;
+
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+
+ ce *= lambda/(2.-lambda); 
+ 
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ p1 = p - 1;
+ 
+ gausslegendre(N,  0., 1., z0, w0);
+ gausslegendre(N, -PI/2., PI/2., z1, w1);     
+ 
+ for (i=0; i<N; i++) {
+   vi = sin(z1[i]);
+   mean = rdc + (1.-lambda)*vi;
+   for (j=0; j<N; j++) {
+     eta = rr * ce * (1. - vi*vi) * z0[j]*z0[j];
+     for (k=0; k<N; k++) {
+       vk = sin(z1[k]);
+       korr = ce * (1.-vk*vk) / r2;
+       term1 = w1[k] * phi( ( vk-mean)/sigma, 0.)/sigma * korr * cos(z1[k]);
+       for (l=0; l<N; l++) {
+	 term2 = w0[l] * nchi( korr*z0[l]*z0[l], p1, eta ) * 2.*z0[l];
+         M[i*N3 + j*N2 + k*N + l] = - term1 * term2;
+       } /* l = 0 .. N-1 */
+     } /* k = 0 .. N-1 */
+     ++M[i*N3 + j*N2 + i*N + j];
+   } /* j = 0 .. N-1 */
+ } /* i = 0 .. N-1 */
+
+ for (j=0; j<N2; j++) g[j] = 1.;
+ LU_solve(M, g, N2);
+ 
+ Free(M);
+ 
+ return 0.; 
+}
+
+
 /* GL Nyström with both arguments changed -- tan */
 double mxewma_arl_1a4(double lambda, double ce, int p, double delta, double hs, int N)
 { double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, *g, term1, term2,arl, mean, sigma, eta, korr, vi, vk;
@@ -14396,6 +14870,53 @@ double mxewma_arl_1a4(double lambda, double ce, int p, double delta, double hs, 
  Free(M);
  
  return arl; 
+}
+
+
+double mxewma_arl_f_1a4(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1)
+{ double rdc, r2, rr, *M, term1, term2, mean, sigma, eta, korr, vi, vk;
+  int i, j, k, l, N2, N3, p1;
+
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+
+ ce *= lambda/(2.-lambda); 
+ 
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ p1 = p - 1;
+ 
+ gausslegendre(N,  0., 1., z0, w0);
+ gausslegendre(N, -PI/4., PI/4., z1, w1);     
+ 
+ for (i=0; i<N; i++) {
+   vi = tan(z1[i]);
+   mean = rdc + (1.-lambda)*vi;
+   for (j=0; j<N; j++) {
+     eta = rr * ce * (1. - vi*vi) * z0[j]*z0[j];
+     for (k=0; k<N; k++) {
+       vk = tan(z1[k]);
+       korr = ce * (1.-vk*vk) / r2;
+       term1 = w1[k] * phi( ( vk-mean)/sigma, 0.)/sigma * korr / ( cos(z1[k])*cos(z1[k]) );
+       for (l=0; l<N; l++) {
+	 term2 = w0[l] * nchi( korr*z0[l]*z0[l], p1, eta ) * 2.*z0[l];
+         M[i*N3 + j*N2 + k*N + l] = - term1 * term2;
+       } /* l = 0 .. N-1 */
+     } /* k = 0 .. N-1 */
+     ++M[i*N3 + j*N2 + i*N + j];
+   } /* j = 0 .. N-1 */
+ } /* i = 0 .. N-1 */
+
+ for (j=0; j<N2; j++) g[j] = 1.;
+ LU_solve(M, g, N2);
+ 
+ Free(M);
+ 
+ return 0.; 
 }
 
 
@@ -14471,6 +14992,54 @@ double mxewma_arl_1a5(double lambda, double ce, int p, double delta, double hs, 
  Free(M);
  
  return arl; 
+}
+
+
+double mxewma_arl_f_1a5(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1)
+{ double rdc, r2, rr, *M, term1, term2, mean, sigma, eta, korr, vi, vk, norm;
+  int i, j, k, l, N2, N3, p1;
+
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+
+ ce *= lambda/(2.-lambda); 
+ 
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ p1 = p - 1;
+ 
+ gausslegendre(N,  0., 1., z0, w0);
+ gausslegendre(N, -1., 1., z1, w1);
+ norm = sinh(1.);
+ 
+ for (i=0; i<N; i++) {
+   vi = sinh(z1[i])/norm;
+   mean = rdc + (1.-lambda)*vi;
+   for (j=0; j<N; j++) {
+     eta = rr * ce * (1. - vi*vi) * z0[j]*z0[j];
+     for (k=0; k<N; k++) {
+       vk = sinh(z1[k])/norm;
+       korr = ce * (1.-vk*vk) / r2;
+       term1 = w1[k] * phi( ( vk-mean)/sigma, 0.)/sigma * korr * cosh(z1[k])/norm;
+       for (l=0; l<N; l++) {
+	 term2 = w0[l] * nchi( korr*z0[l]*z0[l], p1, eta ) * 2.*z0[l];
+         M[i*N3 + j*N2 + k*N + l] = - term1 * term2;
+       } /* l = 0 .. N-1 */
+     } /* k = 0 .. N-1 */
+     ++M[i*N3 + j*N2 + i*N + j];
+   } /* j = 0 .. N-1 */
+ } /* i = 0 .. N-1 */
+
+ for (j=0; j<N2; j++) g[j] = 1.;
+ LU_solve(M, g, N2);
+ 
+ Free(M);
+ 
+ return 0.; 
 }
 
 
@@ -14575,6 +15144,87 @@ double mxewma_arl_1b(double lambda, double ce, int p, double delta, double hs, i
 }
 
 
+double mxewma_arl_f_1b(double lambda, double ce, int p, double delta, int N, int qm0, int qm1, double *g)
+{ double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, dN,
+         term1, term2, term2a, term2b, innen, mean, sigma, eta, u, u2, uu, v, v2, alpha;
+  int r, s, i, j, k, l, N2, N3, p1;  
+ 
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+ z0 = vector(qm0);
+ w0 = vector(qm0);
+ z1 = vector(qm1);
+ w1 = vector(qm1);
+
+ ce *= lambda/(2.-lambda); 
+
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ dN = (double)N;
+ p1 = p - 1; 
+
+ /* canonical Gauss-Legendre nodes and weights */
+ gausslegendre(qm0,  0., 1., z0, w0);
+ gausslegendre(qm1,  0., 1., z1, w1);
+ 
+ for (s=0; s<N; s++) {   
+   b = cos(PI*(2.*(s+1.)-1.)/2./dN); /* Chebyshev nodes */
+   mean = rdc + (1.-lambda)*b;
+   for (r=0; r<N; r++) {          
+     a = 1/2. * ( 1. + cos(PI*(2.*(r+1.)-1.)/2./dN) ); /* Chebyshev nodes */
+     eta = rr * ce*(1. - b*b)*a;
+     for (i=0; i<N; i++) {
+       for (j=0; j<N; j++) {
+	 term1 = Tn( 2.*a-1., i) * Tn( b, j);
+	 term2a = 0.;
+	 term2b = 0.;
+         for (k=0; k<qm1; k++) {
+	   innen = 0.;
+	   alpha = PI/2. * z1[k];
+	   v = sin(alpha);
+	   v2 = v*v;
+	   if ( i==0 ) {
+	     uu = ce * (1.-v2) / r2;
+	     innen = nCHI(uu, p1, eta);
+	   } else {
+	     for (l=0; l<qm0; l++) {
+	       u = z0[l];
+	       u2 = u*u;
+	       /*uu = ce * (1.-v2*v2) * u2 / r2;*/
+	       uu = ce * (1. - v2) * u2/ r2;
+	       innen += w0[l] * Tn( 2.*u2-1., i) * nchi( uu, p1, eta ) * 2.*u;
+	     } /* l = 0 .. qm-1*/
+	     innen *= ce * (1. - v2) / r2;
+	   }
+	   /*term2a += w1[k] * Tn(  v2, j) * phi( ( v2-mean)/sigma, 0.)/sigma * innen * ce * (1. - v2*v2) / r2 * 2.*v;
+	   term2b += w1[k] * Tn( -v2, j) * phi( (-v2-mean)/sigma, 0.)/sigma * innen * ce * (1. - v2*v2) / r2 * 2.*v;*/
+	   term2a += PI/2. * w1[k] * Tn(  v, j) * phi( ( v-mean)/sigma, 0.)/sigma * cos(alpha) * innen;
+	   term2b += PI/2. * w1[k] * Tn( -v, j) * phi( (-v-mean)/sigma, 0.)/sigma * cos(alpha) * innen;
+         } /* k = 0 .. qm-1*/
+         term2 = term2a + term2b;         
+         M[r*N3 + s*N2 + i*N + j] = term1 - term2;
+       } /* j = 0 .. n-1 */
+     } /* i = 0 .. n-1 */
+   } /* r = 0 .. n-1 */
+ } /* s = 0 .. n-1 */
+
+ for (i=0; i<N2; i++) g[i] = 1.;
+ LU_solve(M, g, N2);
+
+ Free(w0);
+ Free(z0);
+ Free(w1);
+ Free(z1);
+ Free(M);
+ 
+ return 0.; 
+}
+
+
 /* collocation with two halfs in the same step */
 double mxewma_arl_1b3(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1)
 { double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, *g, dN,
@@ -14666,6 +15316,87 @@ double mxewma_arl_1b3(double lambda, double ce, int p, double delta, double hs, 
  Free(M);
  
  return arl; 
+}
+
+
+double mxewma_arl_f_1b3(double lambda, double ce, int p, double delta, int N, int qm0, int qm1, double *g)
+{ double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, dN,
+         term1, term2, term2a, term2b, innen, mean, sigma, eta, u, u2, uu, v, v2, alpha;
+  int r, s, i, j, k, l, N2, N3, p1;  
+ 
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2); 
+ z0 = vector(qm0);
+ w0 = vector(qm0);
+ z1 = vector(qm1);
+ w1 = vector(qm1);
+
+ ce *= lambda/(2.-lambda); 
+
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ dN = (double)N;
+ p1 = p - 1; 
+
+ /* canonical Gauss-Legendre nodes and weights */
+ gausslegendre(qm0,  0., 1., z0, w0);
+ gausslegendre(qm1,  0., 1., z1, w1);
+ 
+ for (s=0; s<N; s++) {   
+   b = cos(PI*(2.*(s+1.)-1.)/2./dN); /* Chebyshev nodes */
+   mean = rdc + (1.-lambda)*b;
+   for (r=0; r<N; r++) {          
+     a = 1/2. * ( 1. + cos(PI*(2.*(r+1.)-1.)/2./dN) ); /* Chebyshev nodes */
+     eta = rr * ce*(1. - b*b)*a;
+     for (i=0; i<N; i++) {
+       for (j=0; j<N; j++) {
+	 term1 = Tn( 2.*a-1., i) * Tn( b, j);
+	 term2a = 0.;
+	 term2b = 0.;
+         for (k=0; k<qm1; k++) {
+	   innen = 0.;
+	   alpha = PI/4. * z1[k];
+	   v = tan(alpha);
+	   v2 = v*v;
+	   if ( i==0 ) {
+	     uu = ce * (1.-v2) / r2;
+	     innen = nCHI(uu, p1, eta);
+	   } else {
+	     for (l=0; l<qm0; l++) {
+	       u = z0[l];
+	       u2 = u*u;
+	       /*uu = ce * (1.-v2*v2) * u2 / r2;*/
+	       uu = ce * (1. - v2) * u2/ r2;
+	       innen += w0[l] * Tn( 2.*u2-1., i) * nchi( uu, p1, eta ) * 2.*u;
+	     } /* l = 0 .. qm-1*/
+	     innen *= ce * (1. - v2) / r2;
+	   }
+	   /*term2a += w1[k] * Tn(  v2, j) * phi( ( v2-mean)/sigma, 0.)/sigma * innen * ce * (1. - v2*v2) / r2 * 2.*v;
+	   term2b += w1[k] * Tn( -v2, j) * phi( (-v2-mean)/sigma, 0.)/sigma * innen * ce * (1. - v2*v2) / r2 * 2.*v;*/
+	   term2a += PI/4. * w1[k] * Tn(  v, j) * phi( ( v-mean)/sigma, 0.)/sigma / ( cos(alpha)*cos(alpha) ) * innen;
+	   term2b += PI/4. * w1[k] * Tn( -v, j) * phi( (-v-mean)/sigma, 0.)/sigma / ( cos(alpha)*cos(alpha) ) * innen;
+         } /* k = 0 .. qm-1*/
+         term2 = term2a + term2b;         
+         M[r*N3 + s*N2 + i*N + j] = term1 - term2;
+       } /* j = 0 .. n-1 */
+     } /* i = 0 .. n-1 */
+   } /* r = 0 .. n-1 */
+ } /* s = 0 .. n-1 */
+
+ for (i=0; i<N2; i++) g[i] = 1.;
+ LU_solve(M, g, N2);
+ 
+ Free(w0);
+ Free(z0);
+ Free(w1);
+ Free(z1);
+ Free(M);
+ 
+ return 0.; 
 }
 
 
@@ -14768,6 +15499,92 @@ double mxewma_arl_1b2(double lambda, double ce, int p, double delta, double hs, 
 }
 
 
+double mxewma_arl_f_1b2(double lambda, double ce, int p, double delta, int N, int qm0, int qm1, double *g)
+{ double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, dN, lower, upper, xm, xw, alpha,
+         term1, term2, innen, mean, sigma, eta, u, u2, uu, v, v2;
+  int r, s, i, j, k, l, N2, N3, p1;
+
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2); 
+ z0 = vector(qm0);
+ w0 = vector(qm0);
+ z1 = vector(qm1);
+ w1 = vector(qm1);
+
+ ce *= lambda/(2.-lambda); 
+
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ dN = (double)N;
+ p1 = p - 1;
+ 
+ /* canonical Gauss-Legendre nodes and weights */
+ gausslegendre(qm0,  0., 1., z0, w0);
+ gausslegendre(qm1, -1., 1., z1, w1);
+ 
+ for (s=0; s<N; s++) {   
+   b = cos(PI*(2.*(s+1.)-1.)/2./dN); /* Chebyshev nodes */
+   mean = rdc + (1.-lambda)*b;
+   /* reasonable limits for the outer quadrature */
+   lower = mean + sigma*qPHI(1e-9);
+   if ( lower < -1. ) lower = -1.;
+   upper = mean + sigma*qPHI(1.-1e-9);
+   if ( upper >  1. ) upper = 1.;
+   /* substitution sin(alpha) = v */
+   lower = asin(lower);
+   upper = asin(upper);
+   /* constants for (-1,1) <-> (lower,upper) */
+   xm = (lower+upper)/2.;
+   xw = (upper-lower)/2.;
+   for (r=0; r<N; r++) {          
+     a = 1/2. * ( 1. + cos(PI*(2.*(r+1.)-1.)/2./dN) ); /* Chebyshev nodes */
+     eta = rr * ce*(1. - b*b)*a;
+     for (i=0; i<N; i++) {
+       for (j=0; j<N; j++) {
+	 term1 = Tn( 2.*a-1., i) * Tn( b, j);
+	 term2 = 0.;
+         for (k=0; k<qm1; k++) {
+	   innen = 0.;
+	   alpha = xm + xw*z1[k];
+	   v = sin(alpha);
+	   v2 = v*v;
+	   if ( i==0 ) {
+	     uu = ce * (1.-v2) / r2;
+	     innen = nCHI(uu, p1, eta);
+	   } else {
+	     for (l=0; l<qm0; l++) {
+	       u = z0[l];
+	       u2 = u*u;
+	       uu = ce * (1. - v2) * u2 / r2;
+	       innen += w0[l] * Tn( 2.*u2-1., i) * nchi( uu, p1, eta ) * 2.*u;
+	     }
+	     innen *= ce * (1. - v2) / r2;
+	   }
+	   term2 += xw * w1[k] * Tn(  v, j) * phi( ( v-mean)/sigma, 0.)/sigma * cos(alpha) * innen;
+         } /* k = 0 .. qm-1*/         
+         M[r*N3 + s*N2 + i*N + j] = term1 - term2;
+       } /* j = 0 .. n-1 */
+     } /* i = 0 .. n-1 */
+   } /* r = 0 .. n-1 */
+ } /* s = 0 .. n-1 */
+
+ for (i=0; i<N2; i++) g[i] = 1.;
+ LU_solve(M, g, N2);
+
+ Free(w0);
+ Free(z0);
+ Free(w1);
+ Free(z1);
+ Free(M);
+ 
+ return 0.; 
+}
+
+
 /* collocation with two halfs in the same step + sinh() instead of sin() */
 double mxewma_arl_1b4(double lambda, double ce, int p, double delta, double hs, int N, int qm0, int qm1)
 { double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, *g, dN,
@@ -14861,9 +15678,91 @@ double mxewma_arl_1b4(double lambda, double ce, int p, double delta, double hs, 
  return arl; 
 }
 
+
+double mxewma_arl_f_1b4(double lambda, double ce, int p, double delta, int N, int qm0, int qm1, double *g)
+{ double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, dN,
+         term1, term2, term2a, term2b, innen, mean, sigma, eta, u, u2, uu, v, v2, norm;
+  int r, s, i, j, k, l, N2, N3, p1;  
+ 
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+ z0 = vector(qm0);
+ w0 = vector(qm0);
+ z1 = vector(qm1);
+ w1 = vector(qm1);
+
+ ce *= lambda/(2.-lambda); 
+
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ dN = (double)N;
+ p1 = p - 1; 
+
+ /* canonical Gauss-Legendre nodes and weights */
+ gausslegendre(qm0,  0., 1., z0, w0);
+ gausslegendre(qm1,  0., 1., z1, w1);
+ norm = sinh(1.);
+ 
+ for (s=0; s<N; s++) {   
+   b = cos(PI*(2.*(s+1.)-1.)/2./dN); /* Chebyshev nodes */
+   mean = rdc + (1.-lambda)*b;
+   for (r=0; r<N; r++) {          
+     a = 1/2. * ( 1. + cos(PI*(2.*(r+1.)-1.)/2./dN) ); /* Chebyshev nodes */
+     eta = rr * ce*(1. - b*b)*a;
+     for (i=0; i<N; i++) {
+       for (j=0; j<N; j++) {
+	 term1 = Tn( 2.*a-1., i) * Tn( b, j);
+	 term2a = 0.;
+	 term2b = 0.;
+         for (k=0; k<qm1; k++) {
+	   innen = 0.;
+	   v = sinh(z1[k])/norm;
+	   v2 = v*v;
+	   if ( i==0 ) {
+	     uu = ce * (1.-v2) / r2;
+	     innen = nCHI(uu, p1, eta);
+	   } else {
+	     for (l=0; l<qm0; l++) {
+	       u = z0[l];
+	       u2 = u*u;
+	       /*uu = ce * (1.-v2*v2) * u2 / r2;*/
+	       uu = ce * (1. - v2) * u2/ r2;
+	       innen += w0[l] * Tn( 2.*u2-1., i) * nchi( uu, p1, eta ) * 2.*u;
+	     } /* l = 0 .. qm-1*/
+	     innen *= ce * (1. - v2) / r2;
+	   }
+	   /*term2a += w1[k] * Tn(  v2, j) * phi( ( v2-mean)/sigma, 0.)/sigma * innen * ce * (1. - v2*v2) / r2 * 2.*v;
+	   term2b += w1[k] * Tn( -v2, j) * phi( (-v2-mean)/sigma, 0.)/sigma * innen * ce * (1. - v2*v2) / r2 * 2.*v;*/
+	   term2a += w1[k] * Tn(  v, j) * phi( ( v-mean)/sigma, 0.)/sigma * cosh(z1[k])/norm * innen;
+	   term2b += w1[k] * Tn( -v, j) * phi( (-v-mean)/sigma, 0.)/sigma * cosh(z1[k])/norm * innen;
+         } /* k = 0 .. qm-1*/
+         term2 = term2a + term2b;         
+         M[r*N3 + s*N2 + i*N + j] = term1 - term2;
+       } /* j = 0 .. n-1 */
+     } /* i = 0 .. n-1 */
+   } /* r = 0 .. n-1 */
+ } /* s = 0 .. n-1 */
+
+ for (i=0; i<N2; i++) g[i] = 1.;
+ LU_solve(M, g, N2);
+ 
+ Free(w0);
+ Free(z0);
+ Free(w1);
+ Free(z1);
+ Free(M);
+ 
+ return 0.; 
+}
+
+
 /* Radau/Gauß-Legendre Nyström -- Rigdon 1995b */
 double mxewma_arl_1c(double lambda, double ce, int p, double delta, double hs, int N)
-{ double rdc, r2, rr, *z0, *w0, *z1, *w1, *M, *g, term1, term2,arl, mean, sigma, eta, korr;
+{ double rdc, r2, rr, a, b, *z0, *w0, *z1, *w1, *M, *g, term1, term2,arl, mean, sigma, eta, korr;
   int i, j, k, l, N2, N3, p1;
 
  N2 = N*N;
@@ -14907,8 +15806,22 @@ double mxewma_arl_1c(double lambda, double ce, int p, double delta, double hs, i
  for (j=0; j<N2; j++) g[j] = 1.;
  LU_solve(M, g, N2);
  
- arl = g[ N*(N-1)/2 + 0 ];
+ /* arl = g[ N*(N-1)/2 + 0 ]; */
  
+ b = 0.;
+ a = 0.;
+ mean = rdc + (1.-lambda)*b;
+ eta = rr * ce*(1. - b*b)*a;
+ arl = 1.;
+ for (k=0; k<N; k++) {
+    korr = ce*(1.-z1[k]*z1[k])/r2;
+    term1 = w1[k] * phi( ( z1[k]-mean)/sigma, 0.)/sigma * korr;
+    for (l=0; l<N; l++) {
+      term2 = w0[l] * nchi( korr*z0[l], p1, eta );
+      arl += term1 * term2 * g[k*N + l];
+    } /* l = 0 .. N-1 */
+  } /* k = 0 .. N-1 */
+  
  Free(w0);
  Free(z0);
  Free(w1);
@@ -14917,6 +15830,51 @@ double mxewma_arl_1c(double lambda, double ce, int p, double delta, double hs, i
  Free(M);
  
  return arl; 
+}   
+
+
+double mxewma_arl_f_1c(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1)
+{ double rdc, r2, rr, *M, term1, term2, mean, sigma, eta, korr;
+  int i, j, k, l, N2, N3, p1;
+
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+
+ ce *= lambda/(2.-lambda); 
+
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ p1 = p - 1;
+ 
+ radau(N, 0., 1., z0, w0);
+ gausslegendre(N, -1., 1., z1, w1);
+ 
+ for (i=0; i<N; i++) {
+   mean = rdc + (1.-lambda)*z1[i];
+   for (j=0; j<N; j++) {
+     eta = rr * ce * (1. - z1[i]*z1[i]) * z0[j];
+     for (k=0; k<N; k++) {
+       korr = ce * (1.-z1[k]*z1[k]) / r2;
+       term1 = w1[k] * phi( ( z1[k]-mean)/sigma, 0.)/sigma * korr;
+       for (l=0; l<N; l++) {
+	 term2 = w0[l] * nchi( korr*z0[l], p1, eta );
+         M[i*N3 + j*N2 + k*N + l] = - term1 * term2;
+       } /* l = 0 .. N-1 */
+     } /* k = 0 .. N-1 */
+     ++M[i*N3 + j*N2 + i*N + j];
+   } /* j = 0 .. N-1 */
+ } /* i = 0 .. N-1 */
+
+ for (j=0; j<N2; j++) g[j] = 1.;
+ LU_solve(M, g, N2);
+ 
+ Free(M);
+ 
+ return 0.; 
 }   
 
 
@@ -15002,6 +15960,62 @@ double mxewma_arl_1d(double lambda, double ce, int p, double delta, double hs, i
 }
 
 
+double mxewma_arl_f_1d(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1)
+{ double rdc, r2, rr, *M, term1, term2, mean, sigma, eta, korr, dN, *D;
+  int i, j, k, l, N2, N3, p1;
+
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+ D = matrix(N, N);
+
+ ce *= lambda/(2.-lambda); 
+
+ dN = (double)N;
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ p1 = p - 1;
+ 
+  /* nodes */
+ for (i=0; i<N; i++) z0[i] = ( cos( i*PI/(dN-1.) ) + 1.)/2.;
+ for (i=0; i<N; i++) z1[i] = cos( i*PI/(dN-1.) );
+ /* weights */
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) D[i*N+j] = cos( i*j*PI/(dN-1.) );
+ } 
+ for (j=0; j<N; j++) w1[j] = iTn(1.,j) - iTn(-1,j);
+ LU_solve(D, w1, N);
+ for (j=0; j<N; j++) w0[j] = w1[j]/2.;
+ 
+ for (i=0; i<N; i++) {
+   mean = rdc + (1.-lambda)*z1[i];
+   for (j=0; j<N; j++) {
+     eta = rr * ce * (1. - z1[i]*z1[i]) * z0[j];
+     for (k=0; k<N; k++) {
+       korr = ce * (1.-z1[k]*z1[k]) / r2;
+       term1 = w1[k] * phi( ( z1[k]-mean)/sigma, 0.)/sigma * korr;
+       for (l=0; l<N; l++) {
+	 term2 = w0[l] * nchi( korr*z0[l], p1, eta );
+         M[i*N3 + j*N2 + k*N + l] = - term1 * term2;
+       } /* l = 0 .. N-1 */
+     } /* k = 0 .. N-1 */
+     ++M[i*N3 + j*N2 + i*N + j];
+   } /* j = 0 .. N-1 */
+ } /* i = 0 .. N-1 */
+
+ for (j=0; j<N2; j++) g[j] = 1.;
+ LU_solve(M, g, N2);
+ 
+ Free(D);
+ Free(M);
+ 
+ return 0.; 
+}
+
+
 /* Markov chain (Runger and Prabhu 1996) and (Molnau, Runger, Montgomery, Skenner, Loredo, and Prabhu 2001) */ 
 double mxewma_arl_1e(double lambda, double ce, int p, double delta, double hs, int N)
 { double *Q, *g, arl, rr, w, ncp, wl, dN, ce2, *V, *H, ci, z1, z2;
@@ -15009,23 +16023,23 @@ double mxewma_arl_1e(double lambda, double ce, int p, double delta, double hs, i
 
  dN = (double)N;
  ce = sqrt( ce * lambda/(2.-lambda) ); 
- w = 2.*ce/(2.*dN-1.);
+ w = 2.*ce/(2.*dN+1.);
   
  ce2 = ce*ce;
- N2 = 2*N-1;
+ N2 = 2*N+1;
  rr = (1.-lambda)/lambda * (1.-lambda)/lambda;
  wl = w*w/(lambda*lambda);
  
  index = 0;
  for (ix=0; ix<N2; ix++)
-   for (iy=0; iy<N; iy++)
-     index += ( w*(ix+1.-dN)*(ix+1.-dN)*w + w*iy*iy*w < ce2 );
+   for (iy=0; iy<N+1; iy++)
+     index += ( (ix-dN)*(ix-dN) + iy*iy < ce2/(w*w) );
  
- V = matrix(N, N);
- for (iy=0; iy<N; iy++) {
+ V = matrix(N+1, N+1);
+ for (iy=0; iy<N+1; iy++) {
    ncp = (w*iy*iy*w) * rr;
-   V[iy*N] = nCHI( 0.25*wl, p-1, ncp );
-   for (jy=1; jy<N; jy++) V[iy*N+jy] = nCHI( (jy+.5)*(jy+.5)*wl, p-1, ncp ) - nCHI( (jy-.5)*(jy-.5)*wl, p-1, ncp );
+   V[iy*(N+1)] = nCHI( 0.25*wl, p-1, ncp );
+   for (jy=1; jy<N+1; jy++) V[iy*(N+1)+jy] = nCHI( (jy+.5)*(jy+.5)*wl, p-1, ncp ) - nCHI( (jy-.5)*(jy-.5)*wl, p-1, ncp );
  }
  
  H = matrix(N2, N2);
@@ -15042,16 +16056,16 @@ double mxewma_arl_1e(double lambda, double ce, int p, double delta, double hs, i
  g = vector(index);
  X = 0;
  for (ix=0; ix<N2; ix++) {
-   for (iy=0; iy<N; iy++) {
-     if ( w*(ix+1.-dN)*(ix+1.-dN)*w + w*iy*iy*w < ce2 ) {
+   for (iy=0; iy<N+1; iy++) {
+     if ( (ix-dN)*(ix-dN) + iy*iy < ce2/(w*w) ) {
        X++;       
-       if ( ix==(N-1) && iy==0 ) i0 = X-1;
+       if ( ix==N && iy==0 ) i0 = X-1;
        Y = 0;
        for (jx=0; jx<N2; jx++) {
-         for (jy=0; jy<N; jy++) {
-	   if ( w*(jx+1.-dN)*(jx+1.-dN)*w + w*jy*jy*w < ce2 ) {
+         for (jy=0; jy<N+1; jy++) {
+	   if ( (jx-dN)*(jx-dN) + jy*jy < ce2/(w*w) ) {
 	     Y++;
-	     Q[(X-1)*index + Y-1] = - H[ix*N2+jx] * V[iy*N+jy];
+	     Q[(X-1)*index + Y-1] = - H[ix*N2+jx] * V[iy*(N+1)+jy];
 	     if ( X == Y ) ++Q[(X-1)*index + X-1];
 	   }
          } /* l = 0 .. N-1 */
@@ -15071,6 +16085,74 @@ double mxewma_arl_1e(double lambda, double ce, int p, double delta, double hs, i
  Free(H);
 
  return arl;
+}
+
+
+double mxewma_arl_f_1e(double lambda, double ce, int p, double delta, int N, double *g, int *dQ)
+{ double *Q, rr, w, ncp, wl, dN, ce2, *V, *H, ci, z1, z2;
+  int ix, jx, iy, jy, index, N2, X, Y, i;
+
+ dN = (double)N;
+ ce = sqrt( ce * lambda/(2.-lambda) ); 
+ w = 2.*ce/(2.*dN+1.);
+  
+ ce2 = ce*ce;
+ N2 = 2*N+1;
+ rr = (1.-lambda)/lambda * (1.-lambda)/lambda;
+ wl = (w*w) / (lambda*lambda);
+ 
+ index = 0;
+ for (ix=0; ix<N2; ix++)
+   for (iy=0; iy<N+1; iy++)
+     index += ( (ix-dN)*(ix-dN) + iy*iy < ce2/(w*w) );
+ *dQ = index;
+   
+ V = matrix(N+1, N+1);
+ for (iy=0; iy<N+1; iy++) {
+   ncp = (w*iy*iy*w) * rr;
+   V[iy*(N+1)] = nCHI( 0.25*wl, p-1, ncp );
+   for (jy=1; jy<N+1; jy++) V[iy*(N+1)+jy] = nCHI( (jy+.5)*(jy+.5)*wl, p-1, ncp ) - nCHI( (jy-.5)*(jy-.5)*wl, p-1, ncp );
+ }
+ 
+ H = matrix(N2, N2);
+ for (ix=0; ix<N2; ix++) {
+   ci = -ce + (ix+.5)*w;
+   for (jx=0; jx<N2; jx++) {
+     z1 = ( -ce+(jx+1.)*w - (1.-lambda)*ci )/lambda - delta;
+     z2 = ( -ce+     jx*w - (1.-lambda)*ci )/lambda - delta;
+     H[ix*N2+jx] = PHI(z1, 0.) - PHI(z2, 0.);
+   }
+ }
+ 
+ Q = matrix(index, index);
+ X = 0;
+ for (ix=0; ix<N2; ix++) {
+   for (iy=0; iy<N+1; iy++) {
+     if ( (ix-dN)*(ix-dN) + iy*iy < ce2/(w*w) ) {
+       X++;       
+       /* if ( ix==N && iy==0 ) i0 = X; */
+       Y = 0;
+       for (jx=0; jx<N2; jx++) {
+         for (jy=0; jy<N+1; jy++) {
+	   if ( (jx-dN)*(jx-dN) + jy*jy < ce2/(w*w) ) {
+	     Y++;
+	     Q[(X-1)*index + Y-1] = - H[ix*N2+jx] * V[iy*(N+1)+jy];
+	     if ( X == Y ) ++Q[(X-1)*index + X-1];
+	   }
+         } /* l = 0 .. N-1 */
+       } /* k = 0 .. N2-1 */
+     }
+   } /* j = 0 .. N-1 */
+ } /* i = 0 .. N2-1 */
+ 
+ for (i=0; i<index; i++) g[i] = 1.;
+ LU_solve(Q, g, index);
+ 
+ Free(Q);
+ Free(V);
+ Free(H);
+
+ return 0.;
 }
 
 
@@ -15153,6 +16235,59 @@ double mxewma_arl_1f(double lambda, double ce, int p, double delta, double hs, i
 }  
 
 
+double mxewma_arl_f_1f(double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1)
+{ double rdc, r2, rr, *M, term1, term2, mean, sigma, eta, korr, b;
+  int i, j, k, l, N2, N3, p1;
+
+ N2 = N*N;
+ N3 = N2*N;
+ 
+ M = matrix(N2, N2);
+
+ ce *= lambda/(2.-lambda); 
+
+ sigma = lambda/sqrt(ce);
+ rdc = lambda*sqrt(delta/ce);
+ r2 = lambda*lambda;
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda); 
+ p1 = p - 1;
+ 
+ b = ce/((double)N-1.);
+ for (i=0; i<N; i++) {
+   z0[i] = (double)i * b;
+   z1[i] = -1. + 2.*(double)i * b;
+   if ( (i+1) % 2 == 0 )   w0[i] = 4.;
+   if ( (i+1) % 2 == 1 )   w0[i] = 2.;
+   if ( i==0 || i==(N-1) ) w0[i] = 1.;
+   w0[i] *= b/3.;
+   w1[i] = 2*w0[i];
+ }
+ 
+ for (i=0; i<N; i++) {
+   mean = rdc + (1.-lambda)*z1[i];
+   for (j=0; j<N; j++) {
+     eta = rr * ce * (1. - z1[i]*z1[i]) * z0[j];
+     for (k=0; k<N; k++) {
+       korr = ce * (1.-z1[k]*z1[k]) / r2;
+       term1 = w1[k] * phi( ( z1[k]-mean)/sigma, 0.)/sigma * korr;
+       for (l=0; l<N; l++) {
+	 term2 = w0[l] * nchi( korr*z0[l], p1, eta );
+         M[i*N3 + j*N2 + k*N + l] = - term1 * term2;
+       } /* l = 0 .. N-1 */
+     } /* k = 0 .. N-1 */
+     ++M[i*N3 + j*N2 + i*N + j];
+   } /* j = 0 .. N-1 */
+ } /* i = 0 .. N-1 */
+
+ for (j=0; j<N2; j++) g[j] = 1.;
+ LU_solve(M, g, N2);
+ 
+ Free(M);
+ 
+ return 0.; 
+}  
+
+
 double mxewma_crit(double lambda, double L0, int p, double hs, int N)
 { double c1, c2, c3, L1=0., L2=0., L3=0., dc;
   /*int numAlg;
@@ -15178,6 +16313,329 @@ double mxewma_crit(double lambda, double L0, int p, double hs, int N)
   
   return c3;
 } 
+
+
+double mxewma_psi (double lambda, double ce, int p, int N, double *PSI, double *w, double *z)
+{ double *a, rr, r2, rho, norm;
+  int i, j, status, noofit;
+
+ a = matrix(N, N); 
+
+ ce *= lambda/(2.-lambda); 
+ rr = ( (1.-lambda)/lambda ) * ( (1.-lambda)/lambda );
+ r2 = lambda*lambda;
+ 
+ gausslegendre(N, 0., sqrt(ce), z, w);
+
+ for (i=0; i<N; i++)
+   for (j=0; j<N; j++) a[i*N+j] = w[j] * nchi( z[i]*z[i]/r2, p, rr*z[j]*z[j] ) / r2 * 2.*z[j];
+ 
+ pmethod(N, a, &status, &rho, PSI, &noofit);
+ 
+ norm = 0.;
+ for (i=0; i<N; i++) norm += w[i] * PSI[i] * 2.*z[i];
+ for (i=0; i<N; i++) PSI[i] /= norm;  
+
+ Free(a);
+
+ return rho;
+}
+
+
+double mxewma_psiS(double lambda, double ce, int p, double hs, int N, double *PSI, double *w, double *z)
+{ double *a, rr, r2, L0, *b;
+  int i, j;
+
+ if ( hs < 0. ) hs = 0.;  
+
+ L0 = mxewma_arl_0a2(lambda, ce, p, hs, N);
+ 
+ a = matrix(N, N);
+ b = vector(N);
+  
+ ce *= lambda/(2.-lambda); 
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
+ r2 = lambda*lambda;
+ 
+ gausslegendre(N, 0., sqrt(ce), z, w);
+ 
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[i*N+j] = -w[j] * nchi( z[i]*z[i]/r2, p, rr*z[j]*z[j] ) / r2 * 2.*z[j];
+   ++a[i*N+i];
+ }
+ if ( hs < 1e-9 ) {
+   for (i=0; i<N; i++) b[i] = chi( z[i]*z[i]/r2, p ) / r2 / L0;
+ } else {
+   for (i=0; i<N; i++) b[i] = nchi( z[i]*z[i]/r2, p, rr*hs*hs ) / r2 / L0;
+ }
+ LU_solve(a, b, N);
+
+ for (i=0; i<N; i++) PSI[i] = b[i];
+  
+ Free(b);
+ Free(a);
+ 
+ return L0;
+}
+
+
+#define cond 0
+#define cycl 1
+
+#define GL 0
+#define CO 1
+#define RA 2
+#define CC 3
+#define MC 4
+#define SR 5
+#define CO2 6
+#define GL2 7
+#define GL3 8
+#define GL4 9
+#define GL5 10
+#define CO3 11
+#define CO4 12
+
+
+double mxewma_L_of_ab(double lambda, double ce, int p, double delta, int N, int qtype, double *g, double a, double b, double *w0, double *z0, double *w1, double *z1)
+{ double LL=-1., ccee, rr, r2, rdc, sig, a_, b_, m, eta, korr, innen, norm;
+  int i, j;
+  
+ ccee = ce * lambda/(2.-lambda); 
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
+ r2 = lambda*lambda;
+  
+  if ( fabs(delta)<1e-10 ) { /* in-control */
+    if ( qtype==GL || qtype==RA || qtype==CC || qtype==SR ) {
+      LL = 1.;
+      for (j=0; j<N; j++) LL += w0[j] * g[j] * nchi( z0[j]/r2, p, rr*a ) / r2; 
+      if ( qtype==CC ) LL *= ccee/2.;
+    } 
+    if ( qtype==GL2 ) {
+      LL = 1.;
+      for (j=0; j<N; j++) LL += w0[j] * g[j] * 2.*z0[j] * nchi( z0[j]*z0[j]/r2, p, rr*a ) / r2; 
+    } 
+    if ( qtype==CO ) {
+      LL = 0.;
+      for (j=0; j<N; j++) LL +=  Tn( (2.*a-ccee)/ccee, j) * g[j]; 
+    }
+    if ( qtype==MC ) {
+      LL = 1. + g[0] * ( nCHI( z0[0]*z0[0]/r2, p, rr*a ) - 0. );
+      for (j=1; j<N; j++) LL += g[j] * ( nCHI( z0[j]*z0[j]/r2, p, rr*a ) - nCHI( z0[j-1]*z0[j-1]/r2, p, rr*a ) ); 
+    }
+  } else { /* out-of-control */
+    rdc = lambda * sqrt(delta/ccee);
+    sig = lambda / sqrt(ccee);
+    
+    if ( fabs(ccee - a) < 1e-10 ) a_ = 1.; else a_ = (a - b*b/delta) / ( ccee - b*b/delta );
+    b_ = b / sqrt( delta * ccee );
+    m = rdc + (1.-lambda) * b_;
+    eta = rr * ccee * ( 1. - b_*b_ ) * a_;
+    if ( eta < 1e-10 ) eta = 0.;
+
+    if ( qtype==GL || qtype==RA || qtype==CC || qtype==SR ) {
+      LL = 1.;
+      for (i=0; i<N; i++) {
+        korr = ccee * ( 1. - z1[i]*z1[i] ) / r2;
+        innen = 0.;
+        for (j=0; j<N; j++) innen += w0[j] * nchi(korr*z0[j], p-1, eta) * g[i*N + j];
+        LL += korr * w1[i] * phi( (z1[i]-m)/sig, 0. )/sig * innen;
+      }
+    } 
+    if ( qtype==GL2 ) {
+      LL = 1.;
+      for (i=0; i<N; i++) {
+        korr = ccee * ( 1. - z1[i]*z1[i] ) / r2;
+        innen = 0.;
+        for (j=0; j<N; j++) innen += w0[j] * nchi(korr*z0[j]*z0[j], p-1, eta) * g[i*N + j] * 2.*z0[j];
+        LL += korr * w1[i] * phi( (z1[i]-m)/sig, 0. )/sig * innen;
+      } 
+    } 
+    if ( qtype==GL3 ) {
+      LL = 1.;
+      for (i=0; i<N; i++) {
+        korr = ccee * ( 1. - sin(z1[i])*sin(z1[i]) ) / r2;
+        innen = 0.;
+        for (j=0; j<N; j++) innen += w0[j] * nchi(korr*z0[j]*z0[j], p-1, eta) * g[i*N + j] * 2.*z0[j];
+        LL += korr * w1[i] * phi( (sin(z1[i])-m)/sig, 0. )/sig * innen * cos(z1[i]);
+      } 
+    }
+    if ( qtype==GL4 ) {
+      LL = 1.;
+      for (i=0; i<N; i++) {
+        korr = ccee * ( 1. - tan(z1[i])*tan(z1[i]) ) / r2;
+        innen = 0.;
+        for (j=0; j<N; j++) innen += w0[j] * nchi(korr*z0[j]*z0[j], p-1, eta) * g[i*N + j] * 2.*z0[j];
+        LL += korr * w1[i] * phi( (tan(z1[i])-m)/sig, 0. )/sig * innen / cos(z1[i])/cos(z1[i]);
+      }
+    } 
+    if ( qtype==GL5 ) {
+      norm = sinh(1.);
+      LL = 1.;
+      for (i=0; i<N; i++) {
+        korr = ccee * ( 1. - sinh(z1[i])*sinh(z1[i])/norm/norm ) / r2;
+        innen = 0.;
+        for (j=0; j<N; j++) innen += w0[j] * nchi(korr*z0[j]*z0[j], p-1, eta) * g[i*N + j] * 2.*z0[j];
+        LL += korr * w1[i] * phi( (sinh(z1[i])/norm-m)/sig, 0. )/sig * innen * cosh(z1[i])/norm;
+      } 
+    }
+    if ( qtype==CO || qtype==CO2 || qtype==CO3 || qtype==CO4 ) {
+      LL = 0.;
+      for (i=0; i<N; i++) {
+        innen =0.;
+        for (j=0; j<N; j++) innen += Tn(b_, j) * g[i*N + j]; 
+        LL += Tn(2.*a_-1., i) * innen;
+      }
+    }
+  }  
+  
+  return LL; 
+}  
+
+
+double angle_unif_sphere(double x, int p)
+{ double dp, result;
+ dp = (double) p;
+ if ( fabs(dp - 2.) < .001 ) result = 1./PI; else result = gammafn( dp/2. ) / gammafn( (dp-1.)/2. ) * pow(sin(x), dp - 2.) / sqrt(PI);
+ return result;
+}
+  
+
+double mxewma_ad(double lambda, double ce, int p, double delta, int N, int qm2, int psi_type, double hs, int qtype, int qm0, int qm1)
+{ double *PSI, *ARL, *w1, *z1, *w2, *z2, *w3, *z3, *w4, *z4, *w5, *z5, zahl, ad, psi0, LL, ccee, rr, r2, xi, yj, sdelta;
+  int i, j, N2;  
+  
+ PSI = vector(N);
+ w1  = vector(N);
+ z1  = vector(N);
+ 
+ if ( hs < 0. ) hs = 0.;
+ 
+ if ( psi_type == cond ) zahl = mxewma_psi (lambda, ce, p, N, PSI, w1, z1);
+ if ( psi_type == cycl ) zahl = mxewma_psiS(lambda, ce, p, hs, N, PSI, w1, z1);
+ 
+ ccee = ce * lambda/(2.-lambda); 
+ rr = ((1.-lambda)/lambda)*((1.-lambda)/lambda);
+ r2 = lambda*lambda;
+ 
+ w3  = vector(qm2);
+ z3  = vector(qm2);
+ gausslegendre(qm2, 0., sqrt(ccee), z3, w3);
+
+ w5  = vector(qm2);
+ z5  = vector(qm2);
+ gausslegendre(qm2, 0., PI, z5, w5);
+ 
+ ad = 0.;
+ 
+ if ( fabs(delta)<1e-10 ) { /* in-control */
+   ARL = vector(N);
+   w2  = vector(N);
+   z2  = vector(N);
+   
+   if ( qtype == GL )  LL =  mxewma_arl_f_0a (lambda, ce, p, N, ARL, w2, z2);
+   if ( qtype == GL2 ) LL =  mxewma_arl_f_0a2(lambda, ce, p, N, ARL, w2, z2);
+   if ( qtype == CO )  LL =  mxewma_arl_f_0b (lambda, ce, p, N, qm0, ARL);   
+   if ( qtype == RA )  LL =  mxewma_arl_f_0c (lambda, ce, p, N, ARL, w2, z2);
+   if ( qtype == CC )  LL =  mxewma_arl_f_0d (lambda, ce, p, N, ARL, w2, z2);
+   if ( qtype == MC )  LL =  mxewma_arl_f_0e (lambda, ce, p, N, ARL, z2);
+   if ( qtype == SR )  LL =  mxewma_arl_f_0f (lambda, ce, p, N, ARL, w2, z2);   
+
+   for (i=0; i<qm2; i++) {
+     xi = z3[i]*z3[i];
+     
+     psi0 = 0.;
+     if ( psi_type == cycl ) {
+       if ( fabs(hs) <= 1e-10 ) psi0 = chi(xi/r2, p) / r2 / zahl;
+       if ( fabs(hs) > 1e-10 )  psi0 = 2.*hs * nchi(xi/r2, p, rr*hs*hs) / r2 / zahl;
+     }  
+     for (j=0; j<N; j++) psi0 += w1[j] * PSI[j] * 2.*z1[j] * nchi( xi/r2, p, rr*z1[j]*z1[j] ) / r2;      
+     if ( psi_type == cond ) psi0 /= zahl;
+     
+     LL = mxewma_L_of_ab(lambda, ce, p, 0., N, qtype, ARL, xi, 0., w2, z2, w2, z2);  
+     
+     /*printf("%2d\t%.4f\t%.4f\t%.4f\n", i, z3[i], psi0, LL);*/
+     
+     ad += w3[i] * 2.*z3[i] * psi0 * LL;
+   }  
+   
+   if ( psi_type == cycl ) {
+     psi0 = 1./zahl;     
+     LL = mxewma_L_of_ab(lambda, ce, p, 0., N, qtype, ARL, hs, 0., w2, z2, w2, z2);
+     ad += psi0 * LL;
+   }
+   
+   Free(z2);
+   Free(w2);
+   Free(ARL);
+   
+ } else { /* out-of-control */
+   sdelta = sqrt(delta);
+   
+   N2  = N*N;
+   ARL = vector(N2);
+   w2  = vector(N);   
+   z2  = vector(N);
+   w4  = vector(N);
+   z4  = vector(N);
+   
+   if ( qtype == GL )  LL = mxewma_arl_f_1a (lambda, ce, p, delta, N, ARL, w2, z2, w4, z4);
+   if ( qtype == GL2 ) LL = mxewma_arl_f_1a2(lambda, ce, p, delta, N, ARL, w2, z2, w4, z4);
+   if ( qtype == GL3 ) LL = mxewma_arl_f_1a3(lambda, ce, p, delta, N, ARL, w2, z2, w4, z4);   
+   if ( qtype == GL4 ) LL = mxewma_arl_f_1a4(lambda, ce, p, delta, N, ARL, w2, z2, w4, z4);
+   if ( qtype == GL5 ) LL = mxewma_arl_f_1a5(lambda, ce, p, delta, N, ARL, w2, z2, w4, z4);
+   
+   if ( qtype == CO )  LL = mxewma_arl_f_1b (lambda, ce, p, delta, N, qm0, qm1, ARL);
+   if ( qtype == CO2 ) LL = mxewma_arl_f_1b2(lambda, ce, p, delta, N, qm0, qm1, ARL);
+   if ( qtype == CO3 ) LL = mxewma_arl_f_1b3(lambda, ce, p, delta, N, qm0, qm1, ARL);
+   if ( qtype == CO4 ) LL = mxewma_arl_f_1b4(lambda, ce, p, delta, N, qm0, qm1, ARL);
+   
+   if ( qtype == RA )  LL = mxewma_arl_f_1c(lambda, ce, p, delta, N, ARL, w2, z2, w4, z4);
+   if ( qtype == CC )  LL = mxewma_arl_f_1d(lambda, ce, p, delta, N, ARL, w2, z2, w2, z2);
+   /*if ( qtype == MC )  LL = mxewma_arl_f_1e(lambda, ce, p, delta, N, ARL, &dQ);*/
+   if ( qtype == SR )  LL = mxewma_arl_f_1f(lambda, ce, p, delta, N, ARL, w2, z2, w2, z2);
+       
+   for (i=0; i<qm2; i++) {
+     xi = z3[i]*z3[i];
+     
+     psi0 = 0.;
+     if ( psi_type == cycl ) {
+       if ( fabs(hs) <= 1e-10 ) psi0 = chi(xi/r2, p) / r2 / zahl;
+       if ( fabs(hs) > 1e-10 )  psi0 = 2.*hs * nchi(xi/r2, p, rr*hs*hs) / r2 / zahl;
+     }  
+     for (j=0; j<N; j++) psi0 += w1[j] * PSI[j] * 2.*z1[j] * nchi( xi/r2, p, rr*z1[j]*z1[j] ) / r2;      
+     if ( psi_type == cond ) psi0 /= zahl;
+     
+     for (j=0; j<qm2; j++) {
+       yj = z3[i] * sdelta * cos(z5[j]);
+ 
+       LL = mxewma_L_of_ab(lambda, ce, p, delta, N, qtype, ARL, xi, yj, w2, z2, w4, z4); 
+ 
+       ad += w3[i] * 2.*z3[i] * w5[j] * psi0 * angle_unif_sphere(z5[j], p) * LL;
+     }
+   }
+   
+   if ( psi_type == cycl ) {
+     psi0 = 1./zahl;     
+     LL = mxewma_L_of_ab(lambda, ce, p, delta, N, qtype, ARL, 0., 0., w2, z2, w4, z4);
+     ad += psi0 * LL;
+   }
+   
+   Free(z4);
+   Free(w4);
+   Free(z2);
+   Free(z2);
+   Free(ARL);
+ } 
+ 
+ Free(z3);
+ Free(w3); 
+ Free(z1);
+ Free(w1);
+ Free(PSI);
+ 
+ return ad;
+}  
 
 
 double xseU_arl(double lx, double ls, double cx, double cs, double hsx, double hss, double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm)

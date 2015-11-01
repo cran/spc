@@ -91,7 +91,7 @@ for the classical step change model.
 #   0.5000  6.95
 #   1.0000  5.16
 #   3.0000  3.30
-k <- .25
+\dontrun{k <- .25
 h <- 8
 r <- 50
 DxDcusum.arl <- Vectorize(xDcusum.arl, "delta")
@@ -100,7 +100,7 @@ arl.like.Gan   <-
   round(DxDcusum.arl(k, h, deltas, r=r, with0=TRUE), digits=2)
 arl.like.Knoth <-
   round(DxDcusum.arl(k, h, deltas, r=r, mode="Knoth", with0=TRUE), digits=2)
-data.frame(deltas, arl.like.Gan, arl.like.Knoth)
+data.frame(deltas, arl.like.Gan, arl.like.Knoth)}
 
 ## Zou et al. (2009)
 ## Table 1
