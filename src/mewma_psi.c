@@ -12,7 +12,7 @@ double mxewma_psi (double lambda, double ce, int p, int N, double *PSI, double *
 double mxewma_psiS(double lambda, double ce, int p, double hs, int N, double *PSI, double *w, double *z);
 
 void mewma_psi(double *l, double *c, int *p, int *type, double *hs, int *r, double *zeug)
-{ double *PSI, *w, *z, zahl;
+{ double *PSI, *w, *z, zahl=0.;
   int i;
   
  PSI = vector(*r);

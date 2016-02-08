@@ -190,6 +190,10 @@ double xe2_iglarl_RES(double l, double c, double hs, double mu, int N, double al
 double seU_iglarl_RES(double l, double cu, double hs, double sigma, int df, int N, int qm, double alpha, double mu);  
 double xseU_arl_RES(double lx, double ls, double cx, double cs, double hsx, double hss, double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm, double alpha);   
 double xseU_mu_before_sigma_RES(double lx, double ls, double cx, double cs, double hsx, double hss, double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm, double alpha, int vice_versa);
+
+
+/* Shewhart charts for dependent data */
+double x_shewhart_ar1_arl(double alpha, double cS, double mu, int N1, int N2);
    
 
 /* variance charts */
@@ -4926,6 +4930,56 @@ double xseU_mu_before_sigma_RES
 
 
 /* end of Manuel's stuff */
+
+
+/* For Christian */
+
+/* Shewhart charts for dependent data */
+double x_shewhart_ar1_arl(double alpha, double cS, double delta, int N1, int N2)
+{ double *a, *g, *w1, *z1, *w2, *z2, arl, arl1, mdelta, l, korr;
+  int i, j;
+
+ a  = matrix(N1,N1);
+ g  = vector(N1);
+ w1 = vector(N1);
+ z1 = vector(N1);
+ w2 = vector(N2);
+ z2 = vector(N2); 
+ 
+ l = 1. - alpha;
+ korr = sqrt( (1. - alpha) / (1. + alpha) );
+ mdelta = korr * delta;
+ gausslegendre(N1, -cS*korr, cS*korr, z1, w1);
+
+ for (i=0; i<N1; i++) {
+   for (j=0; j<N1; j++) a[i*N1+j] = -w1[j]/l * phi( ( z1[j] - (1.-l)*z1[i] )/l, mdelta);
+   ++a[i*N1 + i];
+ }
+
+ for (j=0; j<N1; j++) g[j] = 1.;
+ LU_solve(a, g, N1);
+ 
+ gausslegendre(N2, -cS, cS, z2, w2);
+ 
+ arl = 1.;
+ for (i=0; i<N2; i++) {
+    arl1 = 1.; 
+    for (j=0; j<N1; j++) arl1 += w1[j]/l * phi( ( z1[j] - (1.-l)*z2[i]*korr )/l, mdelta) * g[j];
+    arl += w2[i] * phi(z2[i], delta) * arl1;
+ }
+
+ Free(a);
+ Free(g);
+ Free(w1);
+ Free(z1);
+ Free(w2);
+ Free(z2);
+
+ return arl;
+}
+
+
+/* end of Christian's stuff */
 
 
 double xc1_iglad (double k, double h, double mu0, double mu1, int N)

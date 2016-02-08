@@ -44,7 +44,7 @@ double mxewma_arl_f_1f (double lambda, double ce, int p, double delta, int N, do
 double *vector (long n);
 
 void mewma_arl_f(double *l, double *c, int *p, double *delta, int *r, int *qtype, int *qm0, int *qm1, double *zeug)
-{ double *ARL, *w, *z, *w1, *z1, zahl;
+{ double *ARL, *w, *z, *w1, *z1, zahl=0.;
   int i, j, r2, dQ;
   
  if ( fabs(*delta)<1e-10 ) {
