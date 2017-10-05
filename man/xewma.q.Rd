@@ -60,6 +60,10 @@ S. Knoth (2004),
 Fast initial response features for EWMA Control Charts,
 \emph{Statistical Papers 46}, 47-64.
 
+S. Knoth (2015),
+Run length quantiles of EWMA control charts monitoring normal mean or/and variance,
+\emph{International Journal of Production Research 53}, 4629-4647.
+
 K.-H. Waldmann (1986),
 Bounds for the distribution of the run length of geometric moving 
 average charts, \emph{Appl. Statist. 35}, 151-158.

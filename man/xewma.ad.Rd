@@ -8,8 +8,8 @@ steady.state.mode="conditional", r=40)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{c}{critical value (similar to alarm limit) of the EWMA control chart.}
-\item{mu1}{in-control mean.}
-\item{mu0}{out-of-control mean.}
+\item{mu1}{out-of-control mean.}
+\item{mu0}{in-control mean.}
 \item{zr}{reflection border for the one-sided chart.}
 \item{z0}{restarting value of the EWMA sequence in case of a false alarm in
 \code{steady.state.mode="cyclical"}.}

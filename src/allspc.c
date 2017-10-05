@@ -76,6 +76,9 @@ double scL_fu_crit(double refkl, double refku, double hu, double L0, double hsl,
 int sc2_crit_unbiased(double refkl, double refku, double L0, double *hl, double *hu, double hsl, double hsu, double sigma, int df, int N, int qm);
 /*double  sc2_eqtails(double refkl, double refku, double L0, double *hl, double *hu, double hsl, double hsu, double sigma, int df, int N, int qm);*/
 
+/* CUSUM-Shewhart combo */
+double scs_U_iglarl_v1(double refk, double h, double hs, double cS, double sigma, int df, int N, int qm);
+
 
 /* Shiryaev-Roberts (only the one-sided version is implemented) */
 
@@ -148,6 +151,8 @@ double xte2_sf(double l, double c, double hs, int df, double mu, int N, int nmax
 double xte2_sfm(double l, double c, double hs, int df, int q, double mu0, double mu1, int mode, int N, int nmax, double *p0, int subst);
 double xte2_Wqm(double l, double c, double p, double hs, int df, int q, double mu0, double mu1, int mode, int N, int nmax, int subst);
 
+double xte1_iglarl(double l, double c, double zr, double hs, int df, double mu, int N, int subst);
+
 
 /* incorporate pre-run uncertainty */
 double xe2_iglarl_prerun_MU(double l, double c, double hs, double mu, int pn, int qm, double truncate);
@@ -192,8 +197,9 @@ double xseU_arl_RES(double lx, double ls, double cx, double cs, double hsx, doub
 double xseU_mu_before_sigma_RES(double lx, double ls, double cx, double cs, double hsx, double hss, double mu, double sigma, int df, int Nx, int Ns, int nmax, int qm, double alpha, int vice_versa);
 
 
-/* Shewhart charts for dependent data */
+/* modified Shewhart charts for dependent data */
 double x_shewhart_ar1_arl(double alpha, double cS, double mu, int N1, int N2);
+double t_shewhart_ar1_arl(double alpha, double cS, double delta, int df, int N1, int N2, int N3, double INF, int subst);
    
 
 /* variance charts */
@@ -2044,6 +2050,126 @@ double scU_iglarl_v1(double refk, double h, double hs, double sigma, int df, int
 }
 
 
+double scs_U_iglarl_v1(double refk, double h, double hs, double cS, double sigma, int df, int N, int qm)
+{ double *a, *g, *w, *z, *b, *b1, *b2, arl, Hij, xl, xu, za, zb, dN, ddf, s2, alpha, *zch, eps;
+  int i, j, i1, i2, k, M, M1, M2, Ntilde, NN, ii, jj, ihs, qi, qj;
+ 
+ eps = cS - refk;
+ M2  = ceil( h/eps );  
+ M1  = ceil( h/refk ); 
+  
+ s2    = sigma*sigma;
+ ddf   = (double)df;
+ alpha = ddf/2./s2;
+ 
+ M = M1 + M2 - 1;
+ Ntilde = ceil( (double)N/(double)M );
+ dN = (double)Ntilde;
+ NN = M*Ntilde;
+ 
+ /*printf("\n\nM1 = %d,\tM2 = %d,\tM = %d\n\n", M1, M2, M);*/
+ 
+ a = matrix(NN,NN);
+ g = vector(NN);
+ b1 = vector(M1+1);
+ b2 = vector(M2+1);
+ b  = vector(M+1);
+ w = vector(qm);
+ z = vector(qm);
+ zch = matrix(M,Ntilde);
+
+ /* interval borders support */
+ for (i=1; i<M1; i++) b1[i] = (double)(i)*refk;
+ b1[M1] = h;
+ 
+ /* interval borders Shewhart */
+ for (i=1; i<M2; i++) b2[i] = h - ( (double)M2 - (double)(i) )*eps;
+ b2[M2] = h;
+ 
+ /* merge */
+ b[0] = 0.;
+ i1 = 1; i2 = 1;
+ for (i=1; i<M; i++) {
+   if ( b1[i1] < b2[i2] ) {
+     b[i] = b1[i1];
+     i1++;
+   } else {
+     b[i] = b2[i2];
+     i2++;
+   }  
+ }    
+ b[M] = h;    
+ 
+ ihs = M;
+ for ( i=2; i<=M; i++ ) {
+   if ( b[i-1] > hs ) {
+     ihs = i-1; i = M+1;  
+   }
+ }
+ 
+ /* Chebyshev nodes on [b_1,b_2],[b_2,b_3],...,[b_M,hu] */
+ for (i=1; i<=M; i++)
+   for (j=1; j<=Ntilde; j++)
+     zch[(i-1)*Ntilde + j-1] = b[i-1] + (b[i]-b[i-1])/2.*(1.+cos(PI*(2.*(Ntilde-j+1.)-1.)/2./dN));
+   
+ for (i=1; i<=M; i++)
+   for (j=1; j<=Ntilde ;j++) {
+     qi = (i-1)*Ntilde + j-1;
+     za = zch[(i-1)*Ntilde + j-1] - refk;
+     zb = zch[(i-1)*Ntilde + j-1] + eps;
+
+     for (ii=1; ii<=M; ii++) {
+       if ( za>b[ii-1] ) xl = za; else xl = b[ii-1];
+       if ( zb<b[ii] ) xu = zb; else xu = b[ii];
+       if ( df!=2 && xu>za ) { xl = sqrt(xl-za); xu = sqrt(xu-za); }
+
+       for (jj=1; jj<=Ntilde; jj++) {
+	 qj = (ii-1)*Ntilde + jj-1;
+         if ( xu<xl ) a[qi*NN + qj] = 0.;
+         else {
+	   gausslegendre(qm, xl, xu, z, w);
+           Hij = 0.;
+           for (k=0; k<qm; k++)
+             if ( df==2 )
+               Hij += w[k]*Tn((2.*z[k]-b[ii]-b[ii-1])/(b[ii]-b[ii-1]),jj-1)*exp(-z[k]/s2);
+             else
+               Hij += w[k]*Tn((2.*(za+z[k]*z[k])-b[ii]-b[ii-1])/(b[ii]-b[ii-1]),jj-1)
+                 * 2. * pow(z[k], ddf-1.) * exp(-alpha*z[k]*z[k]);
+           if ( df==2 ) Hij *= exp(za/s2)/s2;
+           else Hij *= pow(alpha,ddf/2.)/gammafn(ddf/2.);
+           a[qi*NN + qj] = -Hij;
+         }
+       }
+     }
+
+     for (jj=1; jj<=Ntilde; jj++)
+       a[qi*NN + jj-1] -= CHI(-ddf/s2*za, df) * Tn(-1.,jj-1);
+
+     for (jj=1; jj<=Ntilde; jj++)
+       a[qi*NN + (i-1)*Ntilde + jj-1] += Tn((2.*zch[(i-1)*Ntilde + j-1]-b[i]-b[i-1])/(b[i]-b[i-1]),jj-1);
+   }
+
+ for (j=0;j<NN;j++) g[j] = 1.;
+
+ LU_solve(a, g, NN);
+
+ arl = 0.;
+ for (j=1; j<=Ntilde; j++)
+   arl += g[(ihs-1)*Ntilde + j-1] * Tn((2.*hs-b[ihs]-b[ihs-1])/(b[ihs]-b[ihs-1]),j-1);
+
+ Free(zch);
+ Free(z);
+ Free(w);
+ Free(b1);
+ Free(b2);
+ Free(b);
+ Free(g);
+ Free(a);
+ 
+ return arl;
+}
+
+
 /* double Cs2arlGCRpw */
 double scU_iglarl_v2(double refk, double h, double hs, double sigma, int df, int N, int qm)
 { double *a, *g, *w, *z, arl, Hij, xl, za, dN, ddf, s2, *t, t0, t1, th, x0, x1, dummy;
@@ -3133,6 +3259,84 @@ double xte2_iglarl(double l, double c, double hs, int df, double mu, int N, int 
      case SIN:   arg = c*sin(z[j]) - (1.-l)*hs; korr = c*cos(z[j]); break;
      case SINH:  arg = c*sinh(z[j]) - (1.-l)*hs; korr = c*cosh(z[j]); break;
      case TAN:   arg = c*tan(z[j]) - (1.-l)*hs; korr = c/( cos(z[j])*cos(z[j]) ); break;
+   }
+   arl += w[j]/l * pdf_t( arg/l - mu, df) * g[j] * korr;
+ }
+
+ Free(a);
+ Free(g);
+ Free(w);
+ Free(z);
+
+ return arl;
+}
+
+
+double xte1_iglarl(double l, double c, double zr, double hs, int df, double mu, int N, int subst)
+{ double *a, *g, *w, *z, arl, norm=1., arg=0., korr=1., z1, z2;
+  int i, j, NN;
+
+ NN = N + 1;
+ a = matrix(NN,NN);
+ g = vector(NN);
+ w = vector(NN);
+ z = vector(NN);
+
+ c  *= sqrt( l/(2.-l) ); 
+ hs *= sqrt( l/(2.-l) );
+ zr *= sqrt( l/(2.-l) );
+
+ switch ( subst ) {
+   case IDENTITY: z1 = zr; z2 = c; break;
+   case SIN:      if ( zr >= -c ) { z1 = asin(zr/c);  z2 = PI/2.;     norm=c; } else { z1 = -PI/2.;     z2 = asin(c/fabs(zr));  norm=fabs(zr); } break;
+   case SINH:     if ( zr >= -c ) { z1 = asinh(zr/c); z2 = asinh(1.); norm=c; } else { z1 = asinh(-1.); z2 = asinh(c/fabs(zr)); norm=fabs(zr); } break;
+   case TAN:      if ( zr >= -c ) { z1 = atan(zr/c);  z2 = PI/4.;     norm=c; } else { z1 = -PI/4.;     z2 = atan(c/fabs(zr));  norm=fabs(zr); } break;
+ }     
+
+ gausslegendre(N, z1, z2, z, w); 
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) {
+     switch ( subst ) {
+       case IDENTITY: arg = z[j] - (1.-l)*z[i];                        korr = 1.; break;
+       case SIN:      arg = norm * ( sin(z[j]) - (1.-l)*sin(z[i]) );   korr = norm*cos(z[j]); break;
+       case SINH:     arg = norm * ( sinh(z[j]) - (1.-l)*sinh(z[i]) ); korr = norm*cosh(z[j]); break;
+       case TAN:      arg = norm * ( tan(z[j]) - (1.-l)*tan(z[i]) );   korr = norm/( cos(z[j])*cos(z[j]) ); break;
+     }
+     a[i*NN+j] = -w[j]/l * pdf_t( arg/l - mu, df) * korr;
+   }
+   ++a[i*NN+i];
+   switch ( subst ) {
+     case IDENTITY: arg = zr - (1.-l)*z[i];         break;
+     case SIN:      arg = zr - (1.-l)*norm*sin(z[i]);  break;
+     case SINH:     arg = zr - (1.-l)*norm*sinh(z[i]); break;
+     case TAN:      arg = zr - (1.-l)*norm*tan(z[i]);  break;
+   }
+   a[i*NN+N] = - cdf_t( arg/l - mu, df); 
+ }
+
+ for (j=0; j<N; j++) {
+   switch ( subst ) {
+     case IDENTITY: arg = z[j] - (1.-l)*zr;            korr = 1.; break;
+     case SIN:      arg = norm*sin(z[j]) - (1.-l)*zr;  korr = norm*cos(z[j]); break;
+     case SINH:     arg = norm*sinh(z[j]) - (1.-l)*zr; korr = norm*cosh(z[j]); break;
+     case TAN:      arg = norm*tan(z[j]) - (1.-l)*zr;  korr = norm/( cos(z[j])*cos(z[j]) ); break;
+   }
+   a[N*NN+j] = -w[j]/l * pdf_t( arg/l - mu, df) * korr;
+ }
+
+ a[N*NN+N] = 1. - cdf_t( zr - mu, df); 
+
+ for (j=0; j<NN; j++) g[j] = 1.;
+ LU_solve(a, g, NN);
+
+ arl = 1. + cdf_t( (zr-(1.-l)*hs)/l - mu, df) * g[N];
+ for (j=0;j<N;j++) {
+   switch ( subst ) {
+     case IDENTITY: arg = z[j] - (1.-l)*hs;            korr = 1.; break;
+     case SIN:      arg = norm*sin(z[j]) - (1.-l)*hs;  korr = norm*cos(z[j]); break;
+     case SINH:     arg = norm*sinh(z[j]) - (1.-l)*hs; korr = norm*cosh(z[j]); break;
+     case TAN:      arg = norm*tan(z[j]) - (1.-l)*hs;  korr = norm/( cos(z[j])*cos(z[j]) ); break;
    }
    arl += w[j]/l * pdf_t( arg/l - mu, df) * g[j] * korr;
  }
@@ -4934,9 +5138,9 @@ double xseU_mu_before_sigma_RES
 
 /* For Christian */
 
-/* Shewhart charts for dependent data */
+/* Shewhart charts for dependent data, Gaussian case */
 double x_shewhart_ar1_arl(double alpha, double cS, double delta, int N1, int N2)
-{ double *a, *g, *w1, *z1, *w2, *z2, arl, arl1, mdelta, l, korr;
+{ double *a, *g, *w1, *z1, *w2, *z2, arl, arl1, mdelta, l, kappa, cE;
   int i, j;
 
  a  = matrix(N1,N1);
@@ -4947,12 +5151,14 @@ double x_shewhart_ar1_arl(double alpha, double cS, double delta, int N1, int N2)
  z2 = vector(N2); 
  
  l = 1. - alpha;
- korr = sqrt( (1. - alpha) / (1. + alpha) );
- mdelta = korr * delta;
- gausslegendre(N1, -cS*korr, cS*korr, z1, w1);
+ kappa = sqrt( (1. - alpha) / (1. + alpha) ); /* = sqrt( lambda / ( 2 - lambda ) ) */
+ mdelta = kappa*delta;
+ cE = kappa*cS;
+ 
+ gausslegendre(N1, -cE, cE, z1, w1);
 
  for (i=0; i<N1; i++) {
-   for (j=0; j<N1; j++) a[i*N1+j] = -w1[j]/l * phi( ( z1[j] - (1.-l)*z1[i] )/l, mdelta);
+   for (j=0; j<N1; j++) a[i*N1+j] = - w1[j]/l * phi( ( z1[j] - (1.-l)*z1[i] )/l, mdelta);
    ++a[i*N1 + i];
  }
 
@@ -4964,7 +5170,7 @@ double x_shewhart_ar1_arl(double alpha, double cS, double delta, int N1, int N2)
  arl = 1.;
  for (i=0; i<N2; i++) {
     arl1 = 1.; 
-    for (j=0; j<N1; j++) arl1 += w1[j]/l * phi( ( z1[j] - (1.-l)*z2[i]*korr )/l, mdelta) * g[j];
+    for (j=0; j<N1; j++) arl1 += w1[j]/l * phi( ( z1[j] - (1.-l)*kappa*z2[i] )/l, mdelta) * g[j];
     arl += w2[i] * phi(z2[i], delta) * arl1;
  }
 
@@ -4975,6 +5181,111 @@ double x_shewhart_ar1_arl(double alpha, double cS, double delta, int N1, int N2)
  Free(w2);
  Free(z2);
 
+ return arl;
+}
+
+
+/* Shewhart charts for dependent data, Student t case */
+double t_shewhart_ar1_arl(double alpha, double cS, double delta, int df, int N1, int N2, int N3, double INF, int subst)
+{ double *a, *g, *w1, *z1, *w2, *z2, *a3, *w3, *z3, *psi, arl, arl1, mdelta, l, kappa, cE, k1, norm, arg, ddf, k2, hs, UU, k3, rho, *pdf;
+  int i, j, status, noofit;
+
+ a  = matrix(N1,N1);
+ g  = vector(N1);
+ w1 = vector(N1);
+ z1 = vector(N1);
+ 
+ w2 = vector(N2);
+ z2 = vector(N2);
+ pdf = vector(N2);
+ 
+ w3 = vector(N3);
+ z3 = vector(N3);
+ a3 = matrix(N3,N3);
+ psi = vector(N3);
+ 
+ l = 1. - alpha;
+ kappa = sqrt( (1. - alpha) / (1. + alpha) ); /* = sqrt( lambda / ( 2 - lambda ) ) */
+ mdelta = kappa*delta; 
+ cE = kappa*cS;
+ 
+ ddf = (double)df;
+ k2 = sqrt( ddf/(ddf-2.) );
+ k3 = 1. / sqrt( 1. - alpha*alpha );
+
+ switch ( subst ) {
+   case IDENTITY: gausslegendre(N1, -cE, cE, z1, w1); norm = 1.; break;
+   case SIN:   gausslegendre(N1, -PI/2., PI/2., z1, w1); norm = 1.; break;
+   case SINH:  gausslegendre(N1, -1., 1., z1, w1); norm = sinh(1.); break;
+   case TAN:   gausslegendre(N1, -PI/4., PI/4., z1, w1); norm = 1.; break;
+ }     
+ 
+ cE /= norm;
+
+ for (i=0; i<N1; i++) {
+   for (j=0; j<N1; j++) {
+     switch ( subst ) {
+       case IDENTITY: arg = z1[j] - (1.-l)*z1[i]; k1 = 1.; break;
+       case SIN:   arg = cE*sin(z1[j]) - (1.-l)*cE*sin(z1[i]); k1 = cE*cos(z1[j]); break;
+       case SINH:  arg = cE*sinh(z1[j]) - (1.-l)*cE*sinh(z1[i]); k1 = cE*cosh(z1[j]); break;
+       case TAN:   arg = cE*tan(z1[j]) - (1.-l)*cE*tan(z1[i]); k1 = cE/( cos(z1[j])*cos(z1[j]) ); break;
+     }
+     a[i*N1+j] = - w1[j]/l * k2*pdf_t( k2*(arg/l - mdelta), df) * k1;
+   }
+   ++a[i*N1 + i];
+ }
+
+ for (j=0; j<N1; j++) g[j] = 1.;
+ LU_solve(a, g, N1);
+ 
+/* stationary distribution */
+ gausslegendre(N3, -INF, INF, z3, w3);
+ for (i=0;i<N3;i++)
+   for (j=0;j<N3;j++) a3[i*N3+j] = w3[j] * pdf_t( (z3[i] - alpha*z3[j] - (1.-alpha)*delta)*k2*k3, df) * k2*k3;
+
+ pmethod(N3, a3, &status, &rho, psi, &noofit);
+ 
+ norm = 0.;
+ for (j=0; j<N3; j++) norm += w3[j] * psi[j];
+ 
+ gausslegendre(N2, -cS, cS, z2, w2);
+ 
+ for (i=0; i<N2; i++) {
+   pdf[i] = 0.;
+   for (j=0; j<N3; j++) pdf[i] += w3[j] * psi[j] * pdf_t( (z2[i] - alpha*z3[j] - (1.-alpha)*delta)*k2*k3, df) * k2*k3;
+   pdf[i] /= norm;
+ }
+ 
+ arl = 1.;
+ for (i=0; i<N2; i++) {
+    arl1 = 1.;     
+    for (j=0; j<N1; j++) {
+      hs = kappa*z2[i];
+      switch ( subst ) {
+        case IDENTITY: arg = z1[j] - (1.-l)*hs; k1 = 1.; break;
+        case SIN:   arg = cE*sin(z1[j]) - (1.-l)*hs; k1 = cE*cos(z1[j]); break;
+        case SINH:  arg = cE*sinh(z1[j]) - (1.-l)*hs; k1 = cE*cosh(z1[j]); break;
+        case TAN:   arg = cE*tan(z1[j]) - (1.-l)*hs; k1 = cE/( cos(z1[j])*cos(z1[j]) ); break;
+      }
+     arl1 += w1[j]/l * k2*pdf_t( k2*(arg/l - mdelta), df) * g[j] * k1;
+   }
+   arl += w2[i] * pdf[i] * arl1;
+ }
+
+ Free(a);
+ Free(g);
+ Free(w1);
+ Free(z1);
+ 
+ Free(w2);
+ Free(z2);
+ Free(pdf);
+  
+ Free(a3);
+ Free(w3);
+ Free(z3);
+ Free(psi);
+ 
  return arl;
 }
 
@@ -7542,7 +7853,7 @@ double xe2_sfm_deluxe(double l, double c, double hs, int q, double mu0, double m
 
 
 
-/* Survival function P(L>n) */
+/* P(L>n) */
 
 
 double xe2_sf_prerun_MU_deluxe(double l, double c, double hs, double mu, int pn, int nmax, int qm, double truncate, double BOUND, double *p0)
@@ -10715,24 +11026,23 @@ double se2lu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cl, doub
 
 
 double se2fu_crit(double l, double L0, double cu, double hs, double sigma,  int df, int N, int qm)
-{ double s1, s2, s3, ds, L1, L2, L3, norm;
+{ double s1, s2, s3, ds, L1, L2, L3;
 
- norm = sqrt(df);
  s2 = 2. - cu;
  if ( s2 < 0.1 ) s2 = 0.1;
  L2 = se2_iglarl(l,s2,cu,hs,sigma,df,N,qm);
  if ( L2 < L0 ) {
    do {
-     s2 -= .2/norm;
+     s1 = s2;
+     s2 *= 0.8;
      L2 = se2_iglarl(l,s2,cu,hs,sigma,df,N,qm);
    } while ( L2 < L0 );
-   s1 = s2 + .2/norm;
  } else {
    do {
-     s2 += .2/norm;
+     s1 = s2;
+     s2 *= 1.2;
      L2 = se2_iglarl(l,s2,cu,hs,sigma,df,N,qm);
    } while ( L2 > L0 );
-   s1 = s2 - .2/norm;
  }
 
  L1 = se2_iglarl(l,s1,cu,hs,sigma,df,N,qm);
@@ -10943,12 +11253,15 @@ int se2_crit_prerun_SIGMA(double l, double L0, double *cl, double *cu, double hs
 int se2_crit_unbiased(double l, double L0, double *cl, double *cu, double hs, double sigma, int df, int N, int qm)
 { double s1, s2, s3, ds, sl1, sl2, sl3, csl, Lm, Lp, step;
 
+/* printf("\n\nse2_crit_unbiased\n\n");*/
+
  step = .1/sqrt(df); 
  s1 = seU_crit(l,L0,hs,sigma,df,N,qm);
  csl = 0.;
  Lm = seU_iglarl(l,s1,hs,sigma-lmEPS,df,N,qm);
  Lp = seU_iglarl(l,s1,hs,sigma+lmEPS,df,N,qm);
  sl1 = (Lp-Lm)/(2.*lmEPS);
+/* printf("0 :: cl = %.4f,\tcu = %.12f,\tsl = %.6f\n", csl, s1, sl1);*/
  
  s2 = s1;
  sl2 = sl1;
@@ -10960,6 +11273,7 @@ int se2_crit_unbiased(double l, double L0, double *cl, double *cu, double hs, do
    Lm = se2_iglarl(l,csl,s2,hs,sigma-lmEPS,df,N,qm);
    Lp = se2_iglarl(l,csl,s2,hs,sigma+lmEPS,df,N,qm);
    sl2 = (Lp-Lm)/(2.*lmEPS);
+/*   printf("1 :: cl = %.4f,\tcu = %.12f,\tsl = %.6f\n", csl, s2, sl2);*/
  } while ( sl2 < 0. );
 
  do {
@@ -10968,10 +11282,13 @@ int se2_crit_unbiased(double l, double L0, double *cl, double *cu, double hs, do
    Lm = se2_iglarl(l,csl,s3,hs,sigma-lmEPS,df,N,qm);
    Lp = se2_iglarl(l,csl,s3,hs,sigma+lmEPS,df,N,qm);
    sl3 = (Lp-Lm)/(2.*lmEPS);
+/*   printf("2 :: cl = %.4f,\tcu = %.12f,\tsl = %.6f\n", csl, s3, sl3);*/
    ds = s3-s2; s1 = s2; sl1 = sl2; s2 = s3; sl2 = sl3;
- } while ( fabs(sl3)>1e-7 && fabs(ds)>1e-9 );
+ } while ( fabs(sl3)>1e-6 && fabs(ds)>1e-12 );
 
  *cl = csl; *cu = s3;
+
+/* printf("\n\n");*/
 
  return 0;
 }

@@ -2,33 +2,22 @@
 \alias{xshewhart.ar1.arl}
 \title{Compute ARLs of modified Shewhart control charts for AR(1) data}
 \description{Computation of the (zero-state) Average Run Length (ARL)
-for modified Shewhart charts deploywed to the original AR(1) data.}
+for modified Shewhart charts deployed to the original AR(1) data.}
 \usage{xshewhart.ar1.arl(alpha, cS, delta=0, N1=50, N2=30)}
 \arguments{
 \item{alpha}{lag 1 correlation of the data.}
 \item{cS}{critical value (alias to alarm limit) of the Shewhart control chart.}
 \item{delta}{potential shift in the data (in-control mean is zero.}
-\item{N1}{number of quadrature nodes for solving the ARL integral equation,
-dimension of the resulting linear equation system is \code{N1}.}
-\item{N2}{second number of quadrature nodes for combining the probability density function
-of the first observation following the margin distribution and the solution of the ARL integral equation}.
+\item{N1}{number of quadrature nodes for solving the ARL integral equation, dimension of the resulting linear equation system is \code{N1}.}
+\item{N2}{second number of quadrature nodes for combining the probability density function of the first observation following the margin distribution and the solution of the ARL integral equation.}
 }
 \details{
-In case of the EWMA chart with fixed control limits,
-\code{xewma.arl} determines the Average Run Length (ARL) by numerically
-solving the related ARL integral equation by means of the Nystroem method
-based on Gauss-Legendre quadrature.
-If \code{limits} is not \code{"fix"}, then the method presented in Knoth (2003) is utilized.
-Note that for one-sided EWMA charts (\code{sided}=\code{"one"}), only
-\code{"vacl"} and \code{"stat"} are deployed, while for two-sided ones
-(\code{sided}=\code{"two"}) also \code{"fir"}, \code{"both"}
-(combination of \code{"fir"} and \code{"vacl"}), and \code{"Steiner"} are implemented.
-For details see Knoth (2004).
-}
-\value{Following the idea of Schmid (1995), \code{1- alpha} times the data turns out to be an
+Following the idea of Schmid (1995), \code{1- alpha} times the data turns out to be an
 EWMA smoothing of the underlying AR(1) residuals. Hence, by combining the solution of
 the EWMA ARL integral equation and the stationary distribution of the AR(1) data
-(normal distribution is assumed) one gets easily the overall ARL.}
+(normal distribution is assumed) one gets easily the overall ARL.
+}
+\value{It returns a single value resembling the zero-state ARL of a modified Shewhart chart.}
 \references{
 S. Knoth, W. Schmid (2004).
 Control charts for time series: A review.

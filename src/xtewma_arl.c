@@ -16,6 +16,8 @@ double xte2_iglarl(double l, double c, double hs, int df, double mu, int N, int 
 double xte2_arlm(double l, double c, double hs, int df, int q, double mu0, double mu1, int mode, int N, int nmax, int subst); 
 double xte2_arlm_hom(double l, double c, double hs, int df, int q, double mu0, double mu1, int N, double *ced, int subst);
 
+double xte1_iglarl(double l, double c, double zr, double hs, int df, double mu, int N, int subst);
+
 void xtewma_arl(int *ctyp, double *l, double *c, double *zr, double *hs, int *df, double *mu, int *ltyp, int *r, int *ntyp, int *q, double *arl)
 { int nmax=100000, i, result=0;
   double *ced, arl1=-1.;
@@ -23,6 +25,8 @@ void xtewma_arl(int *ctyp, double *l, double *c, double *zr, double *hs, int *df
  ced  = vector(*q);
 
  if (*ctyp==ewma2 && *ltyp==fix && *q==1) arl1 = xte2_iglarl(*l,*c,*hs,*df,*mu,*r,*ntyp);
+
+ if (*ctyp==ewma1 && *ltyp==fix && *q==1) arl1 = xte1_iglarl(*l,*c,*zr,*hs,*df,*mu,*r,*ntyp);
  
  if (*ctyp==ewma2 && *ltyp==fix &&  *q>1) result = xte2_arlm_hom(*l,*c,*hs,*df,*q,0.,*mu,*r,ced,*ntyp);
  

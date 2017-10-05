@@ -21,9 +21,13 @@ Sven Knoth (2014),
 The Case Against the Use of Synthetic Control Charts,
 accepted in \emph{Journal of Quality Technology}.
 
-Sven Knoth (2015),
-ARL numerics for MEWMA charts,
-under revision in \emph{Journal of Quality Technology}.
+Sven Knoth (2017),
+ARL Numerics for MEWMA Charts,
+\emph{Journal of Quality Technology 49}, 78-89.
+
+Sven Knoth (2017),
+Calculating the Steady-State ARL of MEWMA Control Charts,
+unpublished manuscript.
 }
 \author{Sven Knoth}
 \seealso{

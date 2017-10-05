@@ -52,7 +52,9 @@ Additionally, the collocation approach is offered as well, because it is much be
 FORTRAN code for the Radau quadrature based Nystroem of Rigdon (1995a)
 was published in Bodden and Rigdon (1999) -- see also \url{http://lib.stat.cmu.edu/jqt/31-1}.
 Furthermore, FORTRAN code for the Markov chain approximation (in- and out-ot-control)
-could be found at \url{http://lib.stat.cmu.edu/jqt/33-4}.
+could be found at
+%\url{http://lib.stat.cmu.edu/jqt/33-4}.
+http://lib.stat.cmu.edu/jqt/33-4.
 The related papers are Runger and Prabhu (1996) and Molnau et al. (2001).
 The idea of the Clenshaw-Curtis quadrature was taken from
 Capizzi and Masarotto (2010), who successfully deployed a modified Clenshaw-Curtis quadrature
@@ -69,6 +71,10 @@ A program for approximating the in-control ARL for the MEWMA chart,
 Giovanna Capizzi and Guido Masarotto (2010),
 Evaluation of the run-length distribution for a combined Shewhart-EWMA control chart,
 \emph{Statistics and Computing 20}, 23-33.
+
+Sven Knoth (2017),
+ARL Numerics for MEWMA Charts,
+\emph{Journal of Quality Technology 49}, 78-89.
 
 Wade E. Molnau et al. (2001),
 A Program for ARL Calculation for Multivariate EWMA Charts,
@@ -102,7 +108,7 @@ data.frame(L0a, L0b, L0c, L0d, L0e)
 
 # original (Rigdon 1995a) implicite value is 200
 p <- 3
-h <- 14.98
+h <- 10.81
 L0a  <- mewma.arl(r, h, p, ntype="gl2")
 L0aa <- mewma.arl(r, h, p, r=48, ntype="gl2")
 L0b  <- mewma.arl(r, h, p, ntype="co")
@@ -121,5 +127,20 @@ h <- 14.56
 L1 <- mewma.arl(r, h, p, delta=1, r=20)
 L1
 # original value is 12.9
+
+# Knoth (2017), p. 85, Tab. 3, rows with p=3
+\dontrun{
+p <- 3
+lambda <- 0.05
+h4 <- mewma.crit(lambda, 200, p)
+benchmark <- mewma.arl(lambda, h4, p, delta=1, r=50)
+
+mc.arl  <- mewma.arl(lambda, h4, p, delta=1, r=25, ntype="mc")
+ra.arl  <- mewma.arl(lambda, h4, p, delta=1, r=27, ntype="ra")
+co.arl  <- mewma.arl(lambda, h4, p, delta=1, r=12, ntype="co2")
+gl3.arl <- mewma.arl(lambda, h4, p, delta=1, r=30, ntype="gl3")
+gl5.arl <- mewma.arl(lambda, h4, p, delta=1, r=25, ntype="gl5")
+
+abs( benchmark - data.frame(mc.arl, ra.arl, co.arl, gl3.arl, gl5.arl) )}
 }
 \keyword{ts}

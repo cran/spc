@@ -17,8 +17,13 @@ by applying secant rule and using \code{mewma.arl()} with \code{ntype="gl2"}.
 }
 \value{Returns a single value which resembles the critical value \code{c}.}
 \references{
-Steven E. Rigdon (1995), An integral equation for the in-control average run length of a multivariate
-exponentially weighted moving average control chart, \emph{J. Stat. Comput. Simulation 52}, 351-365.
+Sven Knoth (2017),
+ARL Numerics for MEWMA Charts,
+\emph{Journal of Quality Technology 49}, 78-89.
+
+Steven E. Rigdon (1995),
+An integral equation for the in-control average run length of a multivariate exponentially weighted moving average control chart,
+\emph{J. Stat. Comput. Simulation 52}, 351-365.
 }
 \author{Sven Knoth}
 \seealso{\code{mewma.arl} for zero-state ARL computation.}
@@ -30,5 +35,15 @@ r <- .25
 h4 <- mewma.crit(r, L0, p)
 h4
 ## original value is 16.38.
+
+# Knoth (2017), p. 82, Tab. 2
+p <- 3
+L0 <- 1e3
+lambda <- c(0.25, 0.2, 0.15, 0.1, 0.05)
+h4 <- rep(NA, length(lambda) )
+for ( i in 1:length(lambda) ) h4[i] <- mewma.crit(lambda[i], L0, p, r=20)
+round(h4, digits=2)
+## original values are
+## 15.82 15.62 15.31 14.76 13.60
 }
 \keyword{ts}

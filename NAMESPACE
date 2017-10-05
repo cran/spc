@@ -1,16 +1,16 @@
-useDynLib(spc)
+useDynLib(spc, .registration=TRUE)
 ## imports
 import("stats")
 ## exports
 export("xshewhartrunsrules.ad", "xshewhartrunsrules.arl", "xshewhartrunsrules.crit", "xshewhartrunsrules.matrix",
-       "xshewhart.ar1.arl",
+       "xshewhart.ar1.arl", "xtshewhart.ar1.arl",
        "xewma.ad", "xewma.arl", "xewma.crit", "xewma.q", "xewma.sf", "xewma.q.crit",
        "xcusum.ad", "xcusum.arl", "xcusum.crit.L0h", "xcusum.crit.L0L1", "xcusum.crit", "xcusum.q", "xcusum.sf",
        "xgrsr.ad", "xgrsr.arl", "xgrsr.crit",
        "sewma.arl", "sewma.crit", "sewma.sf", "sewma.q.crit", "sewma.q",
        "sewma.sf.prerun", "sewma.arl.prerun", "sewma.q.crit.prerun", "sewma.q.prerun", "sewma.crit.prerun",
        "lns2ewma.arl", "lns2ewma.crit",
-       "scusum.arl", "scusum.crit",
+       "scusum.arl", "scusum.crit", "scusums.arl",
        "mewma.arl", "mewma.crit", "mewma.psi", "mewma.arl.f", "mewma.ad",
        "xsewma.arl", "xsewma.crit", "xsewma.sf", "xsewma.q.crit", "xsewma.q",
        "xewma.arl.prerun", "xewma.q.prerun", "xewma.sf.prerun",
