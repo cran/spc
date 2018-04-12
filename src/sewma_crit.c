@@ -39,30 +39,24 @@ void sewma_crit
 
  if ( *s_squared==1 ) {
    if (*ctyp==ewmaU)  cu = seU_crit(*l,*L0,*hs,*sigma,*df,*r,*qm);
-   if (*ctyp==ewmaUR) cu = seUR_crit(*l,*L0,*cl0,*hs,*sigma,*df,*r,*qm);
-   if (*ctyp==ewmaLR) cl = seLR_crit(*l,*L0,*cu0,*hs,*sigma,*df,*r,*qm);
+   if (*ctyp==ewmaUR) { cu = seUR_crit(*l,*L0,*cl0,*hs,*sigma,*df,*r,*qm); cl = *cl0; }
+   if (*ctyp==ewmaLR) { cl = seLR_crit(*l,*L0,*cu0,*hs,*sigma,*df,*r,*qm); cu = *cu0; }
    if (*ctyp==ewma2) {
-     if (*ltyp==fixed) {
-       cl = se2fu_crit(*l,*L0,*cu0,*hs,*sigma,*df,*r,*qm);
-       cu = *cu0;
-     }
+     if (*ltyp==fixed) { cl = se2fu_crit(*l,*L0,*cu0,*hs,*sigma,*df,*r,*qm); cu = *cu0; }
      if (*ltyp==unbiased) result = se2_crit_unbiased(*l, *L0, &cl, &cu, *hs, *sigma, *df, *r, *qm);
      if (*ltyp==eqtails)  result =  se2_crit_eqtails(*l, *L0, &cl, &cu, *hs, *sigma, *df, *ur, *r, *qm);
-     if (*ltyp==sym)     {    cu =  se2_crit_sym(*l, *L0, *hs, *sigma, *df, *r, *qm); cl = 2. - cu; }
+     if (*ltyp==sym)   { cu =  se2_crit_sym(*l, *L0, *hs, *sigma, *df, *r, *qm); cl = 2. - cu; }
    }
  } else {
    mitte = c_four((double)*df);
    if ( *ctyp==ewmaU )  cu = stdeU_crit(*l,*L0,*hs,*sigma,*df,*r,*qm);
-   if ( *ctyp==ewmaUR ) cu = stdeUR_crit(*l,*L0,*cl0,*hs,*sigma,*df,*r,*qm);
-   if ( *ctyp==ewmaLR ) cl = stdeLR_crit(*l,*L0,*cu0,*hs,*sigma,*df,*r,*qm);
+   if ( *ctyp==ewmaUR ) { cu = stdeUR_crit(*l,*L0,*cl0,*hs,*sigma,*df,*r,*qm); cl = *cl0; }
+   if ( *ctyp==ewmaLR ) { cl = stdeLR_crit(*l,*L0,*cu0,*hs,*sigma,*df,*r,*qm); cu = *cu0; }
    if ( *ctyp==ewma2 ) {
-     if ( *ltyp==fixed ) {
-       cl = stde2fu_crit(*l,*L0,*cu0,*hs,*sigma,*df,*r,*qm);
-       cu = *cu0;
-     }
+     if ( *ltyp==fixed ) { cl = stde2fu_crit(*l,*L0,*cu0,*hs,*sigma,*df,*r,*qm); cu = *cu0; }
      if ( *ltyp==unbiased ) result = stde2_crit_unbiased(*l, *L0, &cl, &cu, *hs, *sigma, *df, *r, *qm);
      if ( *ltyp==eqtails )  result =  stde2_crit_eqtails(*l, *L0, &cl, &cu, *hs, *sigma, *df, *ur, *r, *qm);
-     if ( *ltyp==sym )     {    cu =  stde2_crit_sym(*l, *L0, *hs, *sigma, *df, *r, *qm); cl = 2.*mitte - cu; }
+     if ( *ltyp==sym )   { cu =  stde2_crit_sym(*l, *L0, *hs, *sigma, *df, *r, *qm); cl = 2.*mitte - cu; }
    }
  }
  

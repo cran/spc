@@ -4,7 +4,7 @@ import("stats")
 ## exports
 export("xshewhartrunsrules.ad", "xshewhartrunsrules.arl", "xshewhartrunsrules.crit", "xshewhartrunsrules.matrix",
        "xshewhart.ar1.arl", "xtshewhart.ar1.arl",
-       "xewma.ad", "xewma.arl", "xewma.crit", "xewma.q", "xewma.sf", "xewma.q.crit",
+       "xewma.ad", "xewma.arl", "xewma.arl.f", "xewma.crit", "xewma.q", "xewma.sf", "xewma.q.crit",
        "xcusum.ad", "xcusum.arl", "xcusum.crit.L0h", "xcusum.crit.L0L1", "xcusum.crit", "xcusum.q", "xcusum.sf",
        "xgrsr.ad", "xgrsr.arl", "xgrsr.crit",
        "sewma.arl", "sewma.crit", "sewma.sf", "sewma.q.crit", "sewma.q",

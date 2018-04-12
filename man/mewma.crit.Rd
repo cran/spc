@@ -19,11 +19,11 @@ by applying secant rule and using \code{mewma.arl()} with \code{ntype="gl2"}.
 \references{
 Sven Knoth (2017),
 ARL Numerics for MEWMA Charts,
-\emph{Journal of Quality Technology 49}, 78-89.
+\emph{Journal of Quality Technology 49(1)}, 78-89.
 
 Steven E. Rigdon (1995),
 An integral equation for the in-control average run length of a multivariate exponentially weighted moving average control chart,
-\emph{J. Stat. Comput. Simulation 52}, 351-365.
+\emph{J. Stat. Comput. Simulation 52(4)}, 351-365.
 }
 \author{Sven Knoth}
 \seealso{\code{mewma.arl} for zero-state ARL computation.}

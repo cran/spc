@@ -17,6 +17,13 @@
 #define CO3 11
 #define CO4 12
 
+#define nGL1 13
+#define nGL2 14
+#define nGL3 15
+#define nGL4 16
+#define nGL5 17
+
+
 double mxewma_arl_0a(double lambda, double ce, int p, double hs, int N);
 double mxewma_arl_0a2(double lambda, double ce, int p, double hs, int N);
 double mxewma_arl_0b(double lambda, double ce, int p, double hs, int N, int qm);
@@ -40,6 +47,12 @@ double mxewma_arl_1d(double lambda, double ce, int p, double delta, double hs, i
 double mxewma_arl_1e(double lambda, double ce, int p, double delta, double hs, int N);
 double mxewma_arl_1f(double lambda, double ce, int p, double delta, double hs, int N);
 
+double mxewma_arl_1q(double lambda, double ce, int p, double delta, int N);
+double mxewma_arl_1r(double lambda, double ce, int p, double delta, int N);
+double mxewma_arl_1s(double lambda, double ce, int p, double delta, int N);
+double mxewma_arl_1t(double lambda, double ce, int p, double delta, int N);
+double mxewma_arl_1u(double lambda, double ce, int p, double delta, int N);
+
 void mewma_arl(double *l, double *c, int *p, double *delta, double *hs, int *r, int *qtype, int *qm0, int *qm1, double *arl)
 {
  if ( fabs(*delta)<1e-10 ) {
@@ -58,10 +71,17 @@ void mewma_arl(double *l, double *c, int *p, double *delta, double *hs, int *r, 
    if ( *qtype == GL4 ) *arl = mxewma_arl_1a4(*l, *c, *p, *delta, *hs, *r);
    if ( *qtype == GL5 ) *arl = mxewma_arl_1a5(*l, *c, *p, *delta, *hs, *r);
    
+   if ( *qtype == nGL1 ) *arl = mxewma_arl_1q(*l, *c, *p, *delta, *r);
+   if ( *qtype == nGL2 ) *arl = mxewma_arl_1r(*l, *c, *p, *delta, *r);
+   if ( *qtype == nGL3 ) *arl = mxewma_arl_1s(*l, *c, *p, *delta, *r);
+   if ( *qtype == nGL4 ) *arl = mxewma_arl_1t(*l, *c, *p, *delta, *r);
+   if ( *qtype == nGL5 ) *arl = mxewma_arl_1u(*l, *c, *p, *delta, *r);
+   
    if ( *qtype == CO )  *arl = mxewma_arl_1b(*l, *c, *p, *delta, *hs, *r, *qm0, *qm1);
    if ( *qtype == CO2 ) *arl = mxewma_arl_1b2(*l, *c, *p, *delta, *hs, *r, *qm0, *qm1);
    if ( *qtype == CO3 ) *arl = mxewma_arl_1b3(*l, *c, *p, *delta, *hs, *r, *qm0, *qm1);
    if ( *qtype == CO4 ) *arl = mxewma_arl_1b4(*l, *c, *p, *delta, *hs, *r, *qm0, *qm1);
+   
    if ( *qtype == RA ) *arl = mxewma_arl_1c(*l, *c, *p, *delta, *hs, *r);
    if ( *qtype == CC ) *arl = mxewma_arl_1d(*l, *c, *p, *delta, *hs, *r);
    if ( *qtype == MC ) *arl = mxewma_arl_1e(*l, *c, *p, *delta, *hs, *r);

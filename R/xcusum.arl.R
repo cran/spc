@@ -11,7 +11,7 @@ xcusum.arl <- function(k, h, mu, hs=0, sided="one", method="igl", q=1, r=30) {
   ctyp <- pmatch(sided, c("one", "two", "Crosier")) - 1
   if (is.na(ctyp)) 
     stop("invalid cusum type")
-  mtyp <- pmatch(method, c("igl", "mc")) - 1
+  mtyp <- pmatch(method, c("igl", "mc", "mct", "mcl")) - 1
   if (is.na(mtyp)) 
     stop("invalid method")
   q <- round(q)

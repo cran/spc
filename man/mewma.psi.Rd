@@ -13,20 +13,20 @@ multivariate exponentially weighted moving average (MEWMA) charts monitoring mul
 \item{hs}{the re-starting point for the cyclical steady-state framework.}
 \item{r}{number of quadrature nodes.}
 }
-\details{Basically, ideas from Knoth (2015, MEWMA numerics) and Knoth (2014, steady-state ARL concepts) are merged.
+\details{Basically, ideas from Knoth (2017, MEWMA numerics) and Knoth (2016, steady-state ARL concepts) are merged.
 More details will follow.}
 \value{Returns a function.}
 \references{
-Sven Knoth (2014),
+Sven Knoth (2016),
 The Case Against the Use of Synthetic Control Charts,
-accepted in \emph{Journal of Quality Technology}.
+\emph{Journal of Quality Technology 48(2)}, 178-195.
 
 Sven Knoth (2017),
 ARL Numerics for MEWMA Charts,
-\emph{Journal of Quality Technology 49}, 78-89.
+\emph{Journal of Quality Technology 49(1)}, 78-89.
 
-Sven Knoth (2017),
-Calculating the Steady-State ARL of MEWMA Control Charts,
+Sven Knoth (2018),
+The Steady-State Behavior of Multivariate Exponentially Weighted Moving Average Control Charts,
 unpublished manuscript.
 }
 \author{Sven Knoth}

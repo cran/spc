@@ -66,67 +66,106 @@ or two (out-of-control) arguments.
 \references{
 Kevin M. Bodden and Steven E. Rigdon (1999),
 A program for approximating the in-control ARL for the MEWMA chart,
-\emph{Journal of Quality Technology 31}, 120-123.
+\emph{Journal of Quality Technology 31(1)}, 120-123.
 
 Giovanna Capizzi and Guido Masarotto (2010),
 Evaluation of the run-length distribution for a combined Shewhart-EWMA control chart,
-\emph{Statistics and Computing 20}, 23-33.
+\emph{Statistics and Computing 20(1)}, 23-33.
 
 Sven Knoth (2017),
 ARL Numerics for MEWMA Charts,
-\emph{Journal of Quality Technology 49}, 78-89.
+\emph{Journal of Quality Technology 49(1)}, 78-89.
 
 Wade E. Molnau et al. (2001),
 A Program for ARL Calculation for Multivariate EWMA Charts,
-\emph{Journal of Quality Technology 33}, 515-521.
+\emph{Journal of Quality Technology 33(4)}, 515-521.
+
+Sharad S. Prabhu and George C. Runger (1997),
+Designing a multivariate EWMA control chart,
+\emph{Journal of Quality Technology 29(1)}, 8-15.
 
 Steven E. Rigdon (1995a), An integral equation for the in-control average run length of a multivariate
-exponentially weighted moving average control chart, \emph{J. Stat. Comput. Simulation 52}, 351-365.
+exponentially weighted moving average control chart, \emph{J. Stat. Comput. Simulation 52(4)}, 351-365.
 
 Steven E. Rigdon (1995b), A double-integral equation for the average run length of a multivariate
-exponentially weighted moving average control chart, \emph{Stat. Probab. Lett. 24}, 365-373.
+exponentially weighted moving average control chart, \emph{Stat. Probab. Lett. 24(4)}, 365-373.
 
 George C. Runger and Sharad S. Prabhu (1996),
 A Markov Chain Model for the Multivariate Exponentially Weighted Moving Averages Control Chart,
-\emph{J. Amer. Statist. Assoc. 91}, 1701-1706.
+\emph{J. Amer. Statist. Assoc. 91(436)}, 1701-1706.
 }
 \author{Sven Knoth}
 \seealso{
 \code{mewma.crit} for getting the alarm threshold to attain a certain in-control ARL.
 }
 \examples{
+# Rigdon (1995a), p. 357, Tab. 1
+p <- 2
+r <- 0.25
+h4 <- c(8.37, 9.90, 11.89, 13.36, 14.82, 16.72)
+for ( i in 1:length(h4) ) cat(paste(h4[i], "\t", round(mewma.arl(r, h4[i], p, ntype="ra")), "\n"))
+
+r <- 0.1
+h4 <- c(6.98, 8.63, 10.77, 12.37, 13.88, 15.88)
+for ( i in 1:length(h4) ) cat(paste(h4[i], "\t", round(mewma.arl(r, h4[i], p, ntype="ra")), "\n"))
+
+
 # Rigdon (1995b), p. 372, Tab. 1
+\dontrun{
 r <- 0.1
 p <- 4
 h <- 12.73
-L0a <- mewma.arl(r, h, p) # defaults to "gl2" because of the even p.
-L0b <- mewma.arl(r, h, p, ntype="co")
-L0c <- mewma.arl(r, h, p, r=48, ntype="ra")
-L0d <- mewma.arl(r, h, p, ntype="cc")
-L0e <- mewma.arl(r, h, p, ntype="mc")
-data.frame(L0a, L0b, L0c, L0d, L0e)
+for ( sdelta in c(0, 0.125, 0.25, .5, 1, 2, 3) )
+  cat(paste(sdelta, "\t",
+      round(mewma.arl(r, h, p, delta=sdelta^2, ntype="ra", r=25), digits=2), "\n"))
 
-# original (Rigdon 1995a) implicite value is 200
-p <- 3
-h <- 10.81
-L0a  <- mewma.arl(r, h, p, ntype="gl2")
-L0aa <- mewma.arl(r, h, p, r=48, ntype="gl2")
-L0b  <- mewma.arl(r, h, p, ntype="co")
-L0bb <- mewma.arl(r, h, p, r=48, ntype="co")
-L0c  <- mewma.arl(r, h, p, r=48, ntype="ra")
-L0d  <- mewma.arl(r, h, p, ntype="cc")
-L0dd <- mewma.arl(r, h, p, r=48, ntype="cc")
-L0e  <- mewma.arl(r, h, p, ntype="mc")
-L0ee <- mewma.arl(r, h, p, r=48, ntype="mc")
-data.frame(L0a, L0aa, L0b, L0bb, L0c, L0d, L0dd, L0e, L0ee)
-# original (Rigdon 1995a) implicite value is 1000
-
-# Rigdon (1995b), p. 372, Tab. 1
 p <- 5
 h <- 14.56
-L1 <- mewma.arl(r, h, p, delta=1, r=20)
-L1
-# original value is 12.9
+for ( sdelta in c(0, 0.125, 0.25, .5, 1, 2, 3) )
+  cat(paste(sdelta, "\t",
+      round(mewma.arl(r, h, p, delta=sdelta^2, ntype="ra", r=25), digits=2), "\n"))
+
+p <- 10
+h <- 22.67
+for ( sdelta in c(0, 0.125, 0.25, .5, 1, 2, 3) )
+  cat(paste(sdelta, "\t",
+      round(mewma.arl(r, h, p, delta=sdelta^2, ntype="ra", r=25), digits=2), "\n"))
+}
+
+# Runger/Prabhu (1996), p. 1704, Tab. 1
+\dontrun{
+r <- 0.1
+p <- 4
+H <- 12.73
+cat(paste(0, "\t", round(mewma.arl(r, H, p, delta=0, ntype="mc", r=50), digits=2), "\n"))
+for ( delta in c(.5, 1, 1.5, 2, 3) )
+  cat(paste(delta, "\t",
+      round(mewma.arl(r, H, p, delta=delta, ntype="mc", r=25), digits=2), "\n"))
+# compare with Fortran program (MEWMA-ARLs.f90) from Molnau et al. (2001) with m1 = m2 = 25
+# H4      P     R   DEL  ARL
+# 12.73  4.  0.10  0.00 199.78
+# 12.73  4.  0.10  0.50  35.05
+# 12.73  4.  0.10  1.00  12.17
+# 12.73  4.  0.10  1.50   7.22
+# 12.73  4.  0.10  2.00   5.19
+# 12.73  4.  0.10  3.00   3.42
+
+p <- 20
+H <- 37.01
+cat(paste(0, "\t",
+    round(mewma.arl(r, H, p, delta=0, ntype="mc", r=50), digits=2), "\n"))
+for ( delta in c(.5, 1, 1.5, 2, 3) )
+  cat(paste(delta, "\t",
+      round(mewma.arl(r, H, p, delta=delta, ntype="mc", r=25), digits=2), "\n"))
+# compare with Fortran program (MEWMA-ARLs.f90) from Molnau et al. (2001) with m1 = m2 = 25
+# H4      P     R   DEL  ARL
+# 37.01 20.  0.10  0.00 199.09
+# 37.01 20.  0.10  0.50  61.62
+# 37.01 20.  0.10  1.00  20.17
+# 37.01 20.  0.10  1.50  11.40
+# 37.01 20.  0.10  2.00   8.03
+# 37.01 20.  0.10  3.00   5.18
+}
 
 # Knoth (2017), p. 85, Tab. 3, rows with p=3
 \dontrun{
@@ -134,13 +173,31 @@ p <- 3
 lambda <- 0.05
 h4 <- mewma.crit(lambda, 200, p)
 benchmark <- mewma.arl(lambda, h4, p, delta=1, r=50)
-
+  
 mc.arl  <- mewma.arl(lambda, h4, p, delta=1, r=25, ntype="mc")
 ra.arl  <- mewma.arl(lambda, h4, p, delta=1, r=27, ntype="ra")
 co.arl  <- mewma.arl(lambda, h4, p, delta=1, r=12, ntype="co2")
 gl3.arl <- mewma.arl(lambda, h4, p, delta=1, r=30, ntype="gl3")
 gl5.arl <- mewma.arl(lambda, h4, p, delta=1, r=25, ntype="gl5")
+  
+abs( benchmark - data.frame(mc.arl, ra.arl, co.arl, gl3.arl, gl5.arl) )
+}
 
-abs( benchmark - data.frame(mc.arl, ra.arl, co.arl, gl3.arl, gl5.arl) )}
+# Prabhu/Runger (1997), p. 13, Tab. 3
+\dontrun{
+p <- 2
+r <- 0.1
+H <- 8.64
+cat(paste(0, "\t",
+    round(mewma.ad(r, H, p, delta=0, type="cycl", ntype="mc", r=60), digits=2), "\n"))
+for ( delta in c(.5, 1, 1.5, 2, 3) )
+  cat(paste(delta, "\t",
+      round(mewma.ad(r, H, p, delta=delta, type="cycl", ntype="mc", r=30), digits=2), "\n"))
+
+# better accuracy
+for ( delta in c(0, .5, 1, 1.5, 2, 3) )
+  cat(paste(delta, "\t",
+      round(mewma.ad(r, H, p, delta=delta^2, type="cycl", r=30), digits=2), "\n"))
+}
 }
 \keyword{ts}

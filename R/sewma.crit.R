@@ -56,12 +56,76 @@ sewma.crit <- function(l, L0, df, sigma0=1, cl=NULL, cu=NULL, hs=NULL, s2.on=TRU
     stop("r is too small")
   if ( qm<10 )
     stop("qm is too small")
-  c <- .C("sewma_crit",as.integer(ctyp),as.integer(ltyp),as.double(l),
-          as.double(L0),as.double(cl0),as.double(cu0),as.double(hs),
-          as.double(sigma0),as.integer(df),as.integer(r),as.integer(qm),
-          as.double(ur),as.integer(s_squared),
-          ans=double(length=2),PACKAGE="spc")$ans
-  names(c) <- c("cl", "cu")
-  return (c)
+
+  if ( isTRUE(all.equal(1, l)) ) {
+    if ( sided=="upper" ) {
+      cv <- c(0, qchisq( 1-1/L0, df)/df)
+    }
+    if ( sided=="Rupper" ) {
+      cv <- c(0, Inf)
+      warning("not useful for Shewhart type chart")
+    }
+    if ( sided=="Rlower" ) {
+      cv <- c(qchisq( 1/L0, df)/df, Inf)
+    }
+    if ( sided=="two") {
+      if ( mode=="fixed" ) {
+        a2 <- 1 - pchisq(df*cu, df)
+        if ( a2 > 1/L0 ) {
+          cv <- c(0, Inf)
+          warning("upper limit too small") 
+        } else {
+          a1 <- 1/L0 - a2
+          cv <- c(qchisq(a1, df)/df, cu)
+        }        
+      }
+      if ( mode=="unbiased") {
+        a1 <- 1/(2*L0)
+        step <- 1/(2*L0)/10
+        one <- 1
+        for ( j in 1:8 ) {
+          for ( i in 1:11 ) {
+            a1 <- a1 + step*one
+            k1 <- qchisq(a1, df)
+            a2 <- 1/L0 - a1
+            k2 <- qchisq(1-a2, df)
+            condition <- (k2 - k1)/(log(k2) - log(k1))
+            if ( (one*condition) > (one*df) ) break
+          }
+          step <- step/10
+          one <- -one
+          if ( abs(condition - df) < 1e-10 ) break
+        }
+        cv <- c(k1, k2)/df
+      }
+      if ( mode=="eq.tails" ) {
+        a <- 1/(2*L0)
+        cv <- qchisq(c(a, 1-a), df)/df
+      }
+      if ( mode=="vanilla" ) {
+        a <- 1/L0
+        k2 <- qchisq(1-a, df)
+        k1 <- 2*df - k2
+        if ( k1 > 0 ) {
+          zero <- function(x) ( pchisq( 2*df - qchisq(1-x, df), df) + x ) - 1/L0
+          a <- uniroot(zero, c(1/(2*L0), 1/L0), tol=1e-12)$root
+          k2 <- qchisq(1-a, df)
+          k1 <- 2*df - k2
+          cv <- c(k1, k2)/df
+        } else {
+          cv <- c(0, Inf)
+          warning("symmetric design not possible") 
+        }
+      }      
+    }
+  } else {
+    cv <- .C("sewma_crit",as.integer(ctyp),as.integer(ltyp),as.double(l),
+             as.double(L0),as.double(cl0),as.double(cu0),as.double(hs),
+             as.double(sigma0),as.integer(df),as.integer(r),as.integer(qm),
+             as.double(ur),as.integer(s_squared),
+             ans=double(length=2),PACKAGE="spc")$ans
+  }
+  names(cv) <- c("cl", "cu")
+  cv
 }
 

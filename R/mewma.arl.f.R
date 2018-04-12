@@ -34,7 +34,7 @@ mewma.arl.f <- function(l, cE, p, delta=0, r=20, ntype=NULL, qm0=20, qm1=qm0) {
     result
   })
   
-  qtyp <- pmatch(tolower(ntype), c("gl", "co", "ra", "cc", "mc", "sr", "co2", "gl2", "gl3", "gl4", "gl5", "co3", "co4")) - 1
+  qtyp <- pmatch(tolower(ntype), c("gl", "co", "ra", "cc", "mc", "sr", "co2", "gl2", "gl3", "gl4", "gl5", "co3", "co4", "ngl1", "ngl2", "ngl3", "ngl4", "ngl5")) - 1
   if ( is.na(qtyp) )		stop("invalid type of numerical algorithm")
 
   if ( abs(delta) < 1e-10 ) { # in-control    
@@ -71,9 +71,11 @@ mewma.arl.f <- function(l, cE, p, delta=0, r=20, ntype=NULL, qm0=20, qm1=qm0) {
       r2 <- r^2
       LENGTH <- r2 + 4*r
     }
+    
     zeug <- .C("mewma_arl_f", as.double(l), as.double(cE), as.integer(p), as.double(delta),
                               as.integer(r), as.integer(qtyp), as.integer(qm0), as.integer(qm1),
                               ans=double(length=LENGTH), PACKAGE="spc")$ans                              
+                              
     if ( qtyp!=4 ) {
       g  <- zeug[1:r2]
       w0 <- zeug[1:r + r2]
@@ -89,6 +91,8 @@ mewma.arl.f <- function(l, cE, p, delta=0, r=20, ntype=NULL, qm0=20, qm1=qm0) {
     h <- cE * l/(2-l)
     rdc <- l * sqrt( delta/h )
     sig <- l / sqrt( h )
+    
+    lsd  <- l * sqrt( delta )    
     
     if ( qtyp %in% c(0, 2, 3, 5) ) arl <- Vectorize(function(a, b) { # ordinary GL or Radau or CC or Simpson rule Nystroem 
       if ( abs(h-a) < 1e-10 ) a_ <- 1 else a_ <- ( a - b^2/delta ) / ( h - b^2/delta )
@@ -200,6 +204,28 @@ mewma.arl.f <- function(l, cE, p, delta=0, r=20, ntype=NULL, qm0=20, qm1=qm0) {
       result <- 1 + sum( Qv_ * g )
     })
     
+    if ( qtyp %in% c(13, 14, 15, 16, 17) ) arl <- Vectorize(function(a, b) { # new GL designs
+      gam <- 0
+      #if ( a > 0 ) gam <- b / sqrt( a * delta )
+      if ( a > 0 ) gam <- b / sqrt( a )
+      mij <- lsd + (1 - l ) * sqrt(a) * gam
+      ncpij <- l2 * a * ( 1 - gam^2 )
+      norm <- sinh(1)
+      result <- 1
+      for ( i in 1:r ) {
+        if ( qtyp == 13 ) korr <- w0[i] * sqrt( z0[i] ) / l^2
+        if ( qtyp > 13 ) korr <- 2 * w0[i] * z0[i]^2 / l^2
+        wl <- z1
+        korr2 <- rep(1, r)
+        if ( qtyp == 15 ) { wl <- sin( z1 ); korr2 <- cos( z1 ) }
+        if ( qtyp == 16 ) { wl <- tan( z1 ); korr2 <- 1 / ( cos( z1 )^2 ) }
+        if ( qtyp == 17 ) { wl <- sinh( z1 ) / norm;  korr2 <- cosh( z1 ) / norm }
+        if ( qtyp == 13 ) term <- korr * sum( w1 * dnorm( (sqrt(z0[i])*wl - mij)/l ) / l * dchisq( z0[i]*( 1 - wl^2 ) / l^2, p-1, ncpij ) * g[ (i-1)*r + 1:r ] * korr2 )
+        if ( qtyp > 13 )  term <- korr * sum( w1 * dnorm( (z0[i]*wl - mij)/l ) / l * dchisq( z0[i]^2*( 1 - wl^2 ) / l^2, p-1, ncpij ) * g[ (i-1)*r + 1:r ] * korr2 )
+        result <- result + term 
+      }
+      result
+    })
   } 
   
   arl

@@ -48,6 +48,7 @@ extern void xDewma_arl(void *, void *, void *, void *, void *, void *, void *, v
 extern void xDgrsr_arl(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void xewma_ad(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void xewma_arl(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void xewma_arl_f(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void xewma_arl_prerun(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void xewma_crit(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void xewma_q(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -114,6 +115,7 @@ static const R_CMethodDef CEntries[] = {
     {"xDgrsr_arl",               (DL_FUNC) &xDgrsr_arl,               11},
     {"xewma_ad",                 (DL_FUNC) &xewma_ad,                 11},
     {"xewma_arl",                (DL_FUNC) &xewma_arl,                10},
+    {"xewma_arl_f",              (DL_FUNC) &xewma_arl_f,               8},
     {"xewma_arl_prerun",         (DL_FUNC) &xewma_arl_prerun,         15},
     {"xewma_crit",               (DL_FUNC) &xewma_crit,               10},
     {"xewma_q",                  (DL_FUNC) &xewma_q,                  11},

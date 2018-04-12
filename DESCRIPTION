@@ -1,8 +1,8 @@
 Package: spc
-Version: 0.5.4
-Date: 2017-10-05
-Title: Statistical Process Control -- Collection of Some Useful
-        Functions
+Version: 0.6.0
+Date: 2018-04-12
+Title: Statistical Process Control -- Calculation of ARL and Other
+        Control Chart Performance Measures
 Author: Sven Knoth
 Maintainer: Sven Knoth <Sven.Knoth@gmx.de>
 Depends: R (>= 1.8.0)
@@ -10,15 +10,12 @@ Description: Evaluation of control charts by means of
         the zero-state, steady-state ARL (Average Run Length) and RL quantiles.
         Setting up control charts for given in-control ARL. The control charts
         under consideration are one- and two-sided EWMA, CUSUM, and
-        Shiryaev-Roberts schemes for monitoring the mean of normally
-        distributed independent data. ARL calculation
-        of the same set of schemes under drift are added. 
-        Other charts and parameters are in preparation.
-        Further SPC areas will be covered as well
-        (sampling plans, capability indices ...).
+        Shiryaev-Roberts schemes for monitoring the mean or variance of normally
+        distributed independent data. ARL calculation of the same set of schemes under drift (in the mean) are added.
+        Eventually, all ARL measures for the multivariate EWMA (MEWMA) are provided.
 License: GPL (>= 2)
 URL: https://www.r-project.org
 NeedsCompilation: yes
-Packaged: 2017-10-05 12:06:24 UTC; knoth
+Packaged: 2018-04-12 13:15:27 UTC; knoth
 Repository: CRAN
-Date/Publication: 2017-10-05 15:16:36 UTC
+Date/Publication: 2018-04-12 16:04:52 UTC

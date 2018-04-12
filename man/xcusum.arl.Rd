@@ -93,7 +93,7 @@ round(cbind(mu,arl1,arl2),digits=2)
 ## 2.50   2.62   1.59
 ## 3.00   2.19   1.32
 ## 4.00   1.71   1.07
-## 5.00   1.31   1.01.
+## 5.00   1.31   1.01
 
 ## Vance (1986), one-sided CUSUM
 ## The first paper on using Nystroem method and Gauss-Legendre quadrature
@@ -112,7 +112,7 @@ round(cbind(mu,sapply(mu,k=k,h=h,xcusum.arl)),digits=2)
 ##   0.25    36.71
 ##   0.50    20.37
 ##   0.75    14.06
-##   1.00    10.75.
+##   1.00    10.75
 
 ## Waldmann (1986),
 ## one- and two-sided CUSUM
@@ -155,7 +155,7 @@ round(cbind(mu,sapply(mu,k=k,h=h,sided="Crosier",xcusum.arl)),digits=2)
 ## 2.50   2.49
 ## 3.00   2.09
 ## 4.00   1.60
-## 5.00   1.22.
+## 5.00   1.22
 
 ## SAS/QC manual 1999
 ## one- and two-sided CUSUM schemes

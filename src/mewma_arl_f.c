@@ -17,6 +17,12 @@
 #define CO3 11
 #define CO4 12
 
+#define nGL1 13
+#define nGL2 14
+#define nGL3 15
+#define nGL4 16
+#define nGL5 17
+
 double mxewma_arl_f_0a(double lambda, double ce, int p, int N, double *ARL, double *w, double *z);
 double mxewma_arl_f_0a2(double lambda, double ce, int p, int N, double *ARL, double *w, double *z);
 double mxewma_arl_f_0b(double lambda, double ce, int p, int N, int qm, double *ARL);
@@ -40,6 +46,13 @@ double mxewma_arl_f_1c (double lambda, double ce, int p, double delta, int N, do
 double mxewma_arl_f_1d (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1); /* Clenshaw-Curtis */
 double mxewma_arl_f_1e (double lambda, double ce, int p, double delta, int N, double *g, int *dQ); /* Markov Chain (Runger/Prabhu) */
 double mxewma_arl_f_1f (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z); /* Simpson rule */
+
+double mxewma_arl_f_1q (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1); /* GL, changed integration order */
+double mxewma_arl_f_1r (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1);
+double mxewma_arl_f_1s (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1);
+double mxewma_arl_f_1t (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1);
+double mxewma_arl_f_1u (double lambda, double ce, int p, double delta, int N, double *g, double *w0, double *z0, double *w1, double *z1);
+
 
 double *vector (long n);
 
@@ -85,6 +98,12 @@ void mewma_arl_f(double *l, double *c, int *p, double *delta, int *r, int *qtype
    if ( *qtype == GL3 ) zahl = mxewma_arl_f_1a3(*l, *c, *p, *delta, *r, ARL, w, z, w1, z1);   
    if ( *qtype == GL4 ) zahl = mxewma_arl_f_1a4(*l, *c, *p, *delta, *r, ARL, w, z, w1, z1);
    if ( *qtype == GL5 ) zahl = mxewma_arl_f_1a5(*l, *c, *p, *delta, *r, ARL, w, z, w1, z1);
+   
+   if ( *qtype == nGL1 ) zahl = mxewma_arl_f_1q(*l, *c, *p, *delta, *r, ARL, w, z, w1, z1);
+   if ( *qtype == nGL2 ) zahl = mxewma_arl_f_1r(*l, *c, *p, *delta, *r, ARL, w, z, w1, z1);
+   if ( *qtype == nGL3 ) zahl = mxewma_arl_f_1s(*l, *c, *p, *delta, *r, ARL, w, z, w1, z1);
+   if ( *qtype == nGL4 ) zahl = mxewma_arl_f_1t(*l, *c, *p, *delta, *r, ARL, w, z, w1, z1);
+   if ( *qtype == nGL5 ) zahl = mxewma_arl_f_1u(*l, *c, *p, *delta, *r, ARL, w, z, w1, z1);
 
    if ( *qtype == CO )  zahl = mxewma_arl_f_1b (*l, *c, *p, *delta, *r, *qm0, *qm1, ARL);
    if ( *qtype == CO2 ) zahl = mxewma_arl_f_1b2(*l, *c, *p, *delta, *r, *qm0, *qm1, ARL);

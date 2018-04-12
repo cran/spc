@@ -25,7 +25,7 @@ mewma.ad <- function(l, cE, p, delta=0, r=20, n=20, type="cond", hs=0, ntype=NUL
     }
   }
   
-  qtyp <- pmatch(tolower(ntype), c("gl", "co", "ra", "cc", "mc", "sr", "co2", "gl2", "gl3", "gl4", "gl5", "co3", "co4")) - 1
+  qtyp <- pmatch(tolower(ntype), c("gl", "co", "ra", "cc", "mc", "sr", "co2", "gl2", "gl3", "gl4", "gl5", "co3", "co4", "ngl1", "ngl2", "ngl3", "ngl4", "ngl5")) - 1
   if ( is.na(qtyp) )		stop("invalid type of numerical algorithm")
 
   ad <- .C("mewma_ad", as.double(l), as.double(cE), as.integer(p), as.double(delta), as.integer(r),
