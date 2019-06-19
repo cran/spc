@@ -51,6 +51,6 @@ average charts, \emph{Appl. Statist. 35}, 151-158.
 \code{sewma.arl} for zero-state ARL computation of variance EWMA control charts.
 }
 \examples{
-## Knoth (2014?)
+## will follow
 }
 \keyword{ts}

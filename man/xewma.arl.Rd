@@ -3,7 +3,8 @@
 \title{Compute ARLs of EWMA control charts}
 \description{Computation of the (zero-state) Average Run Length (ARL)
 for different types of EWMA control charts monitoring normal mean.}
-\usage{xewma.arl(l,c,mu,zr=0,hs=0,sided="one",limits="fix",q=1,r=40)}
+\usage{xewma.arl(l,c,mu,zr=0,hs=0,sided="one",limits="fix",q=1,
+steady.state.mode="conditional",r=40)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{c}{critical value (similar to alarm limit) of the EWMA control chart.}
@@ -17,8 +18,9 @@ by choosing \code{"one"} and \code{"two"}, respectively.}
 \eqn{\mu=\mu_0} and \eqn{\mu=\mu_1}, the usual
 zero-state ARLs for the in-control and out-of-control case, respectively,
 are calculated. For \eqn{q>1} and \eqn{\mu!=0} conditional delays, that is,
-\eqn{E_q(L-q+1|L\ge q)}, will be determined.
-Note that mu0=0 is implicitely fixed.}
+\eqn{E_q(L-q+1|L\ge q)}, will be determined. Note that mu0=0 is implicitely fixed.}
+\item{steady.state.mode}{distinguishes between two steady-state modes -- conditional and cyclical
+(needed for \code{q>1}).}
 \item{r}{number of quadrature nodes, dimension of the resulting linear
 equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}

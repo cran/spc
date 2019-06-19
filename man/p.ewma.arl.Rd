@@ -2,13 +2,16 @@
 \alias{p.ewma.arl}
 \title{Compute ARLs of binomial EWMA p control charts}
 \description{Computation of the (zero-state) Average Run Length (ARL) at given rate \code{p}.}
-\usage{p.ewma.arl(lambda, ucl, n, p, z0, d.res=1, r.mode="ieee.round", i.mode="integer")}
+\usage{p.ewma.arl(lambda, ucl, n, p, z0, sided="upper", lcl=NULL, d.res=1,
+r.mode="ieee.round", i.mode="integer")}
 \arguments{
 \item{lambda}{smoothing parameter of the EWMA p control chart.}
 \item{ucl}{upper control limit of the EWMA p control chart.}
 \item{n}{subgroup size.}
 \item{p}{(failure/success) rate.}
 \item{z0}{so-called headstart (give fast initial response).}
+\item{sided}{distinguishes between one- and two-sided EWMA control chart by choosing \code{"upper"}, \code{"lower"}, and \code{"two"}, respectively.}
+\item{lcl}{lower control limit of the EWMA p control chart; needed for two-sided design.}
 \item{d.res}{resolution (see details).}
 \item{r.mode}{round mode -- allowed modes are \code{"gan.floor"}, \code{"floor"}, \code{"ceil"},
 \code{"ieee.round"}, \code{"round"}, \code{"mix"}.}
@@ -67,7 +70,7 @@ z0 <- n*p0
 lambda <- 0.3
 ucl <- 0.649169922 ## in-control ARL 370.4 (determined with d.res = 2^14 = 16384)
 
-res.list <- 2^(1:12)
+res.list <- 2^(1:11)
 arl.list <- NULL
 for ( res in res.list ) {
   arl <- p.ewma.arl(lambda, ucl, n, p0, z0, d.res=res)

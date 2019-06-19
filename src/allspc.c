@@ -128,6 +128,7 @@ double xe2_iglarl_f(double l, double c, double mu, int N, double *g, double *w, 
 double xe2_iglad (double l, double c, double mu0, double mu1, int N);
 double xe2_igladc(double l, double c, double mu0, double mu1, double z0, int N);
 double xe2_arlm(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
+double xe2_arlmc(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
 int xe2_arlm_special(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax, double *pair);
 double xe2_arlm_hom(double l, double c, double hs, int q, double mu0, double mu1, int N, double *ced);
 double xe2_Wq(double l, double c, double p, double hs, double mu, int N, int nmax);
@@ -442,8 +443,44 @@ double ewma_phat_lambda2(double L0, double mu, double sigma, double max_l, doubl
 
 /* attribute EWMA p (X follows binomial distribution) */
 
-double ewma_p_arl(double lambda, double ucl, int n, double p, double z0, int d_res, int round_mode, int mid_mode);
+double ewma_pU_arl(double lambda, double ucl, int n, double p, double z0, int d_res, int round_mode, int mid_mode);
+double ewma_pL_arl(double lambda, double lcl, int n, double p, double z0, int d_res, int round_mode, int mid_mode);
+double ewma_p2_arl(double lambda, double lcl, double ucl, int n, double p, double z0, int d_res, int round_mode, int mid_mode);
 
+/* attribute EWMA p (X follows Poisson distribution) */
+
+double cewma_U_arl(double lambda, double AU, double mu0, double z0, double mu, int N);
+double cewma_L_arl(double lambda, double AL, double AU, double mu0, double z0, double mu, int N);
+double cewma_2_arl(double lambda, double AL, double AU, double mu0, double z0, double mu, int N);
+double cewma_2_arl_rando(double lambda, double AL, double AU, double gammaL, double gammaU, double mu0, double z0, double mu, int N);
+double cewma_U_crit(double lambda, double L0, double mu0, double z0, int N, int jmax);
+double cewma_L_crit(double lambda, double L0, double AU, double mu0, double z0, int N, int jmax);
+double cewma_2_crit_sym(double lambda, double L0, double mu0, double z0, int N, int jmax);
+double cewma_2_crit_AL(double lambda, double L0, double AU, double mu0, double z0, int N, int jmax);
+double cewma_2_crit_AU(double lambda, double L0, double AL, double mu0, double z0, int N, int jmax);
+int cewma_2_crit_unb(double lambda, double L0, double mu0, double z0, int N, int jmax, double *AL, double *AU);
+
+double cewma_U_arl_new(double lambda, double AU, double mu0, double z0, double mu, int N);
+double cewma_L_arl_new(double lambda, double AL, double AU, double mu0, double z0, double mu, int N);
+double cewma_2_arl_new(double lambda, double AL, double AU, double mu0, double z0, double mu, int N);
+double cewma_2_arl_rando_new(double lambda, double AL, double AU, double gammaL, double gammaU, double mu0, double z0, double mu, int N);
+double cewma_U_crit_new(double lambda, double L0, double mu0, double z0, int N, int jmax);
+double cewma_L_crit_new(double lambda, double L0, double AU, double mu0, double z0, int N, int jmax);
+double cewma_2_crit_sym_new(double lambda, double L0, double mu0, double z0, int N, int jmax);
+double cewma_2_crit_AL_new(double lambda, double L0, double AU, double mu0, double z0, int N, int jmax);
+double cewma_2_crit_AU_new(double lambda, double L0, double AL, double mu0, double z0, int N, int jmax);
+int cewma_2_crit_unb_new(double lambda, double L0, double mu0, double z0, int N, int jmax, double *AL, double *AU);
+int cewma_2_crit_unb_rando_new(double lambda, double L0, double mu0, double z0, int N, int jmax, double *AL, double *AU, double *gL, double *gU);
+
+
+/* TEWMA (thinning operation -- X follows Poisson distribution */
+
+double tewma_arl(double lambda, int k, int lk, int uk, double z0, double mu);
+double tewma_arl_R(double lambda, int k, int lk, int uk, double gl, double gu, double z0, double mu);
+
+/*  Rakitzis / Castagliola / Maravelakis (2015), A new memory-type monitoring technique for count data, doi 10.1016/j.cie.2015.03.021 */
+
+double eewma_arl(int gX, int gY, int kL, int kU, double mu, double y0, int r0);
 
 /* tolerance intervals */
 
@@ -490,7 +527,12 @@ double cdf_tn(double x, int df, double ncp);
 double  qf_tn(double x, int df, double ncp);
 
 double cdf_binom(double q, int n, double p);
+double qf_binom(double q, int n, double p);
 double pdf_binom(double x, int n, double p);
+
+double cdf_pois(double q, double lambda);
+double qf_pois(double q, double lambda);
+double pdf_pois(double x, double lambda);
 
 double Tn(double z, int n);    /* Chebyshev polynomials */
 double iTn(double z, int n);   /* indefinite integrals of Chebyshev polynomials */
@@ -631,11 +673,37 @@ double cdf_binom(double q, int n, double p)
   return pbinom(q,(double)n,p,TAIL,LOG);
 }  
 
+/* qf of binomial rv */
+double qf_binom(double q, int n, double p)
+{
+  return qbinom(q,(double)n,p,TAIL,LOG);
+} 
+
 /* pdf of binomial rv */
 double pdf_binom(double x, int n, double p)
 {
   return dbinom(x,(double)n,p,LOG);
 }  
+
+
+/* cdf of Poisson rv */
+double cdf_pois(double q, double lambda)
+{
+  return ppois(q,lambda,TAIL,LOG);
+}
+
+/* qf of Poisson rv */
+double qf_pois(double q, double lambda)
+{
+  return qpois(q,lambda,TAIL,LOG);
+} 
+
+/* pdf of Poisson rv */
+double pdf_pois(double x, double lambda)
+{
+  return dpois(x,lambda,LOG);
+}
+
 
 /* expectation of log-gamma */
 double E_log_gamma(double ddf)
@@ -7038,6 +7106,160 @@ double xe2_arlm(double l, double c, double hs, int q, double mu0, double mu1, in
  }
 
  arl = (arl_plus+arl_minus)/2; rho0 = rho;
+
+ Free(Smatrix);
+ Free(w);
+ Free(z);
+ Free(fn);
+ Free(p0);
+
+ return arl;
+}
+
+
+double xe2_arlmc(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax)
+{ double *Smatrix, *p0, *Psi, *fn, *w, *z,
+         arl0, rho, dn, rn, cn, rn0, cn0, delta=0.,
+         arl_minus=0, arl, arl_plus=0, mn_minus, mn_plus, nn,
+         fSt, aSt, ratio;
+  int i, j, n;
+
+ fSt = 0.5;
+ aSt = ( -2./log10(1.-fSt) - 1.)/19.;
+
+ c  *= sqrt( l/(2.-l) ); 
+ hs *= sqrt( l/(2.-l) );
+ if (mode==fir || mode==both) delta = 2.*hs;
+
+ Smatrix = matrix(N,N);
+ w       = vector(N);
+ z       = vector(N);
+ fn      = matrix(nmax,N);
+ p0      = vector(nmax);
+ Psi     = vector(nmax);
+
+ gausslegendre(N,-c,c,z,w);
+
+ rn = 1.; cn = 0.; rn0 = 1., cn0 = 0.;
+
+ /* in-control, i. e. n<=q-1 */
+ for (n=1;n<=q-1;n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=1,2,...,q-1 */
+  switch (mode) {
+    case vacl: rn = sqrt( 1. - pow(1.-l, 2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+ 
+  /* determine f_n, n=1,2,...,q-1 */
+  if (n==1) {
+    for (i=0;i<N;i++)
+      if (mode==stat)
+        fn[0*N+i] = 1./sqrt(l/(2.-l))*phi( (cn+rn*z[i])/sqrt(l/(2.-l)),mu0);
+      else
+        fn[0*N+i] = rn/l * phi( (cn+rn*z[i]-(1.-l)*hs)/l,mu0);
+    Psi[0] = PHI( (cn-rn*c-(1.-l)*hs)/l, mu0) + 1. - PHI( (cn+rn*c-(1.-l)*hs)/l, mu0);  
+  } 
+  else {
+    for (i=0;i<N;i++) {
+      fn[(n-1)*N+i] = Psi[n-1] * rn/l*phi( (cn+rn*z[i]-(1.-l)*hs)/l, mu0);
+      for (j=0;j<N;j++) {
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j] * rn/l*phi((cn+rn*z[i]-(1.-l)*(cn0+rn0*z[j]))/l,mu0);
+      }
+      Psi[n] = Psi[n-1] * ( PHI( (cn-rn*c-(1.-l)*hs)/l, mu0) + 1. - PHI( (cn+rn*c-(1.-l)*hs)/l, mu0) );
+      for (j=0;j<N;j++) {
+        Psi[n] += w[j] * fn[(n-2)*N+j] * ( PHI( (cn-rn*c-(1.-l)*(cn0+rn0*z[j]))/l, mu0) + 1. - PHI( (cn+rn*c-(1.-l)*(cn0+rn0*z[j]))/l, mu0) );
+      }
+    }
+  }
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+ }
+
+ /* out-of-control, i.e. t>=q */
+ arl0 = 1.; rho = 0.;
+
+ for (n=q;n<=nmax;n++) {
+  nn = (double) n;
+
+  /* determine c_n and r_n, n=q,q+1,... */
+  switch (mode) {
+    case vacl: rn = sqrt( 1. - pow(1.-l,2.*nn) );
+         break;
+    case fir: dn = delta*pow(1.-l,nn);
+              rn = 1. - dn/(2.*c);
+              cn = dn/2.;
+         break;
+    case both: dn = delta*pow(1.-l,nn);
+               rn = sqrt( 1. - pow(1.-l,2.*nn) ) - dn/(2.*c);
+               cn = dn/2.;
+         break;
+    case steiner: rn = sqrt(1.-pow(1.-l,2.*nn))*(1.-pow(1.-fSt,1.+aSt*(nn-1.)));
+         break;
+  }
+
+  /* determine f_n, n=q,q+1,... */
+  if (n==1) {
+    for (i=0;i<N;i++)
+      if (mode==stat)
+        fn[0*N+i] = 1./sqrt(l/(2.-l))*phi( (cn+rn*z[i])/sqrt(l/(2.-l)),mu1);
+      else
+        fn[0*N+i] = rn/l * phi( (cn+rn*z[i]-(1.-l)*hs)/l,mu1);
+  }
+  else {
+    for (i=0;i<N;i++) {
+      fn[(n-1)*N+i] = 0.;
+      if (n==q && q>1) fn[(n-1)*N+i] = Psi[n-1] * rn/l*phi( (cn+rn*z[i]-(1.-l)*hs)/l, mu1);
+      for (j=0;j<N;j++) 
+        fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j] * rn/l*phi( (cn+rn*z[i]-(1.-l)*(cn0+rn0*z[j]))/l, mu1);
+    }
+  }
+
+  /* determine P(L>n), n=1,2,...,q-1 */
+  p0[n-1] = 0.;
+  for (i=0;i<N;i++) p0[n-1] += w[i] * fn[(n-1)*N+i];
+
+  /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+  cn0 = cn; rn0 = rn;
+
+  /* computation of m_n+1^- and m_n+1^+, n=m-1,m,... */
+  mn_minus = 1.; mn_plus = 0.;
+  if (n>q) {
+   for (i=0;i<N;i++) {
+    if (fn[(n-2)*N+i]==0)
+     if (fn[(n-1)*N+i]==0) ratio = 0.; else ratio = 1.;
+    else ratio = fn[(n-1)*N+i]/fn[(n-2)*N+i];
+    if ( ratio<mn_minus ) mn_minus = ratio;
+    if ( ratio>mn_plus ) mn_plus = ratio;
+   }
+  }
+ 
+  if (n>q) rho = p0[n-1]/p0[n-2];
+
+  /* computation of ARL, ARL^-, and ARL^+ */
+  arl = arl0 + p0[n-1]/(1.-rho);
+  if (mn_minus<1.) arl_minus = arl0 + p0[n-1]/(1.-mn_minus);
+  else             arl_minus = -1.;
+  if (mn_plus<1.) arl_plus = arl0 + p0[n-1]/(1.-mn_plus);
+  else            arl_plus = -1.;
+  arl0 += p0[n-1]; 
+
+  if ( fabs((arl_plus-arl_minus)) < 1e-7 ) n = nmax+1;
+ }
+
+ arl = (arl_plus+arl_minus)/2; rho0 = rho; 
 
  Free(Smatrix);
  Free(w);
@@ -20774,7 +20996,7 @@ double ewma_phat_lambda2(double L0, double mu, double sigma, double max_l, doubl
 
 
 /* attributive EWMA */
-double ewma_p_arl(double lambda, double ucl, int n, double p, double z0, int d_res, int round_mode, int mid_mode)
+double ewma_pU_arl(double lambda, double ucl, int n, double p, double z0, int d_res, int round_mode, int mid_mode)
 { double *a, *g, arl, zj=0, pju, pj;
   int i, j, k, N, NN/*, k_max*/;
   
@@ -20794,29 +21016,29 @@ double ewma_p_arl(double lambda, double ucl, int n, double p, double z0, int d_r
      switch (round_mode) {
 	case -1:	/* round down as probably Gan did */
 	    j = (int)floor(zj*d_res + 1e-9);
-	    if ( j <= N ) a[i*NN+j] += -pj;
+	    if ( j <= N ) a[j*NN+i] += -pj;
 	break;
 	case 0:		/* round down */
 	    j = (int)floor(zj*d_res);
-	    if ( j <= N ) a[i*NN+j] += -pj;
+	    if ( j <= N ) a[j*NN+i] += -pj;
 	break;
 	case 1:		/* round up */
 	    j = (int)ceil(zj*d_res);
-	    if ( j <= N ) a[i*NN+j] += -pj;
+	    if ( j <= N ) a[j*NN+i] += -pj;
 	break;
 	case 2:		/* round to nearest -- round half to even, IEEE 754 */
 	    j = (int)round(zj*d_res);
-	    if ( j <= N ) a[i*NN+j] += -pj;
+	    if ( j <= N ) a[j*NN+i] += -pj;
 	break;
 	case 3:		/* round to nearest -- round half up  */
 	    j = (int)floor(zj*d_res+.5);
-	    if ( j <= N ) a[i*NN+j] += -pj;
+	    if ( j <= N ) a[j*NN+i] += -pj;
 	break;
 	case 4:		/* distribute */
 	    j = (int)floor(zj*d_res);
 	    pju = zj - j/d_res;          
-	    if ( j <= N ) a[i*NN+j]   += -(1.-pju)*pj;
-	    if ( j <  N ) a[i*NN+j+1] += -pju*pj;
+	    if ( j <= N ) a[j*NN+i]   += -(1.-pju)*pj;
+	    if ( j <  N ) a[(j+1)*NN+i] += -pju*pj;
 	break;
      }
    }
@@ -20824,7 +21046,8 @@ double ewma_p_arl(double lambda, double ucl, int n, double p, double z0, int d_r
  } 
 
  for (j=0; j<=N; j++) g[j] = 1.;
- LU_solve(a, g, NN);
+ /*LU_solve(a, g, NN);*/
+ solve(&NN, a, g);
  
  arl = 1.;
  /*k_max = (int)ceil( (ucl+1. - (1.-lambda)*z0)/lambda );*/
@@ -20864,6 +21087,1975 @@ double ewma_p_arl(double lambda, double ucl, int n, double p, double z0, int d_r
  Free(a);
  Free(g);
 
+ return arl;
+}
+
+
+double ewma_cU_arl(double lambda, double ucl, double mu, double z0, int d_res, int round_mode, int mid_mode)
+{ double *a, *g, arl, zj=0, pju, pj;
+  int i, j, k, N, NN, k_max;
+  
+ N = (int)ceil(ucl*d_res);
+ /*N = (int)floor(ucl*d_res);*/
+ NN = N + 1;
+ a = matrix(NN, NN);
+ g = vector(NN);
+
+ for (i=0; i<=N; i++) for (j=0; j<=N; j++) a[i*NN+j] = 0.;
+ 
+ for (i=0; i<=N; i++) {
+   k_max = (int)ceil( (ucl+1. - (1.-lambda)*i)/lambda );
+   for (k=0; k<=k_max; k++) {
+     zj = (1.-lambda)*i/d_res + lambda*k;     
+     pj = pdf_pois((double)k, mu);
+     switch (round_mode) {
+	case -1:	/* round down as probably Gan did */
+	    j = (int)floor(zj*d_res + 1e-9);
+	    if ( j <= N ) a[j*NN+i] += -pj;
+	break;
+	case 0:		/* round down */
+	    j = (int)floor(zj*d_res);
+	    if ( j <= N ) a[j*NN+i] += -pj;
+	break;
+	case 1:		/* round up */
+	    j = (int)ceil(zj*d_res);
+	    if ( j <= N ) a[j*NN+i] += -pj;
+	break;
+	case 2:		/* round to nearest -- round half to even, IEEE 754 */
+	    j = (int)round(zj*d_res);
+	    if ( j <= N ) a[j*NN+i] += -pj;
+	break;
+	case 3:		/* round to nearest -- round half up  */
+	    j = (int)floor(zj*d_res+.5);
+	    if ( j <= N ) a[j*NN+i] += -pj;
+	break;
+	case 4:		/* distribute */
+	    j = (int)floor(zj*d_res);
+	    pju = zj - j/d_res;          
+	    if ( j <= N ) a[j*NN+i]   += -(1.-pju)*pj;
+	    if ( j <  N ) a[(j+1)*NN+i] += -pju*pj;
+	break;
+     }
+   }
+   ++a[i*NN+i];
+ } 
+
+ for (j=0; j<=N; j++) g[j] = 1.;
+ /*LU_solve(a, g, NN);*/
+ solve(&NN, a, g);
+ 
+ arl = 1.;
+ k_max = (int)ceil( (ucl+1. - (1.-lambda)*z0)/lambda );
+ for (k=0; k<=k_max; k++) {
+   zj = (1.-lambda)*z0 + lambda*k;
+   pj = pdf_pois((double)k, mu);
+   switch (round_mode) {
+      case -1:	/* round down as probably Gan did */
+	  j = (int)floor(zj*d_res + 1e-9);
+	  if ( j <= N ) arl += pj*g[j];
+      break;
+      case 0:	/* round down */
+	  j = (int)floor(zj*d_res);
+	  if ( j <= N ) arl += pj*g[j];
+      break;
+      case 1:	/* round up */
+	  j = (int)ceil(zj*d_res);
+	  if ( j <= N ) arl += pj*g[j];
+      break;
+      case 2:	/* round to nearest -- round half to even, IEEE 754 */
+	  j = (int)round(zj*d_res);
+	  if ( j <= N ) arl += pj*g[j];
+      break;
+      case 3:	/* round to nearest -- round half up  */
+	  j = (int)floor(zj*d_res+.5);
+	  if ( j <= N ) arl += pj*g[j];
+      break;
+      case 4:	/* distribute */
+	  j = (int)floor(zj*d_res);
+	  pju = zj - j/d_res;          
+	  if ( j <= N ) arl += (1.-pju)*pj*g[j];
+	  if ( j <  N ) arl += pju*pj*g[j+1];
+      break;
+   }
+ }     
+
+ Free(a);
+ Free(g);
+
+ return arl;
+}
+
+
+double ewma_pL_arl(double lambda, double lcl, int n, double p, double z0, int d_res, int round_mode, int mid_mode)
+{ double *a, *g, arl, zj=0., pju, pj, zold, dr;
+  int i, j, k, l, u, N, NN/*, k_max*/;
+  
+ dr = (double)d_res; 
+ l = (int)floor(lcl*d_res);
+ u = (int)qf_binom(.999999, n, p);
+ N = u - l;
+ NN = N + 1;
+ a = matrix(NN, NN);
+ g = vector(NN);
+
+ for (i=0; i<=N; i++) for (j=0; j<=N; j++) a[i*NN+j] = 0.;
+ 
+ for (i=0; i<=N; i++) {
+   for (k=0; k<=n; k++) {
+     zold = ( (double)( l + i ) ) / dr;
+     zj = (1.-lambda)*zold + lambda*k;  
+     pj = pdf_binom((double)k, n, p);
+     switch (round_mode) {
+        case -1:	/* round down as probably Gan did */
+	    j = (int)floor(zj*dr + 1e-9) - l;
+	    if ( 0 <= j && j <= u ) a[j*NN+i] += -pj;
+        break;
+        case 0:		/* round down */
+	    j = (int)floor(zj*dr) - l;
+	    if ( 0 <= j && j <= u ) a[j*NN+i] += -pj;
+        break;
+        case 1:		/* round up */
+	    j = (int)ceil(zj*dr) - l;
+	    if ( 0 <= j && j <= u ) a[j*NN+i] += -pj;
+        break;
+        case 2:		/* round to nearest -- round half to even, IEEE 754 */
+	    j = (int)round(zj*dr) - l;
+	    if ( 0 <= j && j <= u ) a[j*NN+i] += -pj;
+        break;
+        case 3:		/* round to nearest -- round half up  */
+	    j = (int)floor(zj*dr+.5) - l;
+	    if ( 0 <= j && j <= u ) a[j*NN+i] += -pj;
+        break;
+        case 4:		/* distribute */
+	    j = (int)floor(zj*dr) - l;
+	    pju = zj - j/dr;
+            if ( 0 <= j && j <= u ) a[j*NN+i]     += -(1.-pju)*pj;
+	    if ( 0 <  j && j <= u ) a[(j+1)*NN+i] += -pju*pj;
+        break;
+     }
+   }
+   ++a[i*NN+i];
+ } 
+
+ for (j=0; j<=N; j++) g[j] = 1.;
+ solve(&NN, a, g);
+ 
+ arl = 1.;
+ for (k=0; k<=n; k++) {
+   zj = (1.-lambda)*z0 + lambda*k;
+   pj = pdf_binom((double)k, n, p);
+   switch (round_mode) {
+      case -1:	/* round down as probably Gan did */
+	  j = (int)floor(zj*dr + 1e-9) - l;
+	  if ( 0 <= j && j <= u ) arl += pj*g[j];
+      break;
+      case 0:	/* round down */
+	  j = (int)floor(zj*dr) - l;
+	  if ( 0 <= j && j <= u ) arl += pj*g[j];
+      break;
+      case 1:	/* round up */
+	  j = (int)ceil(zj*dr) - l;
+	  if ( 0 <= j && j <= u ) arl += pj*g[j];
+      break;
+      case 2:	/* round to nearest -- round half to even, IEEE 754 */
+	  j = (int)round(zj*dr) - l;
+	  if ( 0 <= j && j <= u ) arl += pj*g[j];
+      break;
+      case 3:	/* round to nearest -- round half up  */
+	  j = (int)floor(zj*dr+.5) - l;
+	  if ( 0 <= j && j <= u ) arl += pj*g[j];
+      break;
+      case 4:	/* distribute */
+	  j = (int)floor(zj*dr) - l;
+	  pju = zj - j/dr;          
+	  if ( 0 <= j && j <= u ) arl += (1.-pju)*pj*g[j];
+	  if ( 0 <  j && j <= u ) arl += pju*pj*g[j+1];
+      break;
+   }
+ }     
+
+ Free(a);
+ Free(g);
+
+ return arl;
+}
+
+
+double ewma_cL_arl(double lambda, double lcl, double ucl, double mu, double z0, int d_res, int round_mode, int mid_mode)
+{ double *a, *g, arl, zj=0., pju, pj, zold, dr;
+  int i, j, k, l, u, N, NN, k_max;
+  
+ dr = (double)d_res; 
+ l = (int)floor(lcl*d_res);
+ u = (int)ceil(ucl*d_res);
+ k_max = (int)qf_pois(.99999999, mu);
+ N = u - l;
+ NN = N + 1;
+ a = matrix(NN, NN);
+ g = vector(NN);
+
+ for (i=0; i<=N; i++) for (j=0; j<=N; j++) a[i*NN+j] = 0.;
+ 
+ for (i=0; i<=N; i++) {   
+   for (k=0; k<=k_max; k++) {
+     zold = ( (double)( l + i ) ) / dr;
+     zj = (1.-lambda)*zold + lambda*k;  
+     pj = pdf_pois((double)k, mu);
+     switch (round_mode) {
+        case -1:	/* round down as probably Gan did */
+	    j = (int)floor(zj*dr + 1e-9) - l;
+	    if ( 0 <= j && j < N ) a[j*NN+i] += -pj;
+        if ( N <= j ) a[N*NN+i] += -pj;
+        break;
+        case 0:		/* round down */
+	    j = (int)floor(zj*dr) - l;
+	    if ( 0 <= j && j < N ) a[j*NN+i] += -pj;
+        if ( N <= j ) a[N*NN+i] += -pj;
+        break;
+        case 1:		/* round up */
+	    j = (int)ceil(zj*dr) - l;
+	    if ( 0 <= j && j < N ) a[j*NN+i] += -pj;
+        if ( N <= j ) a[N*NN+i] += -pj;
+        break;
+        case 2:		/* round to nearest -- round half to even, IEEE 754 */
+	    j = (int)round(zj*dr) - l;
+	    if ( 0 <= j && j < N ) a[j*NN+i] += -pj;
+        if ( N <= j ) a[N*NN+i] += -pj;
+        break;
+        case 3:		/* round to nearest -- round half up  */
+	    j = (int)floor(zj*dr+.5) - l;
+	    if ( 0 <= j && j < N ) a[j*NN+i] += -pj;
+        if ( N <= j ) a[N*NN+i] += -pj;
+        break;
+        case 4:		/* distribute */
+	    j = (int)floor(zj*dr) - l;
+	    pju = zj - j/dr;
+        if ( 0 <= j && j < N ) a[j*NN+i]     += -(1.-pju)*pj;
+	    if ( 0 <  j && j < N ) a[(j+1)*NN+i] += -pju*pj;
+        if ( N <= j ) a[N*NN+i] += -pj;
+        break;         
+     }
+   }
+   ++a[i*NN+i];
+ } 
+
+ for (j=0; j<=N; j++) g[j] = 1.;
+ solve(&NN, a, g);
+ 
+ arl = 1.;
+ for (k=0; k<=k_max; k++) {
+   zj = (1.-lambda)*z0 + lambda*k;
+   pj = pdf_pois((double)k, mu);
+   switch (round_mode) {
+      case -1:	/* round down as probably Gan did */
+	  j = (int)floor(zj*dr + 1e-9) - l;
+	  if ( 0 <= j && j < N ) arl += pj*g[j];
+      if ( N <= j ) arl += pj*g[N];
+      break;
+      case 0:	/* round down */
+	  j = (int)floor(zj*dr) - l;
+	  if ( 0 <= j && j < N ) arl += pj*g[j];
+      if ( N <= j ) arl += pj*g[N];
+      break;
+      case 1:	/* round up */
+	  j = (int)ceil(zj*dr) - l;
+	  if ( 0 <= j && j < N ) arl += pj*g[j];
+      if ( N <= j ) arl += pj*g[N];
+      break;
+      case 2:	/* round to nearest -- round half to even, IEEE 754 */
+	  j = (int)round(zj*dr) - l;
+	  if ( 0 <= j && j < N ) arl += pj*g[j];
+      if ( N <= j ) arl += pj*g[N];
+      break;
+      case 3:	/* round to nearest -- round half up  */
+	  j = (int)floor(zj*dr+.5) - l;
+	  if ( 0 <= j && j < N ) arl += pj*g[j];
+      if ( N <= j ) arl += pj*g[N];
+      break;
+      case 4:	/* distribute */
+	  j = (int)floor(zj*dr) - l;
+	  pju = zj - j/dr;          
+	  if ( 0 <= j && j < N ) arl += (1.-pju)*pj*g[j];
+	  if ( 0 <  j && j < N ) arl += pju*pj*g[j+1];
+      if ( N <= j ) arl += pj*g[N];
+      break;
+   }
+ }     
+
+ Free(a);
+ Free(g);
+
+ return arl;
+}
+
+
+double ewma_p2_arl(double lambda, double lcl, double ucl, int n, double p, double z0, int d_res, int round_mode, int mid_mode)
+{ double *a, *g, arl, zj=0, pju, pj;
+  int i, j, k, N, N1, N2, NN/*, k_max*/;
+  
+ N2 = (int)ceil(ucl*d_res);
+ N1 = (int)floor(lcl*d_res);
+ N = N2 - N1;
+ NN = N + 1;
+ a = matrix(NN, NN);
+ g = vector(NN);
+
+ for (i=0; i<=N; i++) for (j=0; j<=N; j++) a[i*NN+j] = 0.;
+ 
+ for (i=0; i<=N; i++) {
+   /*k_max = (int)ceil( (ucl+1. - (1.-lambda)*i)/lambda );*/
+   for (k=0; k<=n; k++) {
+     zj = (1.-lambda)*(N1+i)/d_res + lambda*k;  
+     pj = pdf_binom((double)k, n, p);
+     switch (round_mode) {
+	case -1:	/* round down as probably Gan did */
+	    j = (int)floor(zj*d_res + 1e-9) - N1;
+	    if ( 0 <= j && j <= N ) a[i*NN+j] += -pj;
+	break;
+	case 0:		/* round down */
+	    j = (int)floor(zj*d_res) - N1;
+	    if ( 0 <= j && j <= N ) a[i*NN+j] += -pj;
+	break;
+	case 1:		/* round up */
+	    j = (int)ceil(zj*d_res) - N1;
+	    if ( 0 <= j && j <= N ) a[i*NN+j] += -pj;
+	break;
+	case 2:		/* round to nearest -- round half to even, IEEE 754 */
+	    j = (int)round(zj*d_res) - N1;
+	    if ( 0 <= j && j <= N ) a[i*NN+j] += -pj;
+	break;
+	case 3:		/* round to nearest -- round half up  */
+	    j = (int)floor(zj*d_res+.5) - N1;
+	    if ( 0 <= j && j <= N ) a[i*NN+j] += -pj;
+	break;
+	case 4:		/* distribute */
+	    j = (int)floor(zj*d_res) - N1;
+	    pju = zj - j/d_res;          
+	    if ( 0 <= j && j <= N ) a[i*NN+j]   += -(1.-pju)*pj;
+	    if ( 0 <= j && j <  N ) a[i*NN+j+1] += -pju*pj;
+	break;
+     }
+   }
+   ++a[i*NN+i];
+ } 
+
+ for (j=0; j<=N; j++) g[j] = 1.;
+ LU_solve(a, g, NN);
+ /*solve(&NN, a, g);*/
+ 
+ arl = 1.;
+ /*k_max = (int)ceil( (ucl+1. - (1.-lambda)*z0)/lambda );*/
+ for (k=0; k<=n; k++) {
+   zj = (1.-lambda)*z0 + lambda*k;
+   pj = pdf_binom((double)k, n, p);
+   switch (round_mode) {
+      case -1:	/* round down as probably Gan did */
+	  j = (int)floor(zj*d_res + 1e-9) - N1;
+	  if ( 0 <= j && j <= N ) arl += pj*g[j];
+      break;
+      case 0:	/* round down */
+	  j = (int)floor(zj*d_res) - N1;
+	  if ( 0 <= j && j <= N ) arl += pj*g[j];
+      break;
+      case 1:	/* round up */
+	  j = (int)ceil(zj*d_res) - N1;
+	  if ( 0 <= j && j <= N ) arl += pj*g[j];
+      break;
+      case 2:	/* round to nearest -- round half to even, IEEE 754 */
+	  j = (int)round(zj*d_res) - N1;
+	  if ( 0 <= j && j <= N ) arl += pj*g[j];
+      break;
+      case 3:	/* round to nearest -- round half up  */
+	  j = (int)floor(zj*d_res+.5) - N1;
+	  if ( 0 <= j && j <= N ) arl += pj*g[j];
+      break;
+      case 4:	/* distribute */
+	  j = (int)floor(zj*d_res) - N1;
+	  pju = zj - j/d_res;          
+	  if ( 0 <= j && j <= N ) arl += (1.-pju)*pj*g[j];
+	  if ( 0 <= j && j <  N ) arl += pju*pj*g[j+1];
+      break;
+   }
+ }     
+
+ Free(a);
+ Free(g);
+
+ return arl;
+}
+
+
+double ewma_c2_arl(double lambda, double lcl, double ucl, double mu, double z0, int d_res, int round_mode, int mid_mode)
+{ double *a, *g, arl, zj=0, lzi=0, pju, pj;
+  int i, j, k, N, N1, N2, NN, k_max;
+ 
+ N1 = (int)ceil(lcl*d_res);  
+ N2 = (int)floor(ucl*d_res);
+ if ( round_mode == 4 ) {
+   N1 = (int)ceil(lcl*d_res);  
+   N2 = (int)floor(ucl*d_res);
+ }
+ N = N2 - N1;
+ NN = N + 1;
+ a = matrix(NN, NN);
+ g = vector(NN);
+
+ for (i=0; i<=N; i++) for (j=0; j<=N; j++) a[i*NN+j] = 0.;
+ 
+ for (i=0; i<=N; i++) {
+   lzi = (1.-lambda)*(N1+i)/d_res;
+   k_max = (int)ceil( (ucl+1. - lzi)/lambda );
+   for (k=0; k<=k_max; k++) {
+     zj = lzi + lambda*k;  
+     pj = pdf_pois((double)k, mu);
+     switch (round_mode) {
+	case -1:	/* round down as probably Gan did */
+	    j = (int)floor(zj*d_res + 1e-9) - N1;
+	    if ( 0 <= j && j <= N ) a[i*NN+j] += -pj;
+	break;
+	case 0:		/* round down */
+	    j = (int)floor(zj*d_res) - N1;
+	    if ( 0 <= j && j <= N ) a[i*NN+j] += -pj;
+	break;
+	case 1:		/* round up */
+	    j = (int)ceil(zj*d_res) - N1;
+	    if ( 0 <= j && j <= N ) a[i*NN+j] += -pj;
+	break;
+	case 2:		/* round to nearest -- round half to even, IEEE 754 */
+	    j = (int)round(zj*d_res) - N1;
+	    if ( 0 <= j && j <= N ) a[i*NN+j] += -pj;
+	break;
+	case 3:		/* round to nearest -- round half up  */
+	    j = (int)floor(zj*d_res+.5) - N1;
+	    if ( 0 <= j && j <= N ) a[i*NN+j] += -pj;
+	break;
+	case 4:		/* distribute */
+	    j = (int)floor(zj*d_res) - N1;
+	    pju = zj - (j+N1)/d_res;          
+	    if (  0 <= j && j <= N ) a[i*NN + j]   += -(1.-pju)*pj;
+	    if ( -1 <= j && j <  N ) a[i*NN + j+1] += -pju*pj;
+	break;
+     }
+   }
+   ++a[i*NN+i];
+ } 
+
+ for (j=0; j<=N; j++) g[j] = 1.;
+ LU_solve(a, g, NN);
+ /*solve(&NN, a, g);*/
+ 
+ arl = 1.;
+ k_max = (int)ceil( (ucl+1. - (1.-lambda)*z0)/lambda );   
+ for (k=0; k<=k_max; k++) {
+   zj = (1.-lambda)*z0 + lambda*k;
+   pj = pdf_pois((double)k, mu);
+   switch (round_mode) {
+      case -1:	/* round down as probably Gan did */
+	  j = (int)floor(zj*d_res + 1e-9) - N1;
+	  if ( 0 <= j && j <= N ) arl += pj*g[j];
+      break;
+      case 0:	/* round down */
+	  j = (int)floor(zj*d_res) - N1;
+	  if ( 0 <= j && j <= N ) arl += pj*g[j];
+      break;
+      case 1:	/* round up */
+	  j = (int)ceil(zj*d_res) - N1;
+	  if ( 0 <= j && j <= N ) arl += pj*g[j];
+      break;
+      case 2:	/* round to nearest -- round half to even, IEEE 754 */
+	  j = (int)round(zj*d_res) - N1;
+	  if ( 0 <= j && j <= N ) arl += pj*g[j];
+      break;
+      case 3:	/* round to nearest -- round half up  */
+	  j = (int)floor(zj*d_res+.5) - N1;
+	  if ( 0 <= j && j <= N ) arl += pj*g[j];
+      break;
+      case 4:	/* distribute */
+	  j = (int)floor(zj*d_res) - N1;
+	  pju = zj - (j+N1)/d_res;          
+	  if ( 0 <= j && j <= N ) arl += (1.-pju)*pj*g[j];
+	  if ( -1 <= j && j <  N ) arl += pju*pj*g[j+1];
+      break;
+   }
+ }     
+
+ Free(a);
+ Free(g);
+
+ return arl;
+}
+
+/* Markov chain model from Borror / Champ / Rigdon (1998) "Poisson EWMA control charts", JQT 30(4), 352-361 */
+
+double cewma_2_arl(double lambda, double AL, double AU, double mu0, double z0, double mu, int N)
+{ double hL, hU, w, *a, *g, arl;
+  int i, j;
+
+ a = matrix(N,N);
+ g = vector(N);
+
+ hL = mu0 - AL * sqrt( lambda*mu0 / (2.-lambda) );
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = (hU - hL)/N;
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[j*N+i] = - ( cdf_pois( hL+w/2./lambda*(2.*(j+1.)-(1.-lambda)*(2.*i+1.)), mu) - cdf_pois( hL+w/2./lambda*(2.*j-(1.-lambda)*(2.*i+1.)), mu) );
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ solve(&N, a, g);
+ 
+ arl = 1.;
+ for (j=0; j<N; j++) arl += ( cdf_pois( ( hL + (j+1.)*w - (1.-lambda)*z0 )/lambda, mu) - cdf_pois( ( hL + j*w - (1.-lambda)*z0 )/lambda, mu) ) * g[j];
+
+ Free(a);
+ Free(g);
+
+ return arl;  
+}
+
+
+double cewma_2_arl_rando(double lambda, double AL, double AU, double gammaL, double gammaU, double mu0, double z0, double mu, int N)
+{ double hL, hU, w, *a, *g, arl;
+  int i, j;
+
+ a = matrix(N,N);
+ g = vector(N);
+
+ hL = mu0 - AL * sqrt( lambda*mu0 / (2.-lambda) );
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = (hU - hL)/N;
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[j*N+i] = - ( cdf_pois( hL+w/2./lambda*(2.*(j+1.)-(1.-lambda)*(2.*i+1.)), mu) - cdf_pois( hL+w/2./lambda*(2.*j-(1.-lambda)*(2.*i+1.)), mu) );
+   a[i] *= (1.-gammaL);
+   a[(N-1)*N+i] *= (1.-gammaU);  
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ solve(&N, a, g);
+ 
+ arl = 1. + (1.-gammaL) * ( cdf_pois( ( hL + w - (1.-lambda)*z0 )/lambda, mu) - cdf_pois( ( hL - (1.-lambda)*z0 )/lambda, mu) ) * g[0];
+ for (j=1; j<N-1; j++) arl += ( cdf_pois( ( hL + (j+1.)*w - (1.-lambda)*z0 )/lambda, mu) - cdf_pois( ( hL + j*w - (1.-lambda)*z0 )/lambda, mu) ) * g[j];
+ arl += (1.-gammaU) * ( cdf_pois( ( hL + N*w - (1.-lambda)*z0 )/lambda, mu) - cdf_pois( ( hL +(N-1.)*w - (1.-lambda)*z0 )/lambda, mu) ) * g[N-1];
+
+ Free(a);
+ Free(g);
+
+ return arl;  
+}
+
+
+double cewma_2_arl_new(double lambda, double AL, double AU, double mu0, double z0, double mu, int N)
+{ double hL, hU, w, *a, *g, arl, zi, zj, zi1, zi2, pj, px;
+  int i, j, x, x0, x1;
+
+ a = matrix(N,N);
+ g = vector(N);
+
+ hL = mu0 - AL * sqrt( lambda*mu0 / (2.-lambda) );
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = (hU - hL)/N;
+
+ /*printf("\n\nLos geht es (hL = %.4f, hU = %.4f, w = %.4f)\n\n", hL, hU, w);*/
+ 
+ for (i=0; i<N; i++) {
+   zi = (1.-lambda) * ( hL + (2.*i+1.)/2.*w );
+   x0 = (int)floor( (hL-zi)/lambda );
+   if ( x0 < 0 ) x0 = 0;
+   x1 =  (int)ceil( (hU-zi)/lambda );
+   for (j=0; j<N; j++) a[j*N+i] = 0.;
+   for (x=x0; x<=x1; x++) {
+     px = pdf_pois((double)x, mu);  
+     zj = zi + (double)x*lambda;
+     j = (int)ceil( (zj-hL)/w ) - 1;     
+     zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+     zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+     if ( zi1 <= hL + i*w ) {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = 1.;
+         if ( j >= 0 && j < N ) a[j*N+i] += - pj * px;
+         /*printf("(ii)\ti = %d,\tx = %d,\tj = %d\n", i, x, j);*/
+       } else {
+         pj = ( zi2 - ( hL + i*w ) ) / w;
+         if ( j >= 0  && j < N  ) a[j*N+i] += - pj * px;
+         if ( j >= -1 && j < N-1 ) a[(j+1)*N+i] += - (1.-pj) * px;
+         /*printf("(iv)\ti = %d,\tx = %d,\tj = %d,\tpj = %.4f\n", i, x, j, pj);*/
+       }
+     } else {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = ( hL + (i+1.)*w - zi1 ) / w;
+         if ( j >= 0 && j < N  ) a[j*N+i] += - pj * px;
+         if ( j > 0  && j <= N ) a[(j-1)*N+i] += - (1.-pj) * px;           
+         /*printf("(iii)\ti = %d,\tx = %d,\tj = %d,\tpj = %.4f\n", i, x, j, pj);*/
+       } else {
+         pj = 0.; /* should not be possible */
+         /*printf("(i)\tshould not happen.\n");*/
+       }
+     }
+     /*printf("i = %d,\tx = %d,\tj = %d,\tmj = %.4f,\tpj = %.4f,\tzj = %.4f,\tzj-mj = %.4f\n", i, x, j, mj, pj, zj, zj-mj);*/
+   }
+   /*printf("\n\n");*/
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ solve(&N, a, g);
+
+ arl = 1.; 
+ zi = (1.-lambda) * z0;     
+ x0 = (int)floor( (hL-zi)/lambda );
+ if ( x0 < 0 ) x0 = 0;
+ x1 =  (int)ceil( (hU-zi)/lambda ); 
+ i = (int)ceil( (z0-hL)/w ) - 1;
+ for (x=x0; x<=x1; x++) {
+   px = pdf_pois((double)x, mu);  
+   zj = zi+(double)x*lambda;
+   j = (int)ceil( (zj-hL)/w ) - 1;
+   zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+   zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+   if ( zi1 <= hL + i*w ) {
+     if ( hL + (i+1.)*w <= zi2 ) {
+       pj = 1.;
+       if ( j >= 0 && j < N ) arl += pj * px * g[j];
+     } else {
+       pj = ( zi2 - ( hL + i*w ) ) / w;
+       if ( j >= 0  && j < N   ) arl += pj * px * g[j];
+       if ( j >= -1 && j < N-1 ) arl += (1.-pj) * px * g[j+1];
+     }
+   } else {
+     if ( hL + (i+1.)*w <= zi2 ) {
+       pj = ( hL + (i+1.)*w - zi1 ) / w;
+       if ( j >= 0 && j < N  ) arl += pj * px * g[j];
+       if ( j > 0  && j <= N ) arl += (1.-pj) * px * g[j-1];
+     } else {
+       pj = 0.; /* should not be possible */  
+     }
+   }
+ }
+
+ Free(a);
+ Free(g);
+
+ return arl;  
+}
+
+
+double cewma_2_arl_rando_new(double lambda, double AL, double AU, double gammaL, double gammaU, double mu0, double z0, double mu, int N)
+{ double hL, hU, w, *a, *g, arl, zi, zj, zi1, zi2, pj, qj, px;
+  int i, j, x, x0, x1;
+
+ a = matrix(N,N);
+ g = vector(N);
+
+ hL = mu0 - AL * sqrt( lambda*mu0 / (2.-lambda) );
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = (hU - hL)/N;
+ 
+ for (i=0; i<N; i++) {
+   zi = (1.-lambda) * ( hL + (2.*i+1.)/2.*w );
+   x0 = (int)floor( (hL-zi)/lambda );
+   if ( x0 < 0 ) x0 = 0;
+   x1 =  (int)ceil( (hU-zi)/lambda );
+   for (j=0; j<N; j++) a[j*N+i] = 0.;
+   for (x=x0; x<=x1; x++) {
+     px = pdf_pois((double)x, mu);  
+     zj = zi + (double)x*lambda;
+     j = (int)ceil( (zj-hL)/w ) - 1;     
+     zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+     zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+     if ( zi1 <= hL + i*w ) {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = 1.;
+         if ( j==0 )   pj *= (1.-gammaL);
+         if ( j==N-1 ) pj *= (1.-gammaU);
+         if ( j >= 0 && j < N ) a[j*N+i] += - pj * px;
+       } else {
+         pj = ( zi2 - (hL+i*w) ) / w;
+         qj = 1. - pj;
+         if ( j >= 0  && j < N ) {
+           if ( j==0 )   pj *= (1.-gammaL);
+           if ( j==N-1 ) pj *= (1.-gammaU);
+           a[j*N+i] += - pj * px;
+         }
+         if ( j >= -1 && j < N-1 ) {           
+           if ( j==-1 )  qj *= (1.-gammaL);
+           if ( j==N-2 ) qj *= (1.-gammaU);
+           a[(j+1)*N+i] += - qj * px;
+         }
+       }
+     } else {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = ( hL + (i+1.)*w - zi1 ) / w;
+         qj = 1. - pj;
+         if ( j >= 0 && j < N ) {
+           if ( j==0 )   pj *= (1.-gammaL);
+           if ( j==N-1 ) pj *= (1.-gammaU);
+           a[j*N+i] += - pj * px;
+         }
+         if ( j > 0 && j <= N ) {           
+           if ( j==1 ) qj *= (1.-gammaL);
+           if ( j==N ) qj *= (1.-gammaU);
+           a[(j-1)*N+i] += - qj * px;
+         }
+       } else {
+         pj = 0.; /* should not be possible */
+       }
+     }
+   }  
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ solve(&N, a, g);
+
+ arl = 1.; 
+ zi = (1.-lambda) * z0;     
+ x0 = (int)floor( (hL-zi)/lambda );
+ if ( x0 < 0 ) x0 = 0;
+ x1 =  (int)ceil( (hU-zi)/lambda ); 
+ i = (int)ceil( (z0-hL)/w ) - 1;
+ for (x=x0; x<=x1; x++) {
+   px = pdf_pois((double)x, mu);  
+   zj = zi+(double)x*lambda;
+   j = (int)ceil( (zj-hL)/w ) - 1;
+   zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+   zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+   if ( zi1 <= hL + i*w ) {
+     if ( hL + (i+1.)*w <= zi2 ) {
+       pj = 1.;
+       if ( j==0 )   pj *= (1.-gammaL);
+       if ( j==N-1 ) pj *= (1.-gammaU);
+       if ( j >= 0 && j < N ) arl += pj * px * g[j];
+     } else {
+       pj = ( zi2 - (hL+i*w) ) / w;
+       qj = 1. - pj;  
+       if ( j >= 0  && j < N ) {
+         if ( j==0 )   pj *= (1.-gammaL);
+         if ( j==N-1 ) pj *= (1.-gammaU);
+         arl += pj * px * g[j];
+       } 
+       if ( j >= -1 && j < N-1 ) {
+         if ( j==-1 )  qj *= (1.-gammaL);
+         if ( j==N-2 ) qj *= (1.-gammaU);
+         arl += qj * px * g[j+1];
+       }
+     }
+   } else {
+     if ( hL + (i+1.)*w <= zi2 ) {
+       pj = ( hL+(i+1.)*w - zi1 ) / w;
+       qj = 1. - pj;
+       if ( j >= 0 && j < N ) {
+         if ( j==0 )   pj *= (1.-gammaL);
+         if ( j==N-1 ) pj *= (1.-gammaU);
+         arl += pj * px * g[j];
+       }
+       if ( j > 0  && j <= N ) {
+         if ( j==1 ) qj *= (1.-gammaL);
+         if ( j==N ) qj *= (1.-gammaU);
+         arl += qj * px * g[j-1];
+       }
+     } else {
+       pj = 0.; /* should not be possible */  
+     }
+   }
+ }
+
+ Free(a);
+ Free(g);
+
+ return arl;  
+}
+
+
+double cewma_U_arl(double lambda, double AU, double mu0, double z0, double mu, int N)
+{ double hL, hU, w, *a, *g, arl;
+  int i, j;
+
+ a = matrix(N,N);
+ g = vector(N);
+
+ hL = 0.;
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = hU/N;
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[j*N+i] = - ( cdf_pois( hL+w/2./lambda*(2.*(j+1.)-(1.-lambda)*(2.*i+1.)) , mu) - cdf_pois( hL+w/2./lambda*(2.*j-(1.-lambda)*(2.*i+1.)) , mu) );
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ solve(&N, a, g);
+
+ arl = 1.;
+ for (j=0; j<N; j++) arl += ( cdf_pois( ( hL + (j+1.)*w - (1.-lambda)*z0 )/lambda, mu) - cdf_pois( ( hL + j*w - (1.-lambda)*z0 )/lambda, mu) ) * g[j];
+
+ Free(a);
+ Free(g);
+
+ return arl;  
+}
+
+
+double cewma_U_arl_new(double lambda, double AU, double mu0, double z0, double mu, int N)   
+{ double hL, hU, w, *a, *g, arl, zi, zj, zi1, zi2, pj, px;
+  int i, j, x, x1;
+  
+ a = matrix(N,N);
+ g = vector(N);
+
+ hL = 0.;
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = hU/N;
+
+ for (i=0; i<N; i++) {
+   zi = (1.-lambda) * ( hL + (2.*i+1.)/2.*w );
+   x1 =  (int)ceil( (hU-zi)/lambda );
+   for (j=0; j<N; j++) a[j*N+i] = 0.;
+   for (x=0; x<=x1; x++) {
+     px = pdf_pois((double)x, mu);  
+     zj = zi + (double)x*lambda;
+     j = (int)ceil( (zj-hL)/w ) - 1;     
+     zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+     zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+     if ( zi1 <= hL + i*w ) {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = 1.;
+         if ( j >= 0 && j < N ) a[j*N+i] += - pj * px;
+         /*printf("(ii)\ti = %d,\tx = %d,\tj = %d\n", i, x, j);*/
+       } else {
+         pj = ( zi2 - ( hL + i*w ) ) / w;
+         if ( j >= 0  && j < N  ) a[j*N+i] += - pj * px;
+         if ( j >= -1 && j < N-1 ) a[(j+1)*N+i] += - (1.-pj) * px;
+         /*printf("(iv)\ti = %d,\tx = %d,\tj = %d,\tpj = %.4f\n", i, x, j, pj);*/
+       }
+     } else {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = ( hL + (i+1.)*w - zi1 ) / w;
+         if ( j >= 0 && j < N  ) a[j*N+i] += - pj * px;
+         if ( j > 0  && j <= N ) a[(j-1)*N+i] += - (1.-pj) * px;           
+         /*printf("(iii)\ti = %d,\tx = %d,\tj = %d,\tpj = %.4f\n", i, x, j, pj);*/
+       } else {
+         pj = 0.; /* should not be possible */
+         /*printf("(i)\tshould not happen.\n");*/
+       }
+     }
+     /*printf("i = %d,\tx = %d,\tj = %d,\tmj = %.4f,\tpj = %.4f,\tzj = %.4f,\tzj-mj = %.4f\n", i, x, j, mj, pj, zj, zj-mj);*/
+   }
+   /*printf("\n\n");*/
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ solve(&N, a, g);
+
+ arl = 1.; 
+ zi = (1.-lambda) * z0;     
+ x1 =  (int)ceil( (hU-zi)/lambda ); 
+ i = (int)ceil( (z0-hL)/w ) - 1;
+ for (x=0; x<=x1; x++) {
+   px = pdf_pois((double)x, mu);  
+   zj = zi+(double)x*lambda;
+   j = (int)ceil( (zj-hL)/w ) - 1;
+   zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+   zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+   if ( zi1 <= hL + i*w ) {
+     if ( hL + (i+1.)*w <= zi2 ) {
+       pj = 1.;
+       if ( j >= 0 && j < N ) arl += pj * px * g[j];
+     } else {
+       pj = ( zi2 - ( hL + i*w ) ) / w;
+       if ( j >= 0  && j < N   ) arl += pj * px * g[j];
+       if ( j >= -1 && j < N-1 ) arl += (1.-pj) * px * g[j+1];
+     }
+   } else {
+     if ( hL + (i+1.)*w <= zi2 ) {
+       pj = ( hL + (i+1.)*w - zi1 ) / w;
+       if ( j >= 0 && j < N  ) arl += pj * px * g[j];
+       if ( j > 0  && j <= N ) arl += (1.-pj) * px * g[j-1];
+     } else {
+       pj = 0.; /* should not be possible */  
+     }
+   }
+ }
+
+ Free(a);
+ Free(g);
+
+ return arl;  
+}
+
+
+double cewma_L_arl(double lambda, double AL, double AU, double mu0, double z0, double mu, int N)
+{ double hL, hU, w, *a, *g, arl;
+  int i, j;
+
+ a = matrix(N,N);
+ g = vector(N);
+
+ hL = mu0 - AL * sqrt( lambda*mu0 / (2.-lambda) );
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = (hU - hL)/N;
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<(N-1); j++) a[j*N+i] = - ( cdf_pois( hL+w/2./lambda*(2.*(j+1.)-(1.-lambda)*(2.*i+1.)) , mu) - cdf_pois( hL+w/2./lambda*(2.*j-(1.-lambda)*(2.*i+1.)) , mu) );
+   a[(N-1)*N+i] = - ( 1. - cdf_pois( hL+w/2./lambda*(2.*j-(1.-lambda)*(2.*i+1.)) , mu) );
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) g[j] = 1.;
+ solve(&N, a, g);
+
+ arl = 1.;
+ for (j=0; j<(N-1); j++) arl += ( cdf_pois( ( hL + (j+1.)*w - (1.-lambda)*z0 )/lambda, mu) - cdf_pois( ( hL + j*w - (1.-lambda)*z0 )/lambda, mu) ) * g[j];
+ arl += ( 1. - cdf_pois( ( hL + j*w - (1.-lambda)*z0 )/lambda, mu) ) * g[N-1];
+ 
+ Free(a);
+ Free(g);
+
+ return arl;  
+}
+
+
+double cewma_L_arl_new(double lambda, double AL, double AU, double mu0, double z0, double mu, int N)
+{ double hL, hU, w, *a, *g, arl, zi, zj, zi1, zi2, pj, px;
+  int i, j, x, x0, x1;
+  
+ a = matrix(N,N);
+ g = vector(N);
+
+ hL = mu0 - AL * sqrt( lambda*mu0 / (2.-lambda) );
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = (hU - hL)/N;
+
+ for (i=0; i<N; i++) {
+   zi = (1.-lambda) * ( hL + (2.*i+1.)/2.*w );
+   x0 = (int)floor( (hL-zi)/lambda );
+   if ( x0 < 0 ) x0 = 0;
+   x1 =  (int)ceil( (hU-zi)/lambda );
+   for (j=0; j<N; j++) a[j*N+i] = 0.;
+   for (x=0; x<x1; x++) {
+     px = pdf_pois((double)x, mu);  
+     zj = zi + (double)x*lambda;
+     j = (int)ceil( (zj-hL)/w ) - 1;     
+     zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+     zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+     if ( zi1 <= hL + i*w ) {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = 1.;
+         if ( j >= 0 && j < N ) a[j*N+i] += - pj * px;
+         /*printf("(ii)\ti = %d,\tx = %d,\tj = %d\n", i, x, j);*/
+       } else {
+         pj = ( zi2 - ( hL + i*w ) ) / w;
+         if ( j >= 0  && j < N  ) a[j*N+i] += - pj * px;
+         if ( j >= -1 && j < N-1 ) a[(j+1)*N+i] += - (1.-pj) * px;
+         if ( j >= -1 && j == N-1 ) a[(N-1)*N+i] += - (1.-pj) * px;
+         /*printf("(iv)\ti = %d,\tx = %d,\tj = %d,\tpj = %.4f\n", i, x, j, pj);*/
+       }
+     } else {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = ( hL + (i+1.)*w - zi1 ) / w;
+         if ( j >= 0 && j < N  ) a[j*N+i] += - pj * px;
+         if ( j > 0  && j <= N ) a[(j-1)*N+i] += - (1.-pj) * px;           
+         /*printf("(iii)\ti = %d,\tx = %d,\tj = %d,\tpj = %.4f\n", i, x, j, pj);*/
+       } else {
+         pj = 0.; /* should not be possible */
+         /*printf("(i)\tshould not happen.\n");*/
+       }
+     }
+   }
+   a[(N-1)*N+i] += - ( 1. - cdf_pois( (double)x1-1., mu) );
+   ++a[i*N+i];
+ }
+ 
+ 
+ for (j=0; j<N; j++) g[j] = 1.;
+ solve(&N, a, g);
+
+ arl = 1.; 
+ zi = (1.-lambda) * z0;     
+ x0 = (int)floor( (hL-zi)/lambda );
+ if ( x0 < 0 ) x0 = 0;
+ x1 =  (int)ceil( (hU-zi)/lambda ); 
+ i = (int)ceil( (z0-hL)/w ) - 1;
+ for (x=x0; x<x1; x++) {
+   px = pdf_pois((double)x, mu);  
+   zj = zi+(double)x*lambda;
+   j = (int)ceil( (zj-hL)/w ) - 1;
+   zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+   zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+   if ( zi1 <= hL + i*w ) {
+     if ( hL + (i+1.)*w <= zi2 ) {
+       pj = 1.;
+       if ( j >= 0 && j < N ) arl += pj * px * g[j];
+     } else {
+       pj = ( zi2 - ( hL + i*w ) ) / w;
+       if ( j >= 0  && j < N   ) arl += pj * px * g[j];
+       if ( j >= -1 && j < N-1 ) arl += (1.-pj) * px * g[j+1];
+       if ( j >= -1 && j == N-1 ) arl += (1.-pj) * px * g[N-1];
+     }
+   } else {
+     if ( hL + (i+1.)*w <= zi2 ) {
+       pj = ( hL + (i+1.)*w - zi1 ) / w;
+       if ( j >= 0 && j < N  ) arl += pj * px * g[j];
+       if ( j > 0  && j <= N ) arl += (1.-pj) * px * g[j-1];
+     } else {
+       pj = 0.; /* should not be possible */  
+     }
+   }
+ }
+ arl += ( 1. - cdf_pois( (double)x1-1., mu) ) * g[N-1];
+ 
+ Free(a);
+ Free(g);
+
+ return arl;  
+}
+
+
+double cewma_U_crit(double lambda, double L0, double mu0, double z0, int N, int jmax)
+{ double A, A1, L1;
+  int j, dA;
+   
+ A1 = floor(mu0);
+ if ( A1 < 1. ) A1 = 1.;
+ L1 = 1.;
+ A = 1.;
+ for (j=1; j<=(int)A1; j++) {
+   A = (double)j;
+   L1 = cewma_U_arl(lambda, A, mu0, z0, mu0, N);
+   if ( L1 > L0 ) j = (int)A1 + 1; 
+ }
+ A1 = A;
+ 
+ if ( L1 > L0 ) {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 + dA / pow(-10., (double)j);
+       L1 = cewma_U_arl(lambda, A, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) > 0. && L1 < L0 ) || ( fmod((double)j, 2.) < 1. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ } else {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 - dA / pow(-10., (double)j);
+       L1 = cewma_U_arl(lambda, A, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) < 1. && L1 < L0 ) || ( fmod((double)j, 2.) > 0. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ }
+ 
+ return A;
+}
+
+
+double cewma_U_crit_new(double lambda, double L0, double mu0, double z0, int N, int jmax)
+{ double A, A1, L1;
+  int j, dA;
+    
+ A1 = floor(mu0);
+ if ( A1 < 1. ) A1 = 1.;
+ L1 = 1.;
+ A = 1.;
+ for (j=1; j<=(int)A1; j++) {
+   A = (double)j;
+   L1 = cewma_U_arl_new(lambda, A, mu0, z0, mu0, N);
+   if ( L1 > L0 ) j = (int)A1 + 1; 
+ }
+ A1 = A;
+ 
+ if ( L1 > L0 ) {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 + dA / pow(-10., (double)j);
+       L1 = cewma_U_arl_new(lambda, A, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) > 0. && L1 < L0 ) || ( fmod((double)j, 2.) < 1. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ } else {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 - dA / pow(-10., (double)j);
+       L1 = cewma_U_arl_new(lambda, A, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) < 1. && L1 < L0 ) || ( fmod((double)j, 2.) > 0. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ }
+ 
+ return A;
+}
+
+
+double cewma_L_crit(double lambda, double L0, double AU, double mu0, double z0, int N, int jmax)
+{ double A, A1, L1;
+  int j, dA;
+   
+ A1 = floor(mu0);
+ if ( A1 < 1. ) A1 = 1.;
+ L1 = 1.;
+ A = 1.;
+ for (j=1; j<=(int)A1; j++) {
+   A = (double)j;
+   L1 = cewma_L_arl(lambda, A, AU, mu0, z0, mu0, N);
+   if ( L1 > L0 ) j = (int)A1 + 1; 
+ }
+ A1 = A;
+ 
+ if ( L1 > L0 ) {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 + dA / pow(-10., (double)j);
+       L1 = cewma_L_arl(lambda, A, AU, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) > 0. && L1 < L0 ) || ( fmod((double)j, 2.) < 1. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ } else {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 - dA / pow(-10., (double)j);
+       L1 = cewma_L_arl(lambda, A, AU, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) < 1. && L1 < L0 ) || ( fmod((double)j, 2.) > 0. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ }
+ 
+ return A;
+}
+
+
+double cewma_L_crit_new(double lambda, double L0, double AU, double mu0, double z0, int N, int jmax)
+{ double A, A1, L1, ALmax;
+  int j, dA; 
+
+ ALmax = mu0 / sqrt( lambda*mu0 / (2.-lambda) ) - 0.00000000001;
+       
+ A1 = floor(mu0);
+ if ( A1 < 1. ) A1 = 1.;
+ if ( A1 > ALmax ) A1 = floor(ALmax);
+ L1 = 1.;
+ A = 1.;
+ 
+ /*printf("\nALmax = %.4f,\tA1 = %.4f\n\n", ALmax, A1);*/
+ 
+ for (j=1; j<=(int)A1; j++) {
+   A = (double)j;   
+   L1 = cewma_L_arl_new(lambda, A, AU, mu0, z0, mu0, N);
+   /*printf("!!!A = %.4f,\tL1 = %.6f\n", A, L1);*/
+   if ( L1 > L0 ) j = (int)A1 + 1; 
+ }
+ A1 = A;
+ 
+ if ( L1 > L0 ) {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<30; dA++) {
+       A = A1 + dA / pow(-10., (double)j);
+       if ( A > ALmax ) {
+          A = ALmax - 1./pow(10., (double)j+1);
+          dA = 30;
+       }
+       L1 = cewma_L_arl_new(lambda, A, AU, mu0, z0, mu0, N);
+       /*printf("---A = %.4f,\tL1 = %.6f\n", A, L1);*/
+       if ( ( fmod((double)j, 2.) > 0. && L1 < L0 ) || ( fmod((double)j, 2.) < 1. && L1 > L0 ) ) dA = 30;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ } else {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<30; dA++) {
+       A = A1 - dA / pow(-10., (double)j);
+       if ( A > ALmax ) {
+          A = ALmax - 1./pow(10., (double)j+1);
+          dA = 30;
+       }
+       L1 = cewma_L_arl_new(lambda, A, AU, mu0, z0, mu0, N);
+       /*printf("+++A = %.4f,\tL1 = %.6f\n", A, L1);*/
+       if ( ( fmod((double)j, 2.) < 1. && L1 < L0 ) || ( fmod((double)j, 2.) > 0. && L1 > L0 ) ) dA = 30;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ }
+ 
+ return A;
+}
+
+
+double cewma_2_crit_sym(double lambda, double L0, double mu0, double z0, int N, int jmax)
+{ double A, A1, L1;
+  int j, dA;
+    
+ A1 = floor(mu0);
+ if ( A1 < 1. ) A1 = 1.;
+ L1 = 1.;
+ A = 1.;
+ for (j=1; j<=(int)A1; j++) {
+   A = (double)j;
+   L1 = cewma_2_arl(lambda, A, A, mu0, z0, mu0, N);
+   if ( L1 > L0 ) j = (int)A1 + 1; 
+ }
+ A1 = A;
+ 
+ if ( L1 > L0 ) {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 + dA / pow(-10., (double)j);
+       L1 = cewma_2_arl(lambda, A, A, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) > 0. && L1 < L0 ) || ( fmod((double)j, 2.) < 1. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ } else {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 - dA / pow(-10., (double)j);
+       L1 = cewma_2_arl(lambda, A, A, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) < 1. && L1 < L0 ) || ( fmod((double)j, 2.) > 0. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ }
+ 
+ return A;
+}
+
+
+double cewma_2_crit_sym_new(double lambda, double L0, double mu0, double z0, int N, int jmax)
+{ double A, A1, L1;
+  int j, dA;
+  
+ A1 = floor(mu0);
+ if ( A1 < 1. ) A1 = 1.;
+ L1 = 1.;
+ A = 1.;
+ for (j=1; j<=(int)A1; j++) {
+   A = (double)j;
+   L1 = cewma_2_arl_new(lambda, A, A, mu0, z0, mu0, N);
+   /*printf("!!!A = %.4f,\tL1 = %.6f\n", A, L1);*/
+   if ( L1 > L0 ) j = (int)A1 + 1; 
+ }
+ A1 = A;
+ 
+ if ( L1 > L0 ) {
+   for (j=0; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 - dA / pow(-10., (double)j);
+       L1 = cewma_2_arl_new(lambda, A, A, mu0, z0, mu0, N);
+       /*printf("+++A = %.4f,\tL1 = %.6f\n", A, L1);*/
+       if ( ( fmod((double)j, 2.) < 1. && L1 < L0 ) || ( fmod((double)j, 2.) > 0. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ } else {
+   for (j=0; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 + dA / pow(-10., (double)j);
+       L1 = cewma_2_arl_new(lambda, A, A, mu0, z0, mu0, N);
+       /*printf("---A = %.4f,\tL1 = %.6f\n", A, L1);*/
+       if ( ( fmod((double)j, 2.) > 0. && L1 < L0 ) || ( fmod((double)j, 2.) < 1. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ }
+ 
+ return A;
+}
+
+
+double cewma_2_crit_AL(double lambda, double L0, double AU, double mu0, double z0, int N, int jmax)
+{ double A, A1, L1, ALmax;
+  int j, dA;
+  
+ ALmax = mu0 / sqrt( lambda*mu0 / (2.-lambda) ) - 0.00000000001; 
+    
+ A1 = AU;
+ L1 = cewma_2_arl(lambda, A1, AU, mu0, z0, mu0, N);
+
+ if ( L1 > L0 ) {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<30; dA++) {
+       A = A1 + dA / pow(-10., (double)j);
+       if ( A > ALmax ) {
+         A = ALmax - 1./pow(10., (double)j+1);
+         dA = 30;
+       }
+       L1 = cewma_2_arl(lambda, A, AU, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) > 0. && L1 < L0 ) || ( fmod((double)j, 2.) < 1. && L1 > L0 ) ) dA = 30;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ } else {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<30; dA++) {
+       A = A1 - dA / pow(-10., (double)j);
+       if ( A > ALmax ) {
+         A = ALmax - 1./pow(10., (double)j+1);
+         dA = 30;
+       }
+       L1 = cewma_2_arl(lambda, A, AU, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) < 1. && L1 < L0 ) || ( fmod((double)j, 2.) > 0. && L1 > L0 ) ) dA = 30;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ }
+ 
+ return A;
+}
+
+
+double cewma_2_crit_AL_new(double lambda, double L0, double AU, double mu0, double z0, int N, int jmax)
+{ double A, A1, L1, ALmax;;
+  int j, dA;
+
+ ALmax = mu0 / sqrt( lambda*mu0 / (2.-lambda) ) - 0.00000000001;  
+    
+ A1 = AU;
+ L1 = cewma_2_arl_new(lambda, A1, AU, mu0, z0, mu0, N);
+
+ if ( L1 > L0 ) {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<30; dA++) {
+       A = A1 + dA / pow(-10., (double)j);
+       if ( A > ALmax ) {
+         A = ALmax - 1./pow(10., (double)j+1);
+         dA = 30;
+       }
+       L1 = cewma_2_arl_new(lambda, A, AU, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) > 0. && L1 < L0 ) || ( fmod((double)j, 2.) < 1. && L1 > L0 ) ) dA = 30;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ } else {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<30; dA++) {
+       A = A1 - dA / pow(-10., (double)j);
+       if ( A > ALmax ) {
+         A = ALmax - 1./pow(10., (double)j+1);
+         dA = 30;
+       }
+       L1 = cewma_2_arl_new(lambda, A, AU, mu0, z0, mu0, N);
+       if ( ( fmod((double)j, 2.) < 1. && L1 < L0 ) || ( fmod((double)j, 2.) > 0. && L1 > L0 ) ) dA = 30;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ }
+ 
+ return A;
+}
+
+
+double cewma_2_crit_AU(double lambda, double L0, double AL, double mu0, double z0, int N, int jmax)
+{ double A, A1, L1;
+  int j, dA;
+    
+ /*printf("\n\nGet AU for AL = %.4f and L0 = %.1f\n\n", AL, L0); */
+  
+ A1 = AL;
+ L1 = cewma_2_arl(lambda, AL, A1, mu0, z0, mu0, N);
+ /*printf("\n***A1 = %.4f,\tL1 = %.6f\n\n", A1, L1);*/
+
+ if ( L1 > L0 ) {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 + dA / pow(-10., (double)j);
+       L1 = cewma_2_arl(lambda, AL, A, mu0, z0, mu0, N);
+       /*printf("---A = %.4f,\tL1 = %.6f\n", A, L1);*/
+       if ( ( fmod((double)j, 2.) > 0. && L1 > L0 ) || ( fmod((double)j, 2.) < 1. && L1 < L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ } else {
+   for (j=1; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 - dA / pow(-10., (double)j);
+       L1 = cewma_2_arl(lambda, AL, A, mu0, z0, mu0, N);
+       /*printf("+++A = %.4f,\tL1 = %.6f\n", A, L1);*/
+       if ( ( fmod((double)j, 2.) < 1. && L1 < L0 ) || ( fmod((double)j, 2.) > 0. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ }
+ 
+ return A;
+}
+
+
+double cewma_2_crit_AU_new(double lambda, double L0, double AL, double mu0, double z0, int N, int jmax)
+{ double A, A1, L1;
+  int j, dA;
+  
+ A1 = AL;
+ L1 = cewma_2_arl_new(lambda, AL, A1, mu0, z0, mu0, N);
+ /*printf("  A = %.4f,\tL1 = %.6f (L0=%.0f)\n\n", A1, L1, L0);*/
+
+ if ( L1 < L0 ) {
+   for (j=0; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 + dA / pow(-10., (double)j);
+       L1 = cewma_2_arl_new(lambda, AL, A, mu0, z0, mu0, N);
+       /*printf("--A = %.4f,\tL1 = %.6f (L0=%.0f)\n", A, L1, L0);*/
+       if ( ( fmod((double)j, 2.) < 1. && L1 > L0 ) || ( fmod((double)j, 2.) > 0. && L1 < L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ } else {
+   for (j=0; j<=jmax; j++) {
+     for (dA=1; dA<20; dA++) {
+       A = A1 - dA / pow(-10., (double)j);
+       L1 = cewma_2_arl_new(lambda, AL, A, mu0, z0, mu0, N);
+       /*printf("++A = %.4f,\tL1 = %.6f (L0=%.0f)\n", A, L1, L0);*/
+       if ( ( fmod((double)j, 2.) > 0. && L1 < L0 ) || ( fmod((double)j, 2.) < 1. && L1 > L0 ) ) dA = 20;
+     }
+     A1 = A;
+   }
+   if ( L1 < L0 ) A = A + pow(0.1, (double)jmax);
+ }
+ /*printf("\n");*/
+ 
+ return A;
+}
+
+
+int cewma_2_crit_unb(double lambda, double L0, double mu0, double z0, int N, int jmax, double *AL, double *AU)
+{ double A1, Lp, Lm, eps=.1, slope, lAL, lAU;
+  int j, dA;
+  
+  A1 = cewma_2_crit_sym(lambda, L0, mu0, z0, N, jmax);
+  Lp = cewma_2_arl(lambda, A1, A1, mu0, z0, mu0+eps, N);
+  Lm = cewma_2_arl(lambda, A1, A1, mu0, z0, mu0-eps, N);
+  slope = ( Lp - Lm ) / (2*eps);
+  /*printf("\nA1 = %.4f,\tslope = %.6f\n\n", A1, slope);*/
+  
+  if ( slope > 0 ) {
+    for (j=1; j<=jmax; j++) {
+      for (dA=1; dA<20; dA++) {
+        lAL = A1 - dA / pow(-10., (double)j);  
+        lAU = cewma_2_crit_AU(lambda, L0, lAL, mu0, z0, N, jmax);
+        Lp = cewma_2_arl(lambda, lAL, lAU, mu0, z0, mu0+eps, N);
+        Lm = cewma_2_arl(lambda, lAL, lAU, mu0, z0, mu0-eps, N);
+        slope = ( Lp - Lm ) / (2*eps);
+        /*printf("--AL = %.4f,\tAU = %.4f,\tslope = %.6f\n", lAL, lAU, slope);*/
+        if ( ( fmod((double)j, 2.) > 0. && slope < 0. ) || ( fmod((double)j, 2.) < 1. && slope > 0. ) ) dA = 20;
+      }
+      A1 = lAL;
+    }
+  } else {
+    for (j=1; j<=jmax; j++) {
+      for (dA=1; dA<20; dA++) {
+        lAL = A1 + dA / pow(-10., (double)j);  
+        lAU = cewma_2_crit_AU(lambda, L0, lAL, mu0, z0, N, jmax);
+        Lp = cewma_2_arl(lambda, lAL, lAU, mu0, z0, mu0+eps, N);
+        Lm = cewma_2_arl(lambda, lAL, lAU, mu0, z0, mu0-eps, N);
+        slope = ( Lp - Lm ) / (2*eps);
+        /*printf("++AL = %.4f,\tAU = %.4f,\tslope = %.6f\n", lAL, lAU, slope);*/
+        if ( ( fmod((double)j, 2.) < 1. && slope < 0. ) || ( fmod((double)j, 2.) > 0. && slope > 0. ) ) dA = 20;
+      }
+      A1 = lAL;
+    }  
+  }
+  
+  *AL = lAL;
+  *AU = lAU;
+  
+  return 0;
+}
+
+
+int cewma_2_crit_unb_new(double lambda, double L0, double mu0, double z0, int N, int jmax, double *AL, double *AU)
+{ double A1, symA, Lp, Lm, eps=.01, slope, lAL, lAU, ALmin, AUlarge=10.;
+  int j, dA;
+  
+  symA = cewma_2_crit_sym_new(lambda, L0, mu0, z0, N, jmax);
+  Lp = cewma_2_arl_new(lambda, symA, symA, mu0, z0, mu0+eps, N);
+  Lm = cewma_2_arl_new(lambda, symA, symA, mu0, z0, mu0-eps, N);
+  slope = ( Lp - Lm ) / (2*eps);  
+  ALmin = cewma_L_crit_new(lambda, L0, AUlarge, mu0, z0, N, jmax);
+  /*printf("\nsymA = %.4f,\tslope = %.6f,\tALmin = %.4f\n\n", symA, slope, ALmin);*/
+  
+  lAL = symA;
+  lAU = symA;
+  A1 = symA;
+  
+  if ( slope > 0 ) {
+    for (j=0; j<=jmax; j++) {
+      for (dA=1; dA<30; dA++) {
+        lAL = A1 + dA / pow(-10., (double)j);
+        if ( lAL < ALmin ) {
+          lAL = ALmin + 1./pow(10., (double)j+1);
+          dA = 30;
+        }
+        lAU = cewma_2_crit_AU_new(lambda, L0, lAL, mu0, z0, N, jmax);
+        Lp = cewma_2_arl_new(lambda, lAL, lAU, mu0, z0, mu0+eps, N);
+        Lm = cewma_2_arl_new(lambda, lAL, lAU, mu0, z0, mu0-eps, N);
+        slope = ( Lp - Lm ) / (2*eps);
+        /*printf("--AL = %.4f,\tAU = %.4f,\tslope = %.6f\n", lAL, lAU, slope);*/
+        if ( ( fmod((double)j, 2.) < 1. && slope < 0. ) || ( fmod((double)j, 2.) > 0. && slope > 0. ) ) dA = 30;
+      }
+      A1 = lAL;
+    }
+  } else {
+    for (j=0; j<=jmax; j++) {
+      /*printf("!!j = %d\n", j);*/
+      for (dA=1; dA<30; dA++) {
+        lAL = A1 - dA / pow(-10., (double)j);
+        if ( lAL < ALmin ) {
+          lAL = ALmin + 1./pow(10., (double)j+1);
+          dA = 30;
+        } else {
+          if ( lAL > symA ) {
+            /*printf("\nlAL (%.6f) too large\n", lAL);*/
+            lAL = symA - 1./pow(10., (double)j+1);
+            dA = 30;
+          }  
+        }
+        lAU = cewma_2_crit_AU_new(lambda, L0, lAL, mu0, z0, N, jmax);
+        Lp = cewma_2_arl_new(lambda, lAL, lAU, mu0, z0, mu0+eps, N);
+        Lm = cewma_2_arl_new(lambda, lAL, lAU, mu0, z0, mu0-eps, N);
+        slope = ( Lp - Lm ) / (2*eps);
+        /*printf("++AL = %.4f,\tAU = %.4f,\tslope = %.6f\n", lAL, lAU, slope);*/
+        if ( ( fmod((double)j, 2.) > 0. && slope < 0. ) || ( fmod((double)j, 2.) < 1. && slope > 0. ) ) dA = 30;
+      }
+      A1 = lAL;
+    }  
+  }
+  
+  *AL = lAL;
+  *AU = lAU;
+  
+  return 0;
+}
+
+
+double cewma_2_get_gL(double lambda, double L0, double mu0, double z0, double AL, double AU, double gU, int N)
+{ double gL1, gL2, gL3, L1, L2, L3, dL, dG;
+ 
+ gL1 = 1.;   
+ L1 = cewma_2_arl_rando_new(lambda, AL, AU, gL1, gU, mu0, z0, mu0, N);   
+ while ( L1 < L0 ) {
+   gL2 = gL1;
+   L2 = L1;
+   gL1 /= 2.;
+   L1 = cewma_2_arl_rando_new(lambda, AL, AU, gL1, gU, mu0, z0, mu0, N);
+ }
+ 
+ do {
+   gL3 = gL1 + (L0 - L1)/(L2 - L1) * (gL2-gL1);
+   L3 = cewma_2_arl_rando_new(lambda, AL, AU, gL3, gU, mu0, z0, mu0, N);
+   dG = gL3 - gL2; dL = L0 - L3;
+   gL1 = gL2; L1 = L2; gL2 = gL3; L2 = L3;
+ } while ( fabs(dL)>.00000000001 && fabs(dG)>.00000000001 );
+ 
+ return gL3;
+}
+
+
+double cewma_2_get_gU(double lambda, double L0, double mu0, double z0, double AL, double AU, double gL, int N)
+{ double gU1, gU2, gU3, L1, L2, L3, dL, dG;
+ 
+ gU1 = 1.;   
+ L1 = cewma_2_arl_rando_new(lambda, AL, AU, gL, gU1, mu0, z0, mu0, N);
+ while ( L1 < L0 ) {
+   gU2 = gU1;
+   L2 = L1;
+   gU1 /= 2.;
+   L1 = cewma_2_arl_rando_new(lambda, AL, AU, gL, gU1, mu0, z0, mu0, N);
+ }
+ 
+ do {
+   gU3 = gU1 + (L0 - L1)/(L2 - L1) * (gU2-gU1);
+   L3 = cewma_2_arl_rando_new(lambda, AL, AU, gL, gU3, mu0, z0, mu0, N);
+   dG = gU3 - gU2; dL = L0 - L3;
+   gU1 = gU2; L1 = L2; gU2 = gU3; L2 = L3;
+ } while ( fabs(dL)>.00000000001 && fabs(dG)>.00000000001 );
+ 
+ return gU3;
+}
+
+
+int cewma_2_crit_unb_rando_new(double lambda, double L0, double mu0, double z0, int N, int jmax, double *AL, double *AU, double *gL, double *gU)
+{ double A1, symA, Lp, Lm, eps=.01, slope, lAL1, lAL2, lAU1, lAU2, lAL, lAU, g1, g2, g3, u1, u2, u3, s1, s2, s3, miAL, maAL, miAU, maAU, L0act, dg, rdA, ALmin, AUlarge=10.;
+  int j, dA, done=0;
+  
+  symA = cewma_2_crit_sym_new(lambda, L0, mu0, z0, N, jmax);
+  Lp = cewma_2_arl_new(lambda, symA, symA, mu0, z0, mu0+eps, N);
+  Lm = cewma_2_arl_new(lambda, symA, symA, mu0, z0, mu0-eps, N);
+  slope = ( Lp - Lm ) / (2*eps);  
+  ALmin = cewma_L_crit_new(lambda, L0, AUlarge, mu0, z0, N, jmax);
+  /*printf("\nsymA = %.4f,\tslope = %.6f,\tALmin = %.4f\n\n", symA, slope, ALmin);*/
+  
+  lAL1 = symA;
+  lAU1 = symA;
+  A1 = symA;
+  
+  if ( slope > 0 ) {
+    for (j=0; j<=jmax; j++) {
+      for (dA=1; dA<30; dA++) {
+        lAL2 = lAL1;
+        lAU2 = lAU1;
+        lAL1 = A1 + dA / pow(-10., (double)j);      
+        if ( lAL1 < ALmin ) {
+          lAL1 = ALmin + 1./pow(10., (double)j+1);
+          dA = 30;
+        }
+        lAU1 = cewma_2_crit_AU_new(lambda, L0, lAL1, mu0, z0, N, jmax);
+        Lp = cewma_2_arl_new(lambda, lAL1, lAU1, mu0, z0, mu0+eps, N);
+        Lm = cewma_2_arl_new(lambda, lAL1, lAU1, mu0, z0, mu0-eps, N);
+        slope = ( Lp - Lm ) / (2*eps);
+        /*printf("--AL = %.4f,\tAU = %.4f,\tslope = %.6f\n", lAL1, lAU1, slope);*/
+        if ( ( fmod((double)j, 2.) < 1. && slope < 0. ) || ( fmod((double)j, 2.) > 0. && slope > 0. ) ) dA = 30;
+      }
+      A1 = lAL1;
+    }
+  } else {
+    for (j=0; j<=jmax; j++) {
+      /*printf("j = %d\n", j);*/
+      for (dA=1; dA<30; dA++) {
+        lAL2 = lAL1;
+        lAU2 = lAU1;
+        lAL1 = A1 - dA / pow(-10., (double)j); 
+        
+        if ( lAL1 < ALmin ) {
+          /*printf("\nlAL1 too small\n");*/
+          lAL1 = ALmin + 1./pow(10., (double)j+1);
+          dA = 30;
+        } else {
+          if ( lAL1 > symA ) {
+            /*printf("\nlAL1 (%.6f) too large\n", lAL1);*/
+            lAL1 = symA - 1./pow(10., (double)j+1);
+            dA = 30;
+          }                    
+        }
+        
+        lAU1 = cewma_2_crit_AU_new(lambda, L0, lAL1, mu0, z0, N, jmax);
+        Lp = cewma_2_arl_new(lambda, lAL1, lAU1, mu0, z0, mu0+eps, N);
+        Lm = cewma_2_arl_new(lambda, lAL1, lAU1, mu0, z0, mu0-eps, N);
+        slope = ( Lp - Lm ) / (2*eps);
+        /*printf("++AL = %.4f,\tAU = %.4f,\tslope = %.6f\n", lAL1, lAU1, slope);*/
+        if ( ( fmod((double)j, 2.) > 0. && slope < 0. ) || ( fmod((double)j, 2.) < 1. && slope > 0. ) ) dA = 30;
+      }
+      A1 = lAL1;
+    }  
+  }
+  
+  L0act = cewma_2_arl_new(lambda, lAL1, lAU1, mu0, z0, mu0, N);
+  /*printf("\n\nlAL1 = %.8f,\tlAU1 = %.8f,\tslope1 = %.6f,\tL0act = %.3f\n", lAL1, lAU1, slope, L0act);
+  printf("lAL2 = %.8f,\tlAU2 = %.8f\n", lAL2, lAU2);*/
+  rdA = pow(10.,-(double)jmax);
+  /*printf("rdA = %.8f\n\n", rdA);*/
+  
+  miAL = lAL1; maAL = lAL2;
+  if ( lAL2 < miAL ) { miAL = lAL2; maAL = lAL1; }
+  miAU = lAU1; maAU = lAU2;
+  if ( lAU2 < miAU ) { miAU = lAU2; maAU = lAU1; }
+  if ( (maAU - miAU)/rdA > 100. ) maAU += 20.*rdA;
+  if ( (maAU - miAU)/rdA > 1000. ) maAU += 200.*rdA;
+  
+  for ( lAL=miAL; lAL<=maAL+rdA/10.; lAL+=rdA ) {
+    /*printf("lAL = %.8f\n", lAL);*/
+    miAU = cewma_2_crit_AU_new(lambda, L0, lAL, mu0, z0, N, jmax);
+    /*for ( lAU=miAU; lAU<=maAU+rdA/10.; lAU+=rdA ) {*/
+    for ( lAU=maAU; lAU>=miAU-rdA/10.; lAU-=rdA ) {
+    /*for ( lAU=maAU; lAU>=miAU-rdA; lAU-=rdA ) {*/
+      /*printf("lAU = %.8f\n", lAU);*/
+      L0act = cewma_2_arl_rando_new(lambda, lAL, lAU, 0., 0., mu0, z0, mu0, N);
+      if ( L0act < L0 ) {
+        /*printf("L0act too small\n");*/
+        done = 0;
+      } else {
+        L0act = cewma_2_arl_rando_new(lambda, lAL, lAU, 1., 1., mu0, z0, mu0, N);
+        if ( L0act > L0 ) {
+          /*printf("L0act too large\n");*/
+          done = 0;
+        } else {         
+          g1 = 0.;
+          L0act = cewma_2_arl_rando_new(lambda, lAL, lAU, g1, 1., mu0, z0, mu0, N);
+          if ( L0act < L0 ) {
+            /*printf("\nfull gL interval\n");*/
+            u1 = cewma_2_get_gU(lambda, L0, mu0, z0, lAL, lAU, g1, N);
+            Lp = cewma_2_arl_rando_new(lambda, lAL, lAU, g1, u1, mu0, z0, mu0+eps, N);
+            Lm = cewma_2_arl_rando_new(lambda, lAL, lAU, g1, u1, mu0, z0, mu0-eps, N);
+            s1 = ( Lp - Lm ) / (2*eps);
+            L0act = cewma_2_arl_rando_new(lambda, lAL, lAU, g1, u1, mu0, z0, mu0, N);
+            /*printf("g1 = %.6f,\tu1 = %.6f,\tL0act = %.3f,\ts1 = %.6f\n\n", g1, u1, L0act, s1);*/
+          } else {
+            /*printf("\nsearch for min gL\n");*/
+            u1 = 1.;
+            g1 = cewma_2_get_gL(lambda, L0, mu0, z0, lAL, lAU, u1, N);
+            Lp = cewma_2_arl_rando_new(lambda, lAL, lAU, g1, u1, mu0, z0, mu0+eps, N);
+            Lm = cewma_2_arl_rando_new(lambda, lAL, lAU, g1, u1, mu0, z0, mu0-eps, N);
+            s1 = ( Lp - Lm ) / (2*eps);
+            L0act = cewma_2_arl_rando_new(lambda, lAL, lAU, g1, u1, mu0, z0, mu0, N);
+            /*printf("g1 = %.6f,\tu1 = %.6f,\tL0act = %.3f,\ts1 = %.6f\n\n", g1, u1, L0act, s1);*/
+          }
+        
+          u2 = 0.;
+          L0act = cewma_2_arl_rando_new(lambda, lAL, lAU, 1., u2, mu0, z0, mu0, N);
+          if ( L0act < L0 ) {
+            /*printf("\nfull gU interval\n");*/
+            g2 = cewma_2_get_gL(lambda, L0, mu0, z0, lAL, lAU, u2, N);
+            Lp = cewma_2_arl_rando_new(lambda, lAL, lAU, g2, u2, mu0, z0, mu0+eps, N);
+            Lm = cewma_2_arl_rando_new(lambda, lAL, lAU, g2, u2, mu0, z0, mu0-eps, N);
+            s2 = ( Lp - Lm ) / (2*eps);
+            L0act = cewma_2_arl_rando_new(lambda, lAL, lAU, g2, u2, mu0, z0, mu0, N);
+            /*printf("g2 = %.6f,\tu2 = %.6f,\tL0act = %.3f,\ts2 = %.6f\n\n", g2, u2, L0act, s2);*/
+          } else {
+            /*printf("\nsearch for min gU\n");*/
+            g2 = 1.;
+            u2 = cewma_2_get_gU(lambda, L0, mu0, z0, lAL, lAU, g2, N);
+            Lp = cewma_2_arl_rando_new(lambda, lAL, lAU, g2, u2, mu0, z0, mu0+eps, N);
+            Lm = cewma_2_arl_rando_new(lambda, lAL, lAU, g2, u2, mu0, z0, mu0-eps, N);
+            s2 = ( Lp - Lm ) / (2*eps);
+            L0act = cewma_2_arl_rando_new(lambda, lAL, lAU, g2, u2, mu0, z0, mu0, N);
+            /*printf("g2 = %.6f,\tu2 = %.6f,\tL0act = %.3f,\ts2 = %.6f\n\n", g2, u2, L0act, s2);*/
+          } 
+      
+          if ( s1*s2 > 0. ) {
+            /*printf("slope does not change sign\n");*/
+            done = 0;
+          } else {
+            do {
+              g3 = g1 + (0. - s1)/(s2 - s1) * (g2-g1);
+              u3 = cewma_2_get_gU(lambda, L0, mu0, z0, lAL, lAU, g3, N);
+              L0act = cewma_2_arl_rando_new(lambda, lAL, lAU, g3, u3, mu0, z0, mu0, N);
+              Lp = cewma_2_arl_rando_new(lambda, lAL, lAU, g3, u3, mu0, z0, mu0+eps, N);
+              Lm = cewma_2_arl_rando_new(lambda, lAL, lAU, g3, u3, mu0, z0, mu0-eps, N);
+              s3 = ( Lp - Lm ) / (2*eps);
+              /*printf("g3 = %.6f,\tu3 = %.6f,\tL0act = %.3f,\ts3 = %.6f\n", g3, u3, L0act, s3);*/
+              dg = g3 - g2;
+              g1 = g2; s1 = s2; g2 = g3; s2 = s3;
+            } while ( fabs(s3)>.00000000001 && fabs(dg)>.00000000001 );
+            done = 1;
+            break;
+          } /* s1*s2 > 0 */
+        } /* L0act too large */
+      } /* L0act too small */
+    } /* lAU=miAU; lAU<=maAU; lAU+=rdA */
+    if ( done == 1 ) break;
+  }
+  
+  *AL = lAL;
+  *AU = lAU;
+  *gL = g3;
+  *gU = u3;
+  
+  return 0;
+}
+
+
+/* TEWMA stuff */
+
+double tewma_arl(double lambda, int k, int lk, int uk, double z0, double mu)
+{ double *a, *g, *DM, *DELL, *F2, arl, pij, term;
+  int i, il, j, jl, m, km, l, l0, l1, M, N, kM;
+  
+ N = uk - lk + 1;
+ a = matrix(N, N);
+ g = vector(N);
+ 
+ M = (int)qf_pois( 1.-1e-15, mu);
+ DM = vector(M+1);
+ kM = k*M;
+ F2 = matrix(M+1, kM+1);
+ /*for (i=0; i<=M; i++) for (j=0; j<=kM; j++) F2[i*kM+j] = 0.;*/
+ for (i=0; i<=M; i++) {
+   DM[i] = pdf_pois((double)i, mu);
+   for (j=0; j<=k*i; j++) F2[i*kM+j] = pdf_binom((double)j, k*i, lambda);
+ }
+ 
+ DELL = vector(uk+1);
+ 
+ for (i=0; i<N; i++) for (j=0; j<N; j++) a[i*N+j] = 0.;
+ 
+ for (i=0; i<N; i++) {
+   il = lk + i;
+   for (l=0; l<=il; l++) DELL[l] = pdf_binom(l, il, 1.-lambda);
+   for (j=0; j<N; j++) {
+     jl = lk + j;
+     l1 = jl;
+     if ( l1 > il ) l1 = il;
+     pij = 0.;
+     for (m=0; m<=M; m++) {
+       km = k*m;  
+       l0 = jl - km;
+       if ( l0 < 0 ) l0 = 0;
+       if ( l0 <= l1 ) {
+         term = 0.;  
+         /*for (l=l0; l<=l1; l++) term += pdf_binom((double)(jl-l), km, lambda) * DELL[l];*/
+         for (l=l0; l<=l1; l++) term += F2[m*kM+jl-l] * DELL[l];         
+         term *= DM[m];
+       }
+       pij += term;
+     } /* loop over m */
+     a[j*N+i] = - pij;
+   } /* loop over j */
+   ++a[i*N+i];
+ } /* loop over i */      
+ 
+ for (j=0; j<N; j++) g[j] = 1.;
+ /*LU_solve(a, g, N);*/
+ solve(&N, a, g);
+
+ arl = g[ (int)round(z0) - lk ];
+  
+ Free(F2);
+ Free(DELL);
+ Free(DM); 
+ Free(a);
+ Free(g);
+
+ return arl;
+}    
+
+
+double tewma_arl_R(double lambda, int k, int lk, int uk, double gl, double gu, double z0, double mu)
+{ double *a, *g, *DM, *DELL, *F2, arl, pij, term;
+  int i, il, j, jl, m, km, l, l0, l1, M, N, kM;
+  
+ N = uk - lk + 1;
+ a = matrix(N, N);
+ g = vector(N);
+ 
+ M = (int)qf_pois( 1.-1e-15, mu);
+ DM = vector(M+1);
+ kM = k*M;
+ F2 = matrix(M+1, kM+1);
+ /*for (i=0; i<=M; i++) for (j=0; j<=kM; j++) F2[i*kM+j] = 0.;*/
+ for (i=0; i<=M; i++) {
+   DM[i] = pdf_pois((double)i, mu);
+   for (j=0; j<=k*i; j++) F2[i*kM+j] = pdf_binom((double)j, k*i, lambda);
+ }
+ 
+ DELL = vector(uk+1);
+ 
+ for (i=0; i<N; i++) for (j=0; j<N; j++) a[i*N+j] = 0.;
+ 
+ for (i=0; i<N; i++) {
+   il = lk + i;
+   for (l=0; l<=il; l++) DELL[l] = pdf_binom(l, il, 1.-lambda);
+   for (j=0; j<N; j++) {
+     jl = lk + j;
+     l1 = jl;
+     if ( l1 > il ) l1 = il;
+     pij = 0.;
+     for (m=0; m<=M; m++) {
+       km = k*m;  
+       l0 = jl - km;
+       if ( l0 < 0 ) l0 = 0;
+       if ( l0 <= l1 ) {
+         term = 0.;  
+         /*for (l=l0; l<=l1; l++) term += pdf_binom((double)(jl-l), km, lambda) * DELL[l];*/
+         for (l=l0; l<=l1; l++) term += F2[m*kM+jl-l] * DELL[l];         
+         term *= DM[m];
+       }
+       pij += term;
+     } /* loop over m */
+     if ( j == 0 )   pij *= 1. - gl;
+     if ( j == N-1 ) pij *= 1. - gu;
+     a[j*N+i] = - pij;
+   } /* loop over j */
+   ++a[i*N+i];
+ } /* loop over i */
+
+/* for (i=0; i<N; i++) {
+   printf("Zeile i = %d\n", i);
+   for (j=0; j<N; j++) printf("\tSpalte j = %d,\tElement = %.9f\n", j, a[j*N+i]);
+   printf("\n");
+ }*/
+ 
+ for (j=0; j<N; j++) g[j] = 1.;
+ /*LU_solve(a, g, N);*/
+ solve(&N, a, g);
+
+ arl = g[ (int)round(z0) - lk ];
+
+/* printf("\n");
+ for (i=0; i<N; i++) printf("Zeile i = %d,\tarl = %.9f\n", i, g[i]);
+ printf("\n");*/
+  
+ Free(F2);
+ Free(DELL);
+ Free(DM); 
+ Free(a);
+ Free(g);
+
+ return arl;
+} 
+
+
+double eewma_arl(int gX, int gY, int kL, int kU, double mu, double y0, int r0)
+{ double *a, *g, arl, *DELL; 
+  int amin, amax, bmin, bmax, hb, N, xmin, xmax, i, j, x, y, o, i0, M;
+ 
+ bmin = gY * kL;
+ bmax = gX + gY*(kU+1) - 1;
+ amin = (gX+gY)*kL;
+ amax = (gX+gY)*(kU+1) - 1;
+ hb = bmax - bmin;
+ N = hb+1;
+ 
+ a = matrix(N, N);
+ g = vector(N);
+ 
+ for (i=0; i<N; i++) for (j=0; j<N; j++) a[i*N+j] = 0.;
+ 
+ M = (int)ceil( (amax-bmin)/(double)gX );
+ DELL = vector(M+1);
+ for (i=0; i<=M; i++) DELL[i] = -pdf_pois((double)i, mu);
+ 
+ for (i=0; i<=hb; i++) {
+   xmin = (int)ceil( (amin-i-bmin)/(double)gX );
+   xmax = (int)floor( (amax-i-bmin)/(double)gX );
+   for (x=xmin; x<=xmax; x++) {
+     o = gX*x + i + bmin;
+     y = (int)floor( o/(double)(gX+gY) );
+     j = o - gX*y - bmin;
+     a[j*N+i] += -pdf_pois((double)x, mu);
+     /*a[j*N+i] += DELL[x];*/
+   }
+ }
+ 
+ for (i=0; i<N; i++) {
+   g[i] = 1.;
+   ++a[i*N+i];
+ }
+ 
+ /*LU_solve(a, g, N);*/
+ solve(&N, a, g); 
+ 
+ i0 = gY*(int)floor(y0) - bmin + r0;
+ 
+ arl = g[i0];
+ 
+ Free(DELL);
+ Free(g);
+ Free(a);
+ 
  return arl;
 }
 

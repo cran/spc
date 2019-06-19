@@ -27,7 +27,7 @@ ARL Numerics for MEWMA Charts,
 
 Sven Knoth (2018),
 The Steady-State Behavior of Multivariate Exponentially Weighted Moving Average Control Charts,
-unpublished manuscript.
+\emph{Sequential Analysis 37(4)}, 511-529.
 }
 \author{Sven Knoth}
 \seealso{
@@ -35,12 +35,13 @@ unpublished manuscript.
 }
 \examples{
 lambda <- 0.1
-L0 <- 1000
+L0 <- 200
 p <- 3
 h4 <- mewma.crit(lambda, L0, p)
 x_ <- seq(0, h4*lambda/(2-lambda), by=0.002)
 psi <- mewma.psi(lambda, h4, p)
 psi_ <- psi(x_)
-#plot(x_, psi_, type="l", xlab="x", ylab=expression(psi(x)))
+# plot(x_, psi_, type="l", xlab="x", ylab=expression(psi(x)), xlim=c(0,1.2))
+# cf. to Figure 1 in Knoth (2018), p. 514, p=3
 }
 \keyword{ts}

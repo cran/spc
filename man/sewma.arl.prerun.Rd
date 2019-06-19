@@ -48,6 +48,6 @@ Computation of the ARL for CUSUM-\eqn{S^2}{S^2} schemes,
 \code{sewma.arl} for zero-state ARL function of EWMA control charts w/o pre run uncertainty.
 }
 \examples{
-## Knoth (2014?)
+## will follow
 }
 \keyword{ts}

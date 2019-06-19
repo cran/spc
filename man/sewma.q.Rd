@@ -87,6 +87,6 @@ average charts, \emph{Appl. Statist. 35}, 151-158.
 \seealso{\code{sewma.arl} for calculation of ARL of variance charts and
 \code{sewma.sf} for the RL survival function.}
 \examples{
-## Knoth (2014?)
+## will follow
 }
 \keyword{ts}

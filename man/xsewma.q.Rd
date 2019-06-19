@@ -78,6 +78,6 @@ normal mean and variance,
 \seealso{\code{xsewma.arl} for calculation of ARL of simultaneous EWMA charts and
 \code{xsewma.sf} for the RL survival function.}
 \examples{
-## Knoth (2014?)
+## will follow
 }
 \keyword{ts}

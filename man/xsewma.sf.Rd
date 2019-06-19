@@ -57,6 +57,6 @@ average charts, \emph{Appl. Statist. 35}, 151-158.
 control charts.
 }
 \examples{
-## Knoth (2014?)
+## will follow
 }
 \keyword{ts}

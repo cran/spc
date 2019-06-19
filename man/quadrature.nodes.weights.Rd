@@ -18,6 +18,9 @@ Knut Petras to me, while the one for the Radau quadrature was taken from John Bu
 H. Brass and K. Petras (2011),
 \emph{Quadrature Theory. The Theory of Numerical Integration on a Compact Interval,}
 Mathematical Surveys and Monographs, American Mathematical Society.
+
+John Burkardt (2015),
+\url{http://people.sc.fsu.edu/~jburkardt/f_src/quadrule/quadrule.html}
 }
 \author{Sven Knoth}
 \seealso{

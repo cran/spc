@@ -63,11 +63,11 @@ Physica Verlag, Heidelberg, Germany, 3-18.
 \seealso{\code{lns2ewma.arl} for calculation of ARL of EWMA ln \eqn{S^2}{S^2} control charts.}
 \examples{
 ## Knoth (2005)
-## compare with Table 3 (p. 351)
+## compare with 1.05521 mentioned on page 350 third line from below
 L0 <- 200
-l <- .05
+lambda <- .05
 df <- 4
-limits <- lns2ewma.crit(l, L0, df, cl=0, hs=0)
-limits["cu"]
+limits <- lns2ewma.crit(lambda, L0, df, cl=0, hs=0)
+limits["cu"]/sqrt( lambda/(2-lambda)*(2/df+2/df^2+4/3/df^3-16/15/df^5) )
 }
 \keyword{ts}

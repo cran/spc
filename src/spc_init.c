@@ -6,7 +6,10 @@
 */
 
 /* .C calls */
-extern void ewma_p_arl_be(void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void cewma_arl_be(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void cewma_crit_be(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void euklid_ewma_arl(void *, void *, void *, void *, void *, void *, void *, void *);
+extern void ewma_p_arl_be(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ewma_phat_arl_coll(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ewma_phat_crit_coll(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ewma_phat_lambda_coll(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -35,6 +38,7 @@ extern void sewma_q_crit_prerun(void *, void *, void *, void *, void *, void *, 
 extern void sewma_q_prerun(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void sewma_sf(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void sewma_sf_prerun(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void tewma_arl_wowR(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void tol_lim_fac(void *, void *, void *, void *, void *, void *);
 extern void tshewhart_ar1_arl(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void x_res_ewma_arl(void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -47,7 +51,7 @@ extern void xDcusum_arl(void *, void *, void *, void *, void *, void *, void *, 
 extern void xDewma_arl(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void xDgrsr_arl(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void xewma_ad(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
-extern void xewma_arl(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void xewma_arl(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void xewma_arl_f(void *, void *, void *, void *, void *, void *, void *, void *);
 extern void xewma_arl_prerun(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void xewma_crit(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -73,7 +77,10 @@ extern void xtewma_q(void *, void *, void *, void *, void *, void *, void *, voi
 extern void xtewma_sf(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 
 static const R_CMethodDef CEntries[] = {
-    {"ewma_p_arl_be",            (DL_FUNC) &ewma_p_arl_be,             9},
+    {"cewma_arl_be",             (DL_FUNC) &cewma_arl_be,             13},
+    {"cewma_crit_be",            (DL_FUNC) &cewma_crit_be,            12},
+    {"euklid_ewma_arl",          (DL_FUNC) &euklid_ewma_arl,           8},
+    {"ewma_p_arl_be",            (DL_FUNC) &ewma_p_arl_be,            11},
     {"ewma_phat_arl_coll",       (DL_FUNC) &ewma_phat_arl_coll,       13},
     {"ewma_phat_crit_coll",      (DL_FUNC) &ewma_phat_crit_coll,      12},
     {"ewma_phat_lambda_coll",    (DL_FUNC) &ewma_phat_lambda_coll,    12},
@@ -102,6 +109,7 @@ static const R_CMethodDef CEntries[] = {
     {"sewma_q_prerun",           (DL_FUNC) &sewma_q_prerun,           14},
     {"sewma_sf",                 (DL_FUNC) &sewma_sf,                 11},
     {"sewma_sf_prerun",          (DL_FUNC) &sewma_sf_prerun,          14},
+    {"tewma_arl_wowR",           (DL_FUNC) &tewma_arl_wowR,           10},
     {"tol_lim_fac",              (DL_FUNC) &tol_lim_fac,               6},
     {"tshewhart_ar1_arl",        (DL_FUNC) &tshewhart_ar1_arl,        10},
     {"x_res_ewma_arl",           (DL_FUNC) &x_res_ewma_arl,            9},
@@ -114,7 +122,7 @@ static const R_CMethodDef CEntries[] = {
     {"xDewma_arl",               (DL_FUNC) &xDewma_arl,               13},
     {"xDgrsr_arl",               (DL_FUNC) &xDgrsr_arl,               11},
     {"xewma_ad",                 (DL_FUNC) &xewma_ad,                 11},
-    {"xewma_arl",                (DL_FUNC) &xewma_arl,                10},
+    {"xewma_arl",                (DL_FUNC) &xewma_arl,                11},
     {"xewma_arl_f",              (DL_FUNC) &xewma_arl_f,               8},
     {"xewma_arl_prerun",         (DL_FUNC) &xewma_arl_prerun,         15},
     {"xewma_crit",               (DL_FUNC) &xewma_crit,               10},

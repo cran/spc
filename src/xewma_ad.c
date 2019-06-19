@@ -24,6 +24,7 @@ double xe1_arlm(double l, double c, double zr, double hs, int q, double mu0, dou
 double xe2_iglad (double l, double c, double mu0, double mu1, int N);
 double xe2_igladc(double l, double c, double mu0, double mu1, double z0, int N);
 double xe2_arlm  (double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
+double xe2_arlmc(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
 
 void xewma_ad(int *ctyp, double *l, double *c, double *zr, double *mu0, double *mu1, double *z0, int *ltyp, int *styp, int *r, double *ad)
 { int nmax=1000000;
@@ -34,5 +35,6 @@ void xewma_ad(int *ctyp, double *l, double *c, double *zr, double *mu0, double *
    if ( *ctyp==ewma2 && *ltyp>fix )  *ad = xe2_arlm(*l,*c,0.,200,*mu0,*mu1,*ltyp,*r,nmax);
  } else {
    if ( *ctyp==ewma2 && *ltyp==fix ) *ad = xe2_igladc(*l, *c, *mu0, *mu1, *z0, *r);
+   if ( *ctyp==ewma2 && *ltyp>fix )  *ad = xe2_arlmc(*l,*c,0.,200,*mu0,*mu1,*ltyp,*r,nmax);
  }
 }

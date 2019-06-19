@@ -55,6 +55,6 @@ average charts, \emph{Appl. Statist. 35}, 151-158.
 \code{sewma.sf} for the RL survival function of EWMA control charts w/o pre-run uncertainty.
 }
 \examples{
-## Knoth (2014?)
+## will follow
 }
 \keyword{ts}

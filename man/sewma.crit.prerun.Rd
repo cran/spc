@@ -67,6 +67,6 @@ Physica Verlag, Heidelberg, Germany, 3-18.
 pre-run uncertainty and \code{sewma.crit} for
 the algorithm w/o pre-run uncertainty.}
 \examples{
-## Knoth (2014?)
+## will follow
 }
 \keyword{ts}

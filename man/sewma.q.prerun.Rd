@@ -71,6 +71,6 @@ average charts, \emph{Appl. Statist. 35}, 151-158.
 \author{Sven Knoth}
 \seealso{\code{sewma.q}  and \code{sewma.q.crit} for the version w/o pre-run uncertainty.}
 \examples{
-## Knoth (2014?)
+## will follow
 }
 \keyword{ts}

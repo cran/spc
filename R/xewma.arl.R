@@ -1,5 +1,5 @@
 # Computation of EWMA ARLs (mean monitoring)
-xewma.arl <- function(l, c, mu, zr=0, hs=0, sided="one", limits="fix", q=1, r=40) {
+xewma.arl <- function(l, c, mu, zr=0, hs=0, sided="one", limits="fix", q=1, steady.state.mode="conditional", r=40) {
   if ( l<=0 | l>2 )
     stop("l has to be between 0 and 2")
   if ( c<=0 )
@@ -22,15 +22,18 @@ xewma.arl <- function(l, c, mu, zr=0, hs=0, sided="one", limits="fix", q=1, r=40
   q <- round(q)
   if ( q<1 )
     stop("wrong change point position (q)")
-  if ( limits=="fix" & q>1 ) {
+  styp <- pmatch(steady.state.mode, c("conditional", "cyclical")) - 1
+  if (is.na(styp))
+    stop("invalid steady.state.mode")
+  if ( limits=="fix" & q>1 & styp==0 ) {
     arl <- .C("xewma_arl",as.integer(ctyp),as.double(l),
               as.double(c),as.double(zr),as.double(hs),
-              as.double(mu),as.integer(ltyp),as.integer(r),as.integer(q),
+              as.double(mu),as.integer(ltyp),as.integer(r),as.integer(q),as.integer(styp),
               ans=double(length=q), PACKAGE="spc")$ans 
   } else {
     arl <- .C("xewma_arl",as.integer(ctyp),as.double(l),
               as.double(c),as.double(zr),as.double(hs),
-              as.double(mu),as.integer(ltyp),as.integer(r),as.integer(q),
+              as.double(mu),as.integer(ltyp),as.integer(r),as.integer(q),as.integer(styp),
               ans=double(length=1), PACKAGE="spc")$ans
   }
   names(arl) <- NULL
