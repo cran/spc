@@ -482,6 +482,24 @@ double tewma_arl_R(double lambda, int k, int lk, int uk, double gl, double gu, d
 
 double eewma_arl(int gX, int gY, int kL, int kU, double mu, double y0, int r0);
 
+
+/* HIER */
+/* attribute CUSUM (X follows Poisson distribution) */
+
+double ccusum_U_arl(double mu, int km, int hm, int m, int i0);
+double ccusum_U_arl_rando(double mu, int km, int hm, int m, double gamma, int i0);
+int ccusum_U_crit(double A, double mu0, int km, int m, int i0);
+int ccusum_U_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, double *gamma);
+
+double ccusum_L_arl(double mu, int km, int hm, int m, int i0);
+double ccusum_L_arl_rando(double mu, int km, int hm, int m, double gamma, int i0);
+int ccusum_L_crit(double A, double mu0, int km, int m, int i0);
+int ccusum_L_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, double *gamma); 
+
+double ccusum_2_arl(double mu, int km1, int hm1, int m1, int i01, int km2, int hm2, int m2, int i02);
+double ccusum_2_arl_rando(double mu, int km1, int hm1, int m1, double gamma1, int i01, int km2, int hm2, int m2, double gamma2, int i02);
+
+
 /* tolerance intervals */
 
 double kww(int n, double q, double a);
@@ -23058,6 +23076,787 @@ double eewma_arl(int gX, int gY, int kL, int kU, double mu, double y0, int r0)
  
  return arl;
 }
+
+/* HIER */
+double ccusum_U_arl(double mu, int km, int hm, int m, int i0)
+{ double *a, *b1, *b2, *x, *y, *z, *phi, *psi, *g, px, al, ga, et, de, be, arl;
+  int i, j, l, lmax, N, N1;
+ 
+ N = hm + 1; 
+ N1 = N - 1;
+ 
+ a   = vector(2*N-1);
+ b1  = vector(N);
+ b2  = vector(N);
+ x   = vector(N);
+ y   = vector(N);
+ z   = vector(N);
+ phi = vector(N);
+ psi = vector(N);
+ g   = vector(N);
+
+ lmax = (int)ceil( (hm + km) / m ) + 1;
+ 
+ for (l=0; l<=lmax; l++) {
+   px = pdf_pois((double)l, mu);
+   i = km - l*m;   
+   if ( 0 <= N+i-1 && N+i-1 < 2*N-1 ) a[N+i-1] = -px;
+   if ( 0 <= i-1 && i-1 < N ) b2[i-1] = px;
+ }
+ a[N1] += 1.; 
+ 
+ for (i=N-1; i>=0; i--) {
+   b1[i] = 1.;
+   if ( i > 0 ) b2[i-1] += b2[i];
+ }
+
+ x[0] = 1./a[N1];
+ y[0] = 1./a[N1];
+ phi[0] = b1[0]/a[N1];
+ psi[0] = b2[0]/a[N1];
+ 
+ for (i=1; i<N; i++) {
+   al = 0.;
+   for (j=0; j<i; j++) al += a[N1 + i - j] * x[j];
+   ga = 0.;
+   for (j=0; j<i; j++) ga += a[N1 - 1 - j] * y[j];
+   et = -b1[i];
+   for (j=0; j<i; j++) et += a[N1 + i - j] * phi[j];
+   de = -b2[i];
+   for (j=0; j<i; j++) de += a[N1 + i - j] * psi[j];
+
+   be = 1. - al*ga;
+   
+   z[0] = -ga*x[0] / be;
+   for (j=1; j<i; j++) z[j] = ( y[j-1] - ga*x[j] ) / be;
+   z[i] = y[i-1] / be;   
+
+   x[0] = x[0] / be;
+   for (j=1; j<i; j++) x[j] = ( x[j] - al*y[j-1] ) / be;
+   x[i] = -al*y[i-1] / be;
+   
+   for (j=0; j<=i; j++) y[j] = z[j];
+       
+   for (j=0; j<i; j++) {
+     phi[j] = ( phi[j] - et*z[j] );
+     psi[j] = ( psi[j] - de*z[j] );
+   }
+   phi[i] = -et*z[i];
+   psi[i] = -de*z[i];
+ }
+
+ be = phi[0] / ( 1. - psi[0] );
+ for (i=0; i<N; i++) g[i] = phi[i] + psi[i] * be;
+ arl = g[i0];
+
+ Free(g);
+ Free(psi);
+ Free(phi);
+ Free(z);
+ Free(y);
+ Free(x);
+ Free(b2);
+ Free(b1);
+ Free(a);
+
+ return arl;  
+}
+
+int ccusum_U_crit(double A, double mu0, int km, int m, int i0)
+{ int p10, hm, p;
+  double L1;
+    
+  p10 = (int)ceil( log10((double)m) );
+  hm = 2 * (int)qf_pois(1.-1./A, mu0) * m; /* twice the Shewhart critical value */
+  L1 = ccusum_U_arl(mu0, km, hm, m, i0);
+  /*printf("\n(*)hm = %d,\tL1 = %.3f\n", hm, L1);*/
+    
+  for (p=p10; p>=0; p--) {
+    if ( L1 < A ) {
+      while ( L1 < A ) {
+        hm += pow(10., (double)p);
+        L1 = ccusum_U_arl(mu0, km, hm, m, i0);
+        /*printf("(+)\thm = %d,\tL1 = %.3f\n", hm, L1);*/
+      }
+    } else {
+      while ( L1 >= A ) {
+        hm -= pow(10., (double)p);
+        if ( hm < km ) {
+          p--;
+          hm += pow(10., (double)p+1.) - pow(10., (double)p);
+        }    
+        L1 = ccusum_U_arl(mu0, km, hm, m, i0);
+        /*printf("(-)\thm = %d,\tL1 = %.3f\n", hm, L1);*/
+      }
+    }
+  }
+  if ( L1 < A ) hm = hm + 1;      
+  return hm;
+}
+
+double ccusum_U_arl_rando(double mu, int km, int hm, int m, double gamma, int i0)
+{ double *a, *b1, *b2, *b3, *x, *y, *z, *phi, *psi, *xi, *rr, *g, *gx, px, al, ga, et, de, be, ka, lambda, arl, nen, zae;
+  int i, j, l, lmax, N, N1;
+  
+ N  = hm; 
+ N1 = N - 1;
+ 
+ a   = vector(2*N-1);
+ b1  = vector(N);
+ b2  = vector(N);
+ b3  = vector(N);
+ x   = vector(N);
+ y   = vector(N);
+ z   = vector(N);
+ phi = vector(N);
+ psi = vector(N);
+ xi  = vector(N);
+ rr  = vector(N);
+ g   = vector(N);
+ gx  = vector(N);
+
+ lmax = (int)ceil( (hm + km) / m ) + 1;
+ 
+ for (l=0; l<=lmax; l++) {
+   px = pdf_pois((double)l, mu);
+   i = km - l*m;
+   if ( 0 <= N+i-1 && N+i-1 < 2*N-1 ) a[N+i-1] = -px;
+   if ( 0 <= i-1 && i-1 < N ) {
+    b2[i-1] = px;
+    rr[N-i] = px;
+   }
+   if (0 <= N+i && N+i < N ) b3[N+i] = (1.-gamma)*px;
+ }
+ a[N1] += 1.; 
+ 
+ for (i=N-1; i>=0; i--) {
+   b1[i] = 1.;
+   if ( i > 0 ) b2[i-1] += b2[i];
+ }
+
+ x[0] = 1./a[N1];
+ y[0] = 1./a[N1];
+ phi[0] = b1[0]/a[N1];
+ psi[0] = b2[0]/a[N1];
+ xi[0] = b3[0]/a[N1];
+ 
+ for (i=1; i<N; i++) {
+   al = 0.;
+   for (j=0; j<i; j++) al += a[N1 + i - j] * x[j];
+   ga = 0.;
+   for (j=0; j<i; j++) ga += a[N1 - 1 - j] * y[j];
+   et = -b1[i];
+   for (j=0; j<i; j++) et += a[N1 + i - j] * phi[j];
+   de = -b2[i];
+   for (j=0; j<i; j++) de += a[N1 + i - j] * psi[j];
+   ka = -b3[i];
+   for (j=0; j<i; j++) ka += a[N1 + i - j] * xi[j];
+
+   be = 1. - al*ga;
+   
+   z[0] = -ga*x[0] / be;
+   for (j=1; j<i; j++) z[j] = ( y[j-1] - ga*x[j] ) / be;
+   z[i] = y[i-1] / be;   
+
+   x[0] = x[0] / be;
+   for (j=1; j<i; j++) x[j] = ( x[j] - al*y[j-1] ) / be;
+   x[i] = -al*y[i-1] / be;
+   
+   for (j=0; j<=i; j++) y[j] = z[j];
+       
+   for (j=0; j<i; j++) {
+     phi[j] = ( phi[j] - et*z[j] );
+     psi[j] = ( psi[j] - de*z[j] );
+     xi[j]  = (  xi[j] - ka*z[j] );
+   }
+   phi[i] = -et*z[i];
+   psi[i] = -de*z[i];
+   xi[i]  = -ka*z[i];
+ }
+
+ be = phi[0] / ( 1. - psi[0] );
+ for (i=0; i<N; i++) g[i] = phi[i] + psi[i] * be;
+ 
+ ka = xi[0] / ( 1. - psi[0] );
+ for (i=0; i<N; i++) gx[i] = xi[i] + psi[i] * ka;
+ 
+ nen = 0.;
+ zae = 0.;
+ for (i=0; i<N; i++) {
+   zae += rr[i] * g[i];
+   nen += rr[i] * gx[i];
+ }
+ lambda = ( 1. + zae ) / ( 1. - (1.-gamma)*(1.-a[N1]) - nen );
+
+ for (i=0; i<N; i++) g[i] += lambda*gx[i];
+
+ arl = g[i0];
+ 
+ Free(gx);
+ Free(g);
+ Free(rr);
+ Free(xi);
+ Free(psi);
+ Free(phi);
+ Free(z);
+ Free(y);
+ Free(x);
+ Free(b3);
+ Free(b2);
+ Free(b1);
+ Free(a);
+
+ return arl;  
+}
+
+int ccusum_U_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, double *gamma)
+{ double *a, *b1, *b2, *b3, *x, *y, *z, *phi, *psi, *xi, *rr, *g, *gx, px, al, ga, et, de, be, ka, lambda, L1, L2, L3, nen, zae, g1, g2, g3;
+  int i, j, l, lmax, N, N1, ihm;
+  
+ ihm = ccusum_U_crit(A, mu0, km, m, i0);
+  
+ N  = ihm; 
+ N1 = N - 1;
+ 
+ a   = vector(2*N-1);
+ b1  = vector(N);
+ b2  = vector(N);
+ b3  = vector(N);
+ x   = vector(N);
+ y   = vector(N);
+ z   = vector(N);
+ phi = vector(N);
+ psi = vector(N);
+ xi  = vector(N);
+ rr  = vector(N);
+ g   = vector(N);
+ gx  = vector(N);
+
+ lmax = (int)ceil( (ihm + km) / m ) + 1;
+ 
+ for (l=0; l<=lmax; l++) {
+   px = pdf_pois((double)l, mu0);
+   i = km - l*m;
+   if ( 0 <= N+i-1 && N+i-1 < 2*N-1 ) a[N+i-1] = -px;
+   if ( 0 <= i-1 && i-1 < N ) {
+    b2[i-1] = px;
+    rr[N-i] = px;
+   }
+   if (0 <= N+i && N+i < N ) b3[N+i] = px;
+ }
+ a[N1] += 1.; 
+ 
+ for (i=N-1; i>=0; i--) {
+   b1[i] = 1.;
+   if ( i > 0 ) b2[i-1] += b2[i];
+ }
+
+ x[0] = 1./a[N1];
+ y[0] = 1./a[N1];
+ phi[0] = b1[0]/a[N1];
+ psi[0] = b2[0]/a[N1];
+ xi[0] = b3[0]/a[N1];
+ 
+ for (i=1; i<N; i++) {
+   al = 0.;
+   for (j=0; j<i; j++) al += a[N1 + i - j] * x[j];
+   ga = 0.;
+   for (j=0; j<i; j++) ga += a[N1 - 1 - j] * y[j];
+   et = -b1[i];
+   for (j=0; j<i; j++) et += a[N1 + i - j] * phi[j];
+   de = -b2[i];
+   for (j=0; j<i; j++) de += a[N1 + i - j] * psi[j];
+   ka = -b3[i];
+   for (j=0; j<i; j++) ka += a[N1 + i - j] * xi[j];
+
+   be = 1. - al*ga;
+   
+   z[0] = -ga*x[0] / be;
+   for (j=1; j<i; j++) z[j] = ( y[j-1] - ga*x[j] ) / be;
+   z[i] = y[i-1] / be;   
+
+   x[0] = x[0] / be;
+   for (j=1; j<i; j++) x[j] = ( x[j] - al*y[j-1] ) / be;
+   x[i] = -al*y[i-1] / be;
+   
+   for (j=0; j<=i; j++) y[j] = z[j];
+       
+   for (j=0; j<i; j++) {
+     phi[j] = ( phi[j] - et*z[j] );
+     psi[j] = ( psi[j] - de*z[j] );
+     xi[j]  = (  xi[j] - ka*z[j] );
+   }
+   phi[i] = -et*z[i];
+   psi[i] = -de*z[i];
+   xi[i]  = -ka*z[i];
+ }
+
+ be = phi[0] / ( 1. - psi[0] );
+ for (i=0; i<N; i++) g[i] = phi[i] + psi[i] * be;
+ 
+ ka = xi[0] / ( 1. - psi[0] );
+ for (i=0; i<N; i++) gx[i] = xi[i] + psi[i] * ka;
+ 
+ nen = 0.;
+ zae = 0.;
+ for (i=0; i<N; i++) {
+  zae += rr[i] * g[i];
+  nen += rr[i] * gx[i];
+ } 
+
+ /* secant rule etc. */
+ 
+ g1 = 1.;
+ lambda = ( 1. + zae ) / ( 1. - (1.-a[N1]) - nen );
+ L1 = g[i0] + lambda*gx[i0]; 
+ /*printf("g1 = %.6f,\tL1 = %.6f,\tA = %.0f\n", g1, L1, A);*/
+ 
+ while ( L1 >= A ) {
+   g2 = g1;  
+   L2 = L1;
+   g1 /= 2.;
+   lambda = ( 1. + zae ) / ( 1. - g1*(1.-a[N1]) - g1*nen );   
+   L1 = g[i0] + g1 * lambda * gx[i0];   
+   /*printf("g1 = %.6f,\tL1 = %.6f\n", g1, L1);*/
+ }
+ 
+ i = 0;
+ do {
+   i++;
+   g3 = g1 + (A-L1)/(L2-L1) * (g2-g1);
+   lambda = ( 1. + zae ) / ( 1. - g3*(1.-a[N1]) - g3*nen );
+   L3 = g[i0] + g3 * lambda * gx[i0];
+   /*printf("g3 = %.6f,\tL3 = %.6f\n", g3, L3);*/   
+   g1 = g2; L1 = L2; g2 = g3; L2 = L3;
+ } while ( fabs(g1-g2)>1e-9 && fabs(L3-A)>1e-9 && i < 100);
+ 
+ *hm = ihm;
+ *gamma = 1. - g3;
+ 
+ Free(gx);
+ Free(g);
+ Free(rr);
+ Free(xi);
+ Free(psi);
+ Free(phi);
+ Free(z);
+ Free(y);
+ Free(x);
+ Free(b3);
+ Free(b2);
+ Free(b1);
+ Free(a);
+
+ return 0;
+}
+
+/* HIER */
+double ccusum_L_arl(double mu, int km, int hm, int m, int i0)
+{ double *a, *b1, *b2, *x, *y, *z, *phi, *psi, *g, px, al, ga, et, de, be, arl;
+  int i, j, l, lmax, N, N1;
+ 
+ N = hm + 1; 
+ N1 = N - 1;
+ 
+ a   = vector(2*N-1);
+ b1  = vector(N);
+ b2  = vector(N);
+ x   = vector(N);
+ y   = vector(N);
+ z   = vector(N);
+ phi = vector(N);
+ psi = vector(N);
+ g   = vector(N);
+
+ lmax = (int)ceil( (hm + km) / m ) + 1;
+ 
+ for (l=0; l<=lmax; l++) {
+   px = pdf_pois((double)l, mu);
+   i = l*m - km;   
+   if ( 0 <= N+i-1 && N+i-1 < 2*N-1 ) a[N+i-1] = -px;
+   if ( 0 <= i-1 && i-1 < N ) b2[i-1] = px;
+ }
+ a[N1] += 1.;
+ b2[N-1] = 1. - cdf_pois( (hm + km)/m, mu);
+ 
+ for (i=N-1; i>=0; i--) {
+   b1[i] = 1.;
+   if ( i > 0 ) b2[i-1] += b2[i];
+ }
+
+ x[0] = 1./a[N1];
+ y[0] = 1./a[N1];
+ phi[0] = b1[0]/a[N1];
+ psi[0] = b2[0]/a[N1];
+ 
+ for (i=1; i<N; i++) {
+   al = 0.;
+   for (j=0; j<i; j++) al += a[N1 + i - j] * x[j];
+   ga = 0.;
+   for (j=0; j<i; j++) ga += a[N1 - 1 - j] * y[j];
+   et = -b1[i];
+   for (j=0; j<i; j++) et += a[N1 + i - j] * phi[j];
+   de = -b2[i];
+   for (j=0; j<i; j++) de += a[N1 + i - j] * psi[j];
+
+   be = 1. - al*ga;
+   
+   z[0] = -ga*x[0] / be;
+   for (j=1; j<i; j++) z[j] = ( y[j-1] - ga*x[j] ) / be;
+   z[i] = y[i-1] / be;   
+
+   x[0] = x[0] / be;
+   for (j=1; j<i; j++) x[j] = ( x[j] - al*y[j-1] ) / be;
+   x[i] = -al*y[i-1] / be;
+   
+   for (j=0; j<=i; j++) y[j] = z[j];
+       
+   for (j=0; j<i; j++) {
+     phi[j] = ( phi[j] - et*z[j] );
+     psi[j] = ( psi[j] - de*z[j] );
+   }
+   phi[i] = -et*z[i];
+   psi[i] = -de*z[i];
+ }
+
+ be = phi[0] / ( 1. - psi[0] );
+ for (i=0; i<N; i++) g[i] = phi[i] + psi[i] * be;
+ arl = g[i0];
+
+ Free(g);
+ Free(psi);
+ Free(phi);
+ Free(z);
+ Free(y);
+ Free(x);
+ Free(b2);
+ Free(b1);
+ Free(a);
+
+ return arl;  
+}
+
+int ccusum_L_crit(double A, double mu0, int km, int m, int i0)
+{ int p10, hm, p;
+  double L1;
+    
+  p10 = (int)ceil( log10((double)m) );
+  hm = 2 * (int)qf_pois(1.-1./A, mu0) * m;  /* borrow upper starting value (Shewhart) */
+  L1 = ccusum_L_arl(mu0, km, hm, m, i0);  
+    
+  for (p=p10; p>=0; p--) {
+    if ( L1 < A ) {
+      while ( L1 < A ) {
+        hm += pow(10., (double)p);
+        L1 = ccusum_L_arl(mu0, km, hm, m, i0);        
+      }
+    } else {
+      while ( L1 >= A ) {
+        hm -= pow(10., (double)p);
+        if ( hm < km ) {
+          p--;
+          hm += pow(10., (double)p+1.) - pow(10., (double)p);
+        }    
+        L1 = ccusum_L_arl(mu0, km, hm, m, i0);  
+      }
+    }
+  }
+  if ( L1 < A ) hm = hm + 1;      
+  return hm;
+}
+
+double ccusum_L_arl_rando(double mu, int km, int hm, int m, double gamma, int i0)
+{ double *a, *b1, *b2, *b3, *x, *y, *z, *phi, *psi, *xi, *rr, *g, *gx, px, al, ga, et, de, be, ka, lambda, arl, nen, zae;
+  int i, j, l, lmax, N, N1;
+  
+ N  = hm; 
+ N1 = N - 1;
+ 
+ a   = vector(2*N-1);
+ b1  = vector(N);
+ b2  = vector(N);
+ b3  = vector(N);
+ x   = vector(N);
+ y   = vector(N);
+ z   = vector(N);
+ phi = vector(N);
+ psi = vector(N);
+ xi  = vector(N);
+ rr  = vector(N);
+ g   = vector(N);
+ gx  = vector(N);
+
+ lmax = (int)ceil( (hm + km) / m ) + 1; 
+ 
+ for (l=0; l<=lmax; l++) {
+   px = pdf_pois((double)l, mu);
+   i = l*m - km;
+   if ( 0 <= N+i-1 && N+i-1 < 2*N-1 ) a[N+i-1] = -px;
+   if ( 0 <= i-1 && i-1 < N ) {
+    b2[i-1] = px;
+    rr[N-i] = px;
+   }
+   if (0 <= N+i && N+i < N ) b3[N+i] = (1.-gamma)*px;
+ }
+ a[N1] += 1.;
+ b2[N-1] = 1. - cdf_pois( (hm + km)/m, mu);
+ 
+ for (i=N-1; i>=0; i--) {
+   b1[i] = 1.;
+   if ( i > 0 ) b2[i-1] += b2[i];
+ }
+
+ x[0] = 1./a[N1];
+ y[0] = 1./a[N1];
+ phi[0] = b1[0]/a[N1];
+ psi[0] = b2[0]/a[N1];
+ xi[0] = b3[0]/a[N1];
+ 
+ for (i=1; i<N; i++) {
+   al = 0.;
+   for (j=0; j<i; j++) al += a[N1 + i - j] * x[j];
+   ga = 0.;
+   for (j=0; j<i; j++) ga += a[N1 - 1 - j] * y[j];
+   et = -b1[i];
+   for (j=0; j<i; j++) et += a[N1 + i - j] * phi[j];
+   de = -b2[i];
+   for (j=0; j<i; j++) de += a[N1 + i - j] * psi[j];
+   ka = -b3[i];
+   for (j=0; j<i; j++) ka += a[N1 + i - j] * xi[j];
+
+   be = 1. - al*ga;
+   
+   z[0] = -ga*x[0] / be;
+   for (j=1; j<i; j++) z[j] = ( y[j-1] - ga*x[j] ) / be;
+   z[i] = y[i-1] / be;   
+
+   x[0] = x[0] / be;
+   for (j=1; j<i; j++) x[j] = ( x[j] - al*y[j-1] ) / be;
+   x[i] = -al*y[i-1] / be;
+   
+   for (j=0; j<=i; j++) y[j] = z[j];
+       
+   for (j=0; j<i; j++) {
+     phi[j] = ( phi[j] - et*z[j] );
+     psi[j] = ( psi[j] - de*z[j] );
+     xi[j]  = (  xi[j] - ka*z[j] );
+   }
+   phi[i] = -et*z[i];
+   psi[i] = -de*z[i];
+   xi[i]  = -ka*z[i];
+ }
+
+ be = phi[0] / ( 1. - psi[0] );
+ for (i=0; i<N; i++) g[i] = phi[i] + psi[i] * be;
+ 
+ ka = xi[0] / ( 1. - psi[0] );
+ for (i=0; i<N; i++) gx[i] = xi[i] + psi[i] * ka;
+ 
+ nen = 0.;
+ zae = 0.;
+ for (i=0; i<N; i++) {
+   zae += rr[i] * g[i];
+   nen += rr[i] * gx[i];
+ }
+ lambda = ( 1. + zae ) / ( 1. - (1.-gamma)*(1.-a[N1]) - nen );
+
+ for (i=0; i<N; i++) g[i] += lambda*gx[i];
+
+ arl = g[i0];
+ 
+ Free(gx);
+ Free(g);
+ Free(rr);
+ Free(xi);
+ Free(psi);
+ Free(phi);
+ Free(z);
+ Free(y);
+ Free(x);
+ Free(b3);
+ Free(b2);
+ Free(b1);
+ Free(a);
+
+ return arl;  
+}
+
+int ccusum_L_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, double *gamma)
+{ double *a, *b1, *b2, *b3, *x, *y, *z, *phi, *psi, *xi, *rr, *g, *gx, px, al, ga, et, de, be, ka, lambda, L1, L2, L3, nen, zae, g1, g2, g3;
+  int i, j, l, lmax, N, N1, ihm;
+  
+ ihm = ccusum_L_crit(A, mu0, km, m, i0);
+  
+ N  = ihm; 
+ N1 = N - 1;
+ 
+ a   = vector(2*N-1);
+ b1  = vector(N);
+ b2  = vector(N);
+ b3  = vector(N);
+ x   = vector(N);
+ y   = vector(N);
+ z   = vector(N);
+ phi = vector(N);
+ psi = vector(N);
+ xi  = vector(N);
+ rr  = vector(N);
+ g   = vector(N);
+ gx  = vector(N);
+
+ lmax = (int)ceil( (ihm + km) / m ) + 1;
+ 
+ for (l=0; l<=lmax; l++) {
+   px = pdf_pois((double)l, mu0);
+   i = l*m - km;
+   if ( 0 <= N+i-1 && N+i-1 < 2*N-1 ) a[N+i-1] = -px;
+   if ( 0 <= i-1 && i-1 < N ) {
+    b2[i-1] = px;
+    rr[N-i] = px;
+   }
+   if (0 <= N+i && N+i < N ) b3[N+i] = px;
+ }
+ a[N1] += 1.;
+ b2[N-1] = 1. - cdf_pois( (ihm + km)/m, mu0);
+ 
+ for (i=N-1; i>=0; i--) {
+   b1[i] = 1.;
+   if ( i > 0 ) b2[i-1] += b2[i];
+ }
+
+ x[0] = 1./a[N1];
+ y[0] = 1./a[N1];
+ phi[0] = b1[0]/a[N1];
+ psi[0] = b2[0]/a[N1];
+ xi[0] = b3[0]/a[N1];
+ 
+ for (i=1; i<N; i++) {
+   al = 0.;
+   for (j=0; j<i; j++) al += a[N1 + i - j] * x[j];
+   ga = 0.;
+   for (j=0; j<i; j++) ga += a[N1 - 1 - j] * y[j];
+   et = -b1[i];
+   for (j=0; j<i; j++) et += a[N1 + i - j] * phi[j];
+   de = -b2[i];
+   for (j=0; j<i; j++) de += a[N1 + i - j] * psi[j];
+   ka = -b3[i];
+   for (j=0; j<i; j++) ka += a[N1 + i - j] * xi[j];
+
+   be = 1. - al*ga;
+   
+   z[0] = -ga*x[0] / be;
+   for (j=1; j<i; j++) z[j] = ( y[j-1] - ga*x[j] ) / be;
+   z[i] = y[i-1] / be;   
+
+   x[0] = x[0] / be;
+   for (j=1; j<i; j++) x[j] = ( x[j] - al*y[j-1] ) / be;
+   x[i] = -al*y[i-1] / be;
+   
+   for (j=0; j<=i; j++) y[j] = z[j];
+       
+   for (j=0; j<i; j++) {
+     phi[j] = ( phi[j] - et*z[j] );
+     psi[j] = ( psi[j] - de*z[j] );
+     xi[j]  = (  xi[j] - ka*z[j] );
+   }
+   phi[i] = -et*z[i];
+   psi[i] = -de*z[i];
+   xi[i]  = -ka*z[i];
+ }
+
+ be = phi[0] / ( 1. - psi[0] );
+ for (i=0; i<N; i++) g[i] = phi[i] + psi[i] * be;
+ 
+ ka = xi[0] / ( 1. - psi[0] );
+ for (i=0; i<N; i++) gx[i] = xi[i] + psi[i] * ka;
+ 
+ nen = 0.;
+ zae = 0.;
+ for (i=0; i<N; i++) {
+  zae += rr[i] * g[i];
+  nen += rr[i] * gx[i];
+ } 
+
+ /* secant rule etc. */
+ 
+ g1 = 1.;
+ lambda = ( 1. + zae ) / ( 1. - (1.-a[N1]) - nen );
+ L1 = g[i0] + lambda*gx[i0]; 
+ /*printf("g1 = %.6f,\tL1 = %.6f,\tA = %.0f\n", g1, L1, A);*/
+ 
+ while ( L1 >= A ) {
+   g2 = g1;  
+   L2 = L1;
+   g1 /= 2.;
+   lambda = ( 1. + zae ) / ( 1. - g1*(1.-a[N1]) - g1*nen );   
+   L1 = g[i0] + g1 * lambda * gx[i0];   
+   /*printf("g1 = %.6f,\tL1 = %.6f\n", g1, L1);*/
+ }
+ 
+ i = 0;
+ do {
+   i++;
+   g3 = g1 + (A-L1)/(L2-L1) * (g2-g1);
+   lambda = ( 1. + zae ) / ( 1. - g3*(1.-a[N1]) - g3*nen );
+   L3 = g[i0] + g3 * lambda * gx[i0];
+   /*printf("g3 = %.6f,\tL3 = %.6f\n", g3, L3);*/   
+   g1 = g2; L1 = L2; g2 = g3; L2 = L3;
+ } while ( fabs(g1-g2)>1e-9 && fabs(L3-A)>1e-9 && i < 100);
+ 
+ *hm = ihm;
+ *gamma = 1. - g3;
+ 
+ Free(gx);
+ Free(g);
+ Free(rr);
+ Free(xi);
+ Free(psi);
+ Free(phi);
+ Free(z);
+ Free(y);
+ Free(x);
+ Free(b3);
+ Free(b2);
+ Free(b1);
+ Free(a);
+
+ return 0;
+}
+
+/* HIER */
+double ccusum_2_arl(double mu, int km1, int hm1, int m1, int i01, int km2, int hm2, int m2, int i02)
+{ double arl1, arl2, arl3, arl4, arl;
+
+/* relation between 1- and 2-sided CUSUM schemes due to Lucas/Crosier 1982, Technometrics 24, 199-205;
+   only for sufficiently small headstarts !!
+*/
+ 
+ arl1 = ccusum_U_arl(mu, km1, hm1, m1, 0);
+ arl2 = ccusum_U_arl(mu, km1, hm1, m1, i01);
+ arl3 = ccusum_L_arl(mu, km2, hm2, m2, 0);
+ arl4 = ccusum_L_arl(mu, km2, hm2, m2, i02);
+
+ arl = ( arl2*arl3 + arl1*arl4 - arl1*arl3 ) / ( arl1 + arl3 );
+ return arl;
+}
+
+double ccusum_2_arl_rando(double mu, int km1, int hm1, int m1, double gamma1, int i01, int km2, int hm2, int m2, double gamma2, int i02)
+{ double arl1, arl2, arl3, arl4, arl;
+
+/* relation between 1- and 2-sided CUSUM schemes due to Lucas/Crosier 1982, Technometrics 24, 199-205;
+   only for sufficiently small headstarts !!
+*/
+
+ arl1 = ccusum_U_arl_rando(mu, km1, hm1, m1, gamma1, 0);
+ arl2 = ccusum_U_arl_rando(mu, km1, hm1, m1, gamma1, i01);
+ arl3 = ccusum_L_arl_rando(mu, km2, hm2, m2, gamma2, 0);
+ arl4 = ccusum_L_arl_rando(mu, km2, hm2, m2, gamma2, i02);
+ 
+ arl = ( arl2*arl3 + arl1*arl4 - arl1*arl3 ) / ( arl1 + arl3 );
+ 
+ return arl;
+}
+
 
 
 /* 2-sided tolerance limits factors */

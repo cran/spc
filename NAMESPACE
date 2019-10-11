@@ -20,6 +20,7 @@ export("xshewhartrunsrules.ad", "xshewhartrunsrules.arl", "xshewhartrunsrules.cr
        "xDcusum.arl", "xDewma.arl", "xDgrsr.arl", "xDshewhartrunsrules.arl", "xDshewhartrunsrulesFixedm.arl",
        "p.ewma.arl", "tewma.arl", "euklid.ewma.arl",
        "pois.ewma.arl", "pois.ewma.crit",
+       "pois.cusum.arl", "pois.cusum.crit", "pois.cusum.crit.L0L1",
        "phat.ewma.arl", "phat.ewma.crit", "phat.ewma.lambda", "dphat", "pphat", "qphat",
        "s.res.ewma.arl", "x.res.ewma.arl", "xs.res.ewma.arl", "xs.res.ewma.pms",
        "quadrature.nodes.weights",   
