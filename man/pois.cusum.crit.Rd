@@ -8,7 +8,7 @@
 \item{km}{enumerator of rational approximation of reference value \code{k}.}
 \item{A}{target in-control ARL (average run length).}
 \item{m}{denominator of rational approximation of reference value.}
-\item{i0}{head start value as integer multiple of \code{1/m}; should be an element of \code{0:100} (a more reasonable upper limit will be established soon).}
+\item{i0}{head start value as integer multiple of \code{1/m}; should be an element of \code{0:100} (a more reasonable upper limit will be established soon). It is planned, to set \code{i0} as a fraction of the final threshold.}
 \item{sided}{distinguishes between different one- and two-sided CUSUM control chart by choosing
 \code{"upper"}, \code{"lower"} and \code{"two"}, respectively.}
 \item{rando}{Switch for activating randomization in order to allow continuous ARL control.}

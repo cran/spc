@@ -21,7 +21,7 @@ approximations of the Poisson distribution. See the example which illustrates
 the validity of all these approaches.
 }
 \value{Returns a data frame with results for the denominator \code{m} of the rational approximation,
-\code{km} as (integer) enumerator of the reference value approximation, the resulting
+\code{km} as (integer) enumerator of the reference value (approximation), the corresponding
 out-of-control mean \code{mu1}, the final approximation \code{k} of the reference value,
 the threshold values \code{hm} (integer) and \code{h} (\code{=hm/m}), and the randomization constant
 \code{gamma} (the target in-control ARL is exactly matched).}

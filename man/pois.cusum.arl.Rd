@@ -21,7 +21,7 @@ an control chart alarm is triggered with probability \code{gamma}.}
 The monitored data follow a Poisson distribution with \code{mu}.
 The ARL values of the resulting EWMA control chart are determined via Markov chain calculations.
 We follow the algorithm given in Lucas (1985) expanded with some arithmetic 'tricks' (e.g., by deploying
-Toeplitz matrix algebra).
+Toeplitz matrix algebra). A paper explaining it is under preparation.
 }
 \value{Returns a single value which resembles the ARL.}
 \references{

@@ -441,11 +441,12 @@ double ewma_phat_crit2(double lambda, double  L0, double mu, double sigma, int n
 double ewma_phat_lambda2(double L0, double mu, double sigma, double max_l, double min_l, int n, double z0, double LSL, double USL, int qm, int M);
 
 
-/* attribute EWMA p (X follows binomial distribution) */
+/* attribute EWMA p (X follows binomial distribution), old setup */
 
 double ewma_pU_arl(double lambda, double ucl, int n, double p, double z0, int d_res, int round_mode, int mid_mode);
 double ewma_pL_arl(double lambda, double lcl, int n, double p, double z0, int d_res, int round_mode, int mid_mode);
 double ewma_p2_arl(double lambda, double lcl, double ucl, int n, double p, double z0, int d_res, int round_mode, int mid_mode);
+
 
 /* attribute EWMA p (X follows Poisson distribution) */
 
@@ -478,12 +479,12 @@ int cewma_2_crit_unb_rando_new(double lambda, double L0, double mu0, double z0, 
 double tewma_arl(double lambda, int k, int lk, int uk, double z0, double mu);
 double tewma_arl_R(double lambda, int k, int lk, int uk, double gl, double gu, double z0, double mu);
 
+
 /*  Rakitzis / Castagliola / Maravelakis (2015), A new memory-type monitoring technique for count data, doi 10.1016/j.cie.2015.03.021 */
 
 double eewma_arl(int gX, int gY, int kL, int kU, double mu, double y0, int r0);
 
 
-/* HIER */
 /* attribute CUSUM (X follows Poisson distribution) */
 
 double ccusum_U_arl(double mu, int km, int hm, int m, int i0);
@@ -23077,7 +23078,7 @@ double eewma_arl(int gX, int gY, int kL, int kU, double mu, double y0, int r0)
  return arl;
 }
 
-/* HIER */
+
 double ccusum_U_arl(double mu, int km, int hm, int m, int i0)
 { double *a, *b1, *b2, *x, *y, *z, *phi, *psi, *g, px, al, ga, et, de, be, arl;
   int i, j, l, lmax, N, N1;
@@ -23104,6 +23105,7 @@ double ccusum_U_arl(double mu, int km, int hm, int m, int i0)
    if ( 0 <= i-1 && i-1 < N ) b2[i-1] = px;
  }
  a[N1] += 1.; 
+ b2[N-1] = cdf_pois( ceil( (double)(km - hm)/m ) - 1., mu);
  
  for (i=N-1; i>=0; i--) {
    b1[i] = 1.;
@@ -23144,7 +23146,7 @@ double ccusum_U_arl(double mu, int km, int hm, int m, int i0)
    phi[i] = -et*z[i];
    psi[i] = -de*z[i];
  }
-
+ 
  be = phi[0] / ( 1. - psi[0] );
  for (i=0; i<N; i++) g[i] = phi[i] + psi[i] * be;
  arl = g[i0];
@@ -23162,6 +23164,7 @@ double ccusum_U_arl(double mu, int km, int hm, int m, int i0)
  return arl;  
 }
 
+
 int ccusum_U_crit(double A, double mu0, int km, int m, int i0)
 { int p10, hm, p;
   double L1;
@@ -23169,30 +23172,28 @@ int ccusum_U_crit(double A, double mu0, int km, int m, int i0)
   p10 = (int)ceil( log10((double)m) );
   hm = 2 * (int)qf_pois(1.-1./A, mu0) * m; /* twice the Shewhart critical value */
   L1 = ccusum_U_arl(mu0, km, hm, m, i0);
-  /*printf("\n(*)hm = %d,\tL1 = %.3f\n", hm, L1);*/
     
   for (p=p10; p>=0; p--) {
     if ( L1 < A ) {
       while ( L1 < A ) {
         hm += pow(10., (double)p);
         L1 = ccusum_U_arl(mu0, km, hm, m, i0);
-        /*printf("(+)\thm = %d,\tL1 = %.3f\n", hm, L1);*/
       }
     } else {
       while ( L1 >= A ) {
         hm -= pow(10., (double)p);
-        if ( hm < km ) {
+        if ( hm < m && p > 0 ) {
           p--;
           hm += pow(10., (double)p+1.) - pow(10., (double)p);
         }    
         L1 = ccusum_U_arl(mu0, km, hm, m, i0);
-        /*printf("(-)\thm = %d,\tL1 = %.3f\n", hm, L1);*/
       }
     }
   }
   if ( L1 < A ) hm = hm + 1;      
   return hm;
 }
+
 
 double ccusum_U_arl_rando(double mu, int km, int hm, int m, double gamma, int i0)
 { double *a, *b1, *b2, *b3, *x, *y, *z, *phi, *psi, *xi, *rr, *g, *gx, px, al, ga, et, de, be, ka, lambda, arl, nen, zae;
@@ -23227,7 +23228,9 @@ double ccusum_U_arl_rando(double mu, int km, int hm, int m, double gamma, int i0
    }
    if (0 <= N+i && N+i < N ) b3[N+i] = (1.-gamma)*px;
  }
- a[N1] += 1.; 
+ a[N1] += 1.;
+ b2[N-1] = cdf_pois( ceil( (double)(km - hm + 1)/m ) - 1., mu);
+ rr[0] = cdf_pois( (double)(km - hm)/m, mu);
  
  for (i=N-1; i>=0; i--) {
    b1[i] = 1.;
@@ -23239,7 +23242,7 @@ double ccusum_U_arl_rando(double mu, int km, int hm, int m, double gamma, int i0
  phi[0] = b1[0]/a[N1];
  psi[0] = b2[0]/a[N1];
  xi[0] = b3[0]/a[N1];
- 
+  
  for (i=1; i<N; i++) {
    al = 0.;
    for (j=0; j<i; j++) al += a[N1 + i - j] * x[j];
@@ -23309,6 +23312,7 @@ double ccusum_U_arl_rando(double mu, int km, int hm, int m, double gamma, int i0
  return arl;  
 }
 
+
 int ccusum_U_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, double *gamma)
 { double *a, *b1, *b2, *b3, *x, *y, *z, *phi, *psi, *xi, *rr, *g, *gx, px, al, ga, et, de, be, ka, lambda, L1, L2, L3, nen, zae, g1, g2, g3;
   int i, j, l, lmax, N, N1, ihm;
@@ -23344,7 +23348,9 @@ int ccusum_U_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
    }
    if (0 <= N+i && N+i < N ) b3[N+i] = px;
  }
- a[N1] += 1.; 
+ a[N1] += 1.;
+ b2[N-1] = cdf_pois( ceil( (double)(km - ihm + 1)/m ) - 1., mu0);
+ rr[0] = cdf_pois( (double)(km - ihm)/m, mu0);
  
  for (i=N-1; i>=0; i--) {
    b1[i] = 1.;
@@ -23408,8 +23414,8 @@ int ccusum_U_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
  
  g1 = 1.;
  lambda = ( 1. + zae ) / ( 1. - (1.-a[N1]) - nen );
- L1 = g[i0] + lambda*gx[i0]; 
- /*printf("g1 = %.6f,\tL1 = %.6f,\tA = %.0f\n", g1, L1, A);*/
+ L1 = g[i0] + lambda*gx[i0];
+ L2 = ccusum_U_arl(mu0, km, ihm, m, i0);
  
  while ( L1 >= A ) {
    g2 = g1;  
@@ -23417,7 +23423,6 @@ int ccusum_U_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
    g1 /= 2.;
    lambda = ( 1. + zae ) / ( 1. - g1*(1.-a[N1]) - g1*nen );   
    L1 = g[i0] + g1 * lambda * gx[i0];   
-   /*printf("g1 = %.6f,\tL1 = %.6f\n", g1, L1);*/
  }
  
  i = 0;
@@ -23426,9 +23431,8 @@ int ccusum_U_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
    g3 = g1 + (A-L1)/(L2-L1) * (g2-g1);
    lambda = ( 1. + zae ) / ( 1. - g3*(1.-a[N1]) - g3*nen );
    L3 = g[i0] + g3 * lambda * gx[i0];
-   /*printf("g3 = %.6f,\tL3 = %.6f\n", g3, L3);*/   
    g1 = g2; L1 = L2; g2 = g3; L2 = L3;
- } while ( fabs(g1-g2)>1e-9 && fabs(L3-A)>1e-9 && i < 100);
+ } while ( fabs(g1-g2)>1e-12 && fabs(L3-A)>1e-10 && i < 100);
  
  *hm = ihm;
  *gamma = 1. - g3;
@@ -23450,7 +23454,7 @@ int ccusum_U_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
  return 0;
 }
 
-/* HIER */
+
 double ccusum_L_arl(double mu, int km, int hm, int m, int i0)
 { double *a, *b1, *b2, *x, *y, *z, *phi, *psi, *g, px, al, ga, et, de, be, arl;
   int i, j, l, lmax, N, N1;
@@ -23536,6 +23540,7 @@ double ccusum_L_arl(double mu, int km, int hm, int m, int i0)
  return arl;  
 }
 
+
 int ccusum_L_crit(double A, double mu0, int km, int m, int i0)
 { int p10, hm, p;
   double L1;
@@ -23548,22 +23553,23 @@ int ccusum_L_crit(double A, double mu0, int km, int m, int i0)
     if ( L1 < A ) {
       while ( L1 < A ) {
         hm += pow(10., (double)p);
-        L1 = ccusum_L_arl(mu0, km, hm, m, i0);        
+        L1 = ccusum_L_arl(mu0, km, hm, m, i0);
       }
     } else {
       while ( L1 >= A ) {
         hm -= pow(10., (double)p);
-        if ( hm < km ) {
+        if ( hm < m && p > 0 ) {
           p--;
           hm += pow(10., (double)p+1.) - pow(10., (double)p);
-        }    
-        L1 = ccusum_L_arl(mu0, km, hm, m, i0);  
+        }
+        L1 = ccusum_L_arl(mu0, km, hm, m, i0);
       }
     }
   }
   if ( L1 < A ) hm = hm + 1;      
   return hm;
 }
+
 
 double ccusum_L_arl_rando(double mu, int km, int hm, int m, double gamma, int i0)
 { double *a, *b1, *b2, *b3, *x, *y, *z, *phi, *psi, *xi, *rr, *g, *gx, px, al, ga, et, de, be, ka, lambda, arl, nen, zae;
@@ -23599,7 +23605,9 @@ double ccusum_L_arl_rando(double mu, int km, int hm, int m, double gamma, int i0
    if (0 <= N+i && N+i < N ) b3[N+i] = (1.-gamma)*px;
  }
  a[N1] += 1.;
- b2[N-1] = 1. - cdf_pois( (hm + km)/m, mu);
+ b2[N-1] = 1. - cdf_pois( (hm + km)/m, mu); 
+ rr[0] = 1. - cdf_pois( ceil( (double)(hm + km)/m ) - 1., mu);
+ 
  
  for (i=N-1; i>=0; i--) {
    b1[i] = 1.;
@@ -23681,6 +23689,7 @@ double ccusum_L_arl_rando(double mu, int km, int hm, int m, double gamma, int i0
  return arl;  
 }
 
+
 int ccusum_L_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, double *gamma)
 { double *a, *b1, *b2, *b3, *x, *y, *z, *phi, *psi, *xi, *rr, *g, *gx, px, al, ga, et, de, be, ka, lambda, L1, L2, L3, nen, zae, g1, g2, g3;
   int i, j, l, lmax, N, N1, ihm;
@@ -23718,6 +23727,7 @@ int ccusum_L_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
  }
  a[N1] += 1.;
  b2[N-1] = 1. - cdf_pois( (ihm + km)/m, mu0);
+ rr[0] = 1. - cdf_pois( ceil( (double)(ihm + km)/m ) - 1., mu0);
  
  for (i=N-1; i>=0; i--) {
    b1[i] = 1.;
@@ -23782,7 +23792,6 @@ int ccusum_L_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
  g1 = 1.;
  lambda = ( 1. + zae ) / ( 1. - (1.-a[N1]) - nen );
  L1 = g[i0] + lambda*gx[i0]; 
- /*printf("g1 = %.6f,\tL1 = %.6f,\tA = %.0f\n", g1, L1, A);*/
  
  while ( L1 >= A ) {
    g2 = g1;  
@@ -23790,7 +23799,6 @@ int ccusum_L_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
    g1 /= 2.;
    lambda = ( 1. + zae ) / ( 1. - g1*(1.-a[N1]) - g1*nen );   
    L1 = g[i0] + g1 * lambda * gx[i0];   
-   /*printf("g1 = %.6f,\tL1 = %.6f\n", g1, L1);*/
  }
  
  i = 0;
@@ -23799,7 +23807,6 @@ int ccusum_L_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
    g3 = g1 + (A-L1)/(L2-L1) * (g2-g1);
    lambda = ( 1. + zae ) / ( 1. - g3*(1.-a[N1]) - g3*nen );
    L3 = g[i0] + g3 * lambda * gx[i0];
-   /*printf("g3 = %.6f,\tL3 = %.6f\n", g3, L3);*/   
    g1 = g2; L1 = L2; g2 = g3; L2 = L3;
  } while ( fabs(g1-g2)>1e-9 && fabs(L3-A)>1e-9 && i < 100);
  
@@ -23823,7 +23830,7 @@ int ccusum_L_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
  return 0;
 }
 
-/* HIER */
+
 double ccusum_2_arl(double mu, int km1, int hm1, int m1, int i01, int km2, int hm2, int m2, int i02)
 { double arl1, arl2, arl3, arl4, arl;
 
@@ -23839,6 +23846,7 @@ double ccusum_2_arl(double mu, int km1, int hm1, int m1, int i01, int km2, int h
  arl = ( arl2*arl3 + arl1*arl4 - arl1*arl3 ) / ( arl1 + arl3 );
  return arl;
 }
+
 
 double ccusum_2_arl_rando(double mu, int km1, int hm1, int m1, double gamma1, int i01, int km2, int hm2, int m2, double gamma2, int i02)
 { double arl1, arl2, arl3, arl4, arl;

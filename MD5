@@ -1,4 +1,4 @@
-2eeae21100465ad36d94d39b2accf54b *DESCRIPTION
+40619b9324b15f64163db9d5a19aaff7 *DESCRIPTION
 fcad77ffe88ecf2315a1d62a432b62c7 *NAMESPACE
 938e63b937546368d2a3ad73dbc1a749 *R/dphat.R
 a794896e1669243395c72444bff75161 *R/euklid.ewma.arl.R
@@ -93,9 +93,9 @@ d50a13c09994b01089ea76669c609346 *man/lns2ewma.crit.Rd
 a77a8fefe5e96f6546c18ef78fd0e8bc *man/mewma.psi.Rd
 0cdb8394ef6b2c6d64d5c641d9edf1cb *man/p.ewma.arl.Rd
 7bdda3d7ac509853fab1dc68a1e99ba3 *man/phat.ewma.arl.Rd
-1839dcf60b4d02e91c5773384f9b3de7 *man/pois.crit.L0L1.Rd
-0ae32990075105dbc755fa9f301d9110 *man/pois.cusum.arl.Rd
-aa7f77ff23d2ac50f23951d8b1247025 *man/pois.cusum.crit.Rd
+7affda30afc5b9f13675788487f198f4 *man/pois.crit.L0L1.Rd
+a68f5059fe3cce9b8b08974ae1102c8c *man/pois.cusum.arl.Rd
+406c02a17f01d98cd9fca7a8d64fa2ef *man/pois.cusum.crit.Rd
 3917cbdbc807c00995955256d3837376 *man/pois.ewma.arl.Rd
 8d656ddfa99c5716159548c806d798e8 *man/pois.ewma.crit.Rd
 0b6e47e3e504f024e2c9eb52c67cd766 *man/quadrature.nodes.weights.Rd
@@ -149,7 +149,7 @@ a0761716e88359aaced32bc28b90f70c *man/xtewma.arl.Rd
 ff3072d7d7328bec15ae828ba355df3d *man/xtewma.sf.Rd
 2473c0960a56af19d8f417ce4fe9eb98 *man/xtshewhart.ar1.arl.Rd
 2a6f9e9e044a78154d3cfda5936d6f48 *src/Makevars
-6685bb755d6fe92f8560196c4b079b82 *src/allspc.c
+102ee751a4b6da4b1371c8a1334f4826 *src/allspc.c
 e6acfcdb0acd56c9476000d0c538486b *src/ccusum_arl_be.c
 9cbc0518dca4e9985321d32e717a196e *src/ccusum_crit_be.c
 e1c4c3e23a6f61d205bb73c9d52ad54c *src/cewma_arl_be.c
