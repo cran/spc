@@ -37,13 +37,10 @@ pois.cusum.crit.L0L1 <- function(mu0, L0, L1, sided="upper", OUTPUT=FALSE) {
     if ( OUTPUT ) cat(paste("k1 =", k1, ",\tmu1 = ", mu1, ",\tL1 =", L1_1, "\n"))
   }
   
-  if ( cv1[1] <= 1000 ) {
-    m1 <- 1000
-    k1 <- 10 * k1
-  } else {
-    m1 <- 200
-    k1 <- 2 * k1
-  }
+  ff <- max(2, ceiling( 3000 / ( cv1[1]/m1 ) ) / m1)
+  m1 <- ff * m1
+  k1 <- ff * k1
+
   while ( L1_1 > L1 ) {
     k1 <- k1 + 1
     mu1 <- m1_km0(mu0, k1/m1)

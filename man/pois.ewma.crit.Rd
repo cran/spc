@@ -12,7 +12,7 @@ mcdesign="transfer", N=101, jmax=4)}
 \item{AU}{in case of the lower chart deployed as reflecting upper barrier -- might be increased step by step until the resulting lower limit
 does not change anymore.}
 \item{sided}{distinguishes between one- and two-sided EWMA control chart by choosing \code{"upper"}, \code{"lower"}, and \code{"two"}, respectively.}
-\item{design}{distinguishes between limits symmetric to the in-control mean \code{mu0} and an ARL-unbiased design (ARL maximum at \code{mu0}).}
+\item{design}{distinguishes between limits symmetric to the in-control mean \code{mu0} and an ARL-unbiased design (ARL maximum at \code{mu0}); use the shortcuts \code{"sym"} and \code{"unb"}, respectively, please.}
 \item{rando}{Switch between the standard limit treatment, \code{FALSE},
 and an additional randomisation (to allow `perfect' ARL calibration) by setting \code{TRUE}.
 If randomisation is used, then the corresponding probailities, \code{gL} and \code{gU} are determined, appropriately.}
@@ -33,6 +33,10 @@ The algorithm is just a grid search that takes care of the discrete ARL behavior
 C. M. Borror, C. W. Champ and S. E. Rigdon (1998)
 Poisson EWMA control charts,
 \emph{Journal of Quality Technonlogy} 30(4), 352-361.
+
+M. C. Morais and S. Knoth (2020)
+Improving the ARL profile and the accuracy of its calculation for Poisson EWMA charts,
+\emph{Quality and Reliability Engineering International} 36(3), 876-889.
 }
 \author{Sven Knoth}
 \seealso{later.}
@@ -43,5 +47,11 @@ lambda <- 0.2
 L0 <- 351
 A <- pois.ewma.crit(lambda, L0, mu0, mu0, mcdesign="classic")
 print(round(A, digits=4))
+
+## Morais and Knoth (2020), Table 2, lambda = 0.27 column
+lambda <- 0.27
+L0 <- 1233.4
+ccgg <- pois.ewma.crit(lambda,1233.4,mu0,mu0,design="unb",rando=TRUE,mcdesign="transfer")
+print(ccgg, digits=3)
 }
 \keyword{ts}

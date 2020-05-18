@@ -13,7 +13,7 @@
 
 double seU_q_crit_prerun_SIGMA(double l, int L0, double alpha, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2,
 			       double truncate, int tail_approx, double c_error, double a_error);
-double se2fu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2,
+double se2fu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, double s0, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2,
 				 double truncate, int tail_approx, double c_error, double a_error);
 int se2_q_crit_prerun_SIGMA(double l, int L0, double alpha, double *cl, double *cu, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2,
 			   double truncate, int tail_approx, double c_error, double a_error);
@@ -37,7 +37,7 @@ void sewma_q_crit_prerun
    { cl = seLR_q_crit_prerun_SIGMA(*l, *L0, *alpha, *cu0, *hs, *sigma, *df1, *df2, *r, *qm1, *qm2, *truncate, *tail_approx, *c_error, *a_error); cu = *cu0; }
  if ( *ctyp==ewma2 ) {
    if ( *ltyp==fixed ) {
-     cl = se2fu_q_crit_prerun_SIGMA(*l, *L0, *alpha, *cu0, *hs, *sigma, *df1, *df2, *r, *qm1, *qm2, *truncate, *tail_approx, *c_error, *a_error);
+     cl = se2fu_q_crit_prerun_SIGMA(*l, *L0, *alpha, *cu0, -1., *hs, *sigma, *df1, *df2, *r, *qm1, *qm2, *truncate, *tail_approx, *c_error, *a_error);
      cu = *cu0;
    }
    if ( *ltyp==unbiased )

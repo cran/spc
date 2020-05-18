@@ -59,4 +59,5 @@ void cewma_crit_be
      } 
    }
  }
+ if ( result != 0 ) warning("something went wrong with cewma_2_crit_unb_*");
 }

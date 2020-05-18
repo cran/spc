@@ -8,6 +8,7 @@
 /* .C calls */
 extern void ccusum_arl_be(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ccusum_crit_be(void *, void *, void *, void *, void *, void *, void *, void *);
+extern void cewma_ad_be(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void cewma_arl_be(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void cewma_crit_be(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void euklid_ewma_arl(void *, void *, void *, void *, void *, void *, void *, void *);
@@ -81,6 +82,7 @@ extern void xtewma_sf(void *, void *, void *, void *, void *, void *, void *, vo
 static const R_CMethodDef CEntries[] = {
     {"ccusum_arl_be",            (DL_FUNC) &ccusum_arl_be,            14},
     {"ccusum_crit_be",           (DL_FUNC) &ccusum_crit_be,            8},
+    {"cewma_ad_be",              (DL_FUNC) &cewma_ad_be,              12},
     {"cewma_arl_be",             (DL_FUNC) &cewma_arl_be,             13},
     {"cewma_crit_be",            (DL_FUNC) &cewma_crit_be,            12},
     {"euklid_ewma_arl",          (DL_FUNC) &euklid_ewma_arl,           8},

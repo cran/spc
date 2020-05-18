@@ -368,7 +368,7 @@ double seLR_iglarl_prerun_SIGMA(double l, double cl, double cu, double hs, doubl
 
 double seU_q_crit_prerun_SIGMA(double l, int L0, double alpha, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2, double truncate, int tail_approx, double c_error, double a_error);
 double se2lu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cl, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2, double truncate, int tail_approx, double c_error, double a_error);
-double se2fu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2, double truncate, int tail_approx, double c_error, double a_error);
+double se2fu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, double s0, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2, double truncate, int tail_approx, double c_error, double a_error);
 int se2_q_crit_prerun_SIGMA(double l, int L0, double alpha, double *cl, double *cu, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2, double truncate, int tail_approx, double c_error, double a_error);
 double seUR_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cl, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2, double truncate, int tail_approx, double c_error, double a_error);
 double seLR_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2, double truncate, int tail_approx, double c_error, double a_error);
@@ -464,6 +464,7 @@ int cewma_2_crit_unb(double lambda, double L0, double mu0, double z0, int N, int
 double cewma_U_arl_new(double lambda, double AU, double mu0, double z0, double mu, int N);
 double cewma_L_arl_new(double lambda, double AL, double AU, double mu0, double z0, double mu, int N);
 double cewma_2_arl_new(double lambda, double AL, double AU, double mu0, double z0, double mu, int N);
+double cewma_2_Warl_new(double lambda, double AL, double AU, double mu0, double z0, double mu, int N, int nmax);
 double cewma_2_arl_rando_new(double lambda, double AL, double AU, double gammaL, double gammaU, double mu0, double z0, double mu, int N);
 double cewma_U_crit_new(double lambda, double L0, double mu0, double z0, int N, int jmax);
 double cewma_L_crit_new(double lambda, double L0, double AU, double mu0, double z0, int N, int jmax);
@@ -472,6 +473,10 @@ double cewma_2_crit_AL_new(double lambda, double L0, double AU, double mu0, doub
 double cewma_2_crit_AU_new(double lambda, double L0, double AL, double mu0, double z0, int N, int jmax);
 int cewma_2_crit_unb_new(double lambda, double L0, double mu0, double z0, int N, int jmax, double *AL, double *AU);
 int cewma_2_crit_unb_rando_new(double lambda, double L0, double mu0, double z0, int N, int jmax, double *AL, double *AU, double *gL, double *gU);
+
+
+double cewma_2_ad(double lambda, double AL, double AU, double mu0, double mu, int N);
+double cewma_2_ad_new(double lambda, double AL, double AU, double mu0, double mu, int N);
 
 
 /* TEWMA (thinning operation -- X follows Poisson distribution */
@@ -1099,8 +1104,7 @@ void matvec(int n, double *p, double *z, double y_[])
 #define epsilon         1e-12
 #define maxits          100000
 
-void pmethod(int n, double *p, int *status, double *lambda, 
-             double x_[], int *noofit)
+void pmethod(int n, double *p, int *status, double *lambda, double x_[], int *noofit)
 { int count, i, newi, oldi;
   double newmu, oldmu, *z, *y_;
   void matvec();
@@ -1108,10 +1112,13 @@ void pmethod(int n, double *p, int *status, double *lambda,
  z  = vector(n);
  y_ = vector(n);
 
- for (i=1;i<n;i++) z[i] = 0.; z[0] = 1.;
+ for (i=1; i<n; i++) z[i] = 0.;
+ z[0] = 1.;
 
- newmu = 0.; newi = 0;
- count = 0; *status = limit;
+ newmu = 0.;
+ newi = 0;
+ count = 0;
+ *status = limit;
 
  while ( (count<maxits) && (*status==limit) ) {
   count++;
@@ -2397,10 +2404,10 @@ double scs_U_iglarl_v1(double refk, double h, double hs, double cS, double sigma
        if ( df!=2 && xu>za ) { xl = sqrt(xl-za); xu = sqrt(xu-za); }
 
        for (jj=1; jj<=Ntilde; jj++) {
-	 qj = (ii-1)*Ntilde + jj-1;
+	     qj = (ii-1)*Ntilde + jj-1;
          if ( xu<xl ) a[qi*NN + qj] = 0.;
          else {
-	   gausslegendre(qm, xl, xu, z, w);
+	       gausslegendre(qm, xl, xu, z, w);
            Hij = 0.;
            for (k=0; k<qm; k++)
              if ( df==2 )
@@ -11273,16 +11280,20 @@ double se2_iglarl_prerun_SIGMA(double l, double cl, double cu, double hs, double
   int i;
  
   ww = vector(qm2);
-  zz = vector(qm2);  
+  zz = vector(qm2);
+  
   ddf2 = (double)(df2);  
   b1 = qCHI(     truncate/2., df2)/ddf2;
-  b2 = qCHI(1. - truncate/2., df2)/ddf2; 
+  b2 = qCHI(1. - truncate/2., df2)/ddf2;
+  
   gausslegendre(qm2, b1, b2, zz, ww);  
+  
   result = 0.;
   for (i=0; i<qm2; i++) {
     s2 = zz[i];
     result += ww[i] * ddf2 * chi( ddf2*s2, df2) * se2_iglarl(l, s2*cl, s2*cu, s2*hs, sigma, df1, N, qm1);
   }
+  
   Free(ww);
   Free(zz);
   
@@ -11734,13 +11745,20 @@ double se2fu_q_crit(double l, int L0, double alpha, double cu, double hs, double
 }
 
 
-double se2fu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2, double truncate, int tail_approx, double c_error, double a_error)
+double se2fu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, double s0, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2, double truncate, int tail_approx, double c_error, double a_error)
 { double s1, s2, s3, ds, p1, p2, p3, *SF;
   int result=1, schritt=0, maxschritt=30;
   
  SF  = vector(L0);
  
- s2 = se2fu_q_crit(l, L0, alpha, cu, hs, sigma, df1, N, qm1, c_error, a_error);                     
+ if ( s0 <= 0.0 ) {
+   s2 = se2fu_q_crit(l, L0, alpha, cu, hs, sigma, df1, N, qm1, c_error, a_error);                     
+ } else {
+   s2 = s0;
+ }
+ 
+ /*printf("\nfixed upper limit\n\n(||)\t cl = %.6f\n\n", s2);*/
+ 
  if ( tail_approx ) result = se2_sf_prerun_SIGMA_deluxe(l, s2, cu, hs, sigma, df1, df2, L0, qm1, qm2, truncate, SF);
  else result = se2_sf_prerun_SIGMA(l, s2, cu, hs, sigma, df1, df2, L0, qm1, qm2, truncate, SF);
  if ( result != 0 ) warning("trouble in se2fu_q_crit_prerun_SIGMA [package spc]");
@@ -11750,7 +11768,8 @@ double se2fu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, doub
    do {
      p1 = p2;
      s1 = s2;
-     s2 *= 1.1;
+     s2 *= 1.05;
+     /*printf("<<\t cl = %.6f\n", s2);*/
      if ( tail_approx ) result = se2_sf_prerun_SIGMA_deluxe(l, s2, cu, hs, sigma, df1, df2, L0, qm1, qm2, truncate, SF);
      else result = se2_sf_prerun_SIGMA(l, s2, cu, hs, sigma, df1, df2, L0, qm1, qm2, truncate, SF);
      if ( result != 0 ) warning("trouble in se2fu_q_crit_prerun_SIGMA [package spc]");
@@ -11760,7 +11779,8 @@ double se2fu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, doub
    do {
      p1 = p2;
      s1 = s2;
-     s2 /= 1.1;
+     s2 /= 1.05;
+     /*printf(">>\t cl = %.6f\n", s2);*/
      if ( tail_approx ) result = se2_sf_prerun_SIGMA_deluxe(l, s2, cu, hs, sigma, df1, df2, L0, qm1, qm2, truncate, SF);
      else result = se2_sf_prerun_SIGMA(l, s2, cu, hs, sigma, df1, df2, L0, qm1, qm2, truncate, SF);
      if ( result != 0 ) warning("trouble in se2fu_q_crit_prerun_SIGMA [package spc]");
@@ -11768,10 +11788,13 @@ double se2fu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, doub
    } while ( p2 >= alpha && s2 > 0. );
  }
  
+ /*printf("\n");*/
+ 
  schritt = 0;
  do {
    schritt++;
    s3 = s1 + (alpha - p1)/( p2 - p1 ) * (s2-s1);
+   /*printf("## \t cl = %.6f\n", s3);*/
    if ( tail_approx ) result = se2_sf_prerun_SIGMA_deluxe(l, s3, cu, hs, sigma, df1, df2, L0, qm1, qm2, truncate, SF);
    else result = se2_sf_prerun_SIGMA(l, s3, cu, hs, sigma, df1, df2, L0, qm1, qm2, truncate, SF);
    if ( result != 0 ) warning("trouble in se2fu_q_crit_prerun_SIGMA [package spc]");
@@ -11780,6 +11803,8 @@ double se2fu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cu, doub
  } while ( fabs(alpha - p3)>a_error && fabs(ds)>c_error && schritt<maxschritt );
 
  if ( schritt >= maxschritt ) warning("secant rule in se2fu_q_crit_prerun_SIGMA did not converge");
+ 
+ /*printf("\n\nschritt = %d\n\n", schritt);*/
  
  Free(SF);
  
@@ -12178,36 +12203,55 @@ int se2_q_crit_class(double l, int L0, double alpha, double *cl, double *cu, dou
 
 
 int se2_q_crit_prerun_SIGMA(double l, int L0, double alpha, double *cl, double *cu, double hs, double sigma, int df1, int df2, int N, int qm1, int qm2, double truncate, int tail_approx, double c_error, double a_error)
-{ double s1, s2, s3, ds, sl1, sl2, sl3, csl, Pm, Pp, *SF;
+{ double s1, s2, s3, ds, sl1, sl2, sl3, csl, csl0, Pm, Pp, *SF, scale;
   int result=1;
-
- /*printf("\n\nEs geht los!\n\n");*/
   
  SF  = vector(L0);
 
- s1 = seU_q_crit_prerun_SIGMA(l, L0, alpha, hs, sigma, df1, df2, N, qm1, qm2, truncate, tail_approx, c_error, a_error);
- csl = 0.;
+ result = se2_q_crit(l, L0, alpha, &csl, &s1, hs, sigma, df1, N, qm1, c_error, a_error);
+ scale = (double)df2 / (double)df1; /* recover m */
+ scale = 1. + 2./scale; 
+ s1 *= scale;
+ csl0 = csl /scale;
  
- /*printf("Startwert berechnet, s1 = %.6f\n", s1);*/
+ /*printf("\nunbiased design\n\nKnown ic level:\t cl0 = %.6f,\tcu0 = %.6f\t\t(scale = %.3f)\n\n", csl0, s1, scale);*/
  
- if ( tail_approx ) result = seU_sf_prerun_SIGMA_deluxe(l, s1, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
+ csl = se2fu_q_crit_prerun_SIGMA(l, L0, alpha, s1, csl0, hs, sigma, df1, df2, N, qm1, qm2, truncate, tail_approx, c_error, a_error);
+ 
+ /*s1 = seU_q_crit_prerun_SIGMA(l, L0, alpha, hs, sigma, df1, df2, N, qm1, qm2, truncate, tail_approx, c_error, a_error);
+ csl = 0.;*/
+ 
+ /*printf("\n(0)\t cl = %.6f,\t cu = %.6f\n", csl, s1);*/
+ 
+ /*if ( tail_approx ) result = seU_sf_prerun_SIGMA_deluxe(l, s1, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
  else result = seU_sf_prerun_SIGMA(l, s1, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
  if ( result != 0 ) warning("trouble in se2_q_crit_prerun_SIGMA [package spc]");
  Pm = 1. - SF[L0-1];
  if ( tail_approx ) result = seU_sf_prerun_SIGMA_deluxe(l, s1, hs, sigma+lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
  else result = seU_sf_prerun_SIGMA(l, s1, hs, sigma+lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
  if ( result != 0 ) warning("trouble in se2_q_crit_prerun_SIGMA [package spc]");
+ Pp = 1. - SF[L0-1]; */
+ 
+ if ( tail_approx ) result = se2_sf_prerun_SIGMA_deluxe(l, csl, s1, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
+ else result = se2_sf_prerun_SIGMA(l, csl, s1, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
+ if ( result != 0 ) warning("trouble in se2_q_crit_prerun_SIGMA [package spc]");
+ Pm = 1. - SF[L0-1]; 
+ if ( tail_approx ) result = se2_sf_prerun_SIGMA_deluxe(l, csl, s1, hs, sigma+lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
+ else result = se2_sf_prerun_SIGMA(l, csl, s1, hs, sigma+lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
+ if ( result != 0 ) warning("trouble in se2_q_crit_prerun_SIGMA [package spc]");
  Pp = 1. - SF[L0-1]; 
+ 
  sl1 = ( Pp - Pm )/(2.*lmEPS);
  
- /*printf("slope = %.6f\n\n", sl1);*/
+ /*printf("\t\t slope = %.6f\n\n", sl1);*/
 
  if ( sl1 > 0 ) {
    do {
      s2 = s1;
      sl2 = sl1;
-     s1 *= 1.1;
-     csl = se2fu_q_crit_prerun_SIGMA(l, L0, alpha, s1, hs, sigma, df1, df2, N, qm1, qm2, truncate, tail_approx, c_error, a_error);
+     s1 *= 1.05;
+     csl0 = csl * 1.05;
+     csl = se2fu_q_crit_prerun_SIGMA(l, L0, alpha, s1, csl0, hs, sigma, df1, df2, N, qm1, qm2, truncate, tail_approx, c_error, a_error);
      if ( tail_approx ) result = se2_sf_prerun_SIGMA_deluxe(l, csl, s1, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
      else result = se2_sf_prerun_SIGMA(l, csl, s1, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
      if ( result != 0 ) warning("trouble in se2_q_crit_prerun_SIGMA [package spc]");
@@ -12217,14 +12261,15 @@ int se2_q_crit_prerun_SIGMA(double l, int L0, double alpha, double *cl, double *
      if ( result != 0 ) warning("trouble in se2_q_crit_prerun_SIGMA [package spc]");
      Pp = 1. - SF[L0-1]; 
      sl1 = ( Pp - Pm )/(2.*lmEPS);
-    /*printf("(i) s1 = %.6f, slope = %.6f\n", s1, sl1);*/
+     /*printf("(i)\t cl = %.6f,\t cu = %.6f,\t, slope = %.6f\n", csl, s1, sl1);*/
    } while ( sl1 > 0 );
  } else {
    do {
      s2 = s1;
      sl2 = sl1;
-     s1 /= 1.1;
-     csl = se2fu_q_crit_prerun_SIGMA(l, L0, alpha, s1, hs, sigma, df1, df2, N, qm1, qm2, truncate, tail_approx, c_error, a_error);
+     s1 /= 1.05;
+     csl0 = csl / 1.05;
+     csl = se2fu_q_crit_prerun_SIGMA(l, L0, alpha, s1, csl0, hs, sigma, df1, df2, N, qm1, qm2, truncate, tail_approx, c_error, a_error);
      if ( tail_approx ) result = se2_sf_prerun_SIGMA_deluxe(l, csl, s1, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
      else result = se2_sf_prerun_SIGMA(l, csl, s1, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
      if ( result != 0 ) warning("trouble in se2_q_crit_prerun_SIGMA [package spc]");
@@ -12234,13 +12279,16 @@ int se2_q_crit_prerun_SIGMA(double l, int L0, double alpha, double *cl, double *
      if ( result != 0 ) warning("trouble in se2_q_crit_prerun_SIGMA [package spc]");
      Pp = 1. - SF[L0-1]; 
      sl1 = ( Pp - Pm )/(2.*lmEPS);
-     /*printf("(ii) s1 = %.6f, slope = %.6f\n", s1, sl1);*/
+     /*printf("(ii)\t cl = %.6f,\t cu = %.6f,\t, slope = %.6f\n", csl, s1, sl1);*/
    } while ( sl1 < 0 );
  }
 
+ /*printf("\n");*/
+ 
  do {
    s3 = s1 - sl1/(sl2-sl1) * (s2-s1);
-   csl = se2fu_q_crit_prerun_SIGMA(l, L0, alpha, s3, hs, sigma, df1, df2, N, qm1, qm2, truncate, tail_approx, c_error, a_error);
+   csl0 = csl * s3/s2;
+   csl = se2fu_q_crit_prerun_SIGMA(l, L0, alpha, s3, csl0, hs, sigma, df1, df2, N, qm1, qm2, truncate, tail_approx, c_error, a_error);
    if ( tail_approx ) result = se2_sf_prerun_SIGMA_deluxe(l, csl, s3, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
    else result = se2_sf_prerun_SIGMA(l, csl, s3, hs, sigma-lmEPS, df1, df2, L0, qm1, qm2, truncate, SF);
    if ( result != 0 ) warning("trouble in se2_q_crit_prerun_SIGMA [package spc]");
@@ -12250,11 +12298,13 @@ int se2_q_crit_prerun_SIGMA(double l, int L0, double alpha, double *cl, double *
    if ( result != 0 ) warning("trouble in se2_q_crit_prerun_SIGMA [package spc]");
    Pp = 1. - SF[L0-1]; 
    sl3 = ( Pp - Pm )/(2.*lmEPS);
-   /*printf("(iii) s3 = %.6f, slope = %.6f\n", s3, sl3);*/
+   /*printf("(iii)\t cl = %.6f,\t cu = %.6f,\t, slope = %.6f\n", csl, s3, sl3);*/
    ds = s3-s2; s1 = s2; sl1 = sl2; s2 = s3; sl2 = sl3;
  } while ( fabs(sl3)>a_error && fabs(ds)>c_error );
 
  *cl = csl; *cu = s3;
+ 
+ /*printf("\n");*/
  
  Free(SF);
 
@@ -21635,6 +21685,48 @@ double cewma_2_arl(double lambda, double AL, double AU, double mu0, double z0, d
 }
 
 
+double cewma_2_ad(double lambda, double AL, double AU, double mu0, double mu, int N)
+{ double hL, hU, w, *a, *arl, *psi, rho, ad, norm;
+  int i, j, status, noofit;
+
+ a = matrix(N,N);
+ arl = vector(N);
+ psi = vector(N);
+ 
+ hL = mu0 - AL * sqrt( lambda*mu0 / (2.-lambda) );
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = (hU - hL)/N;
+
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[j*N+i] = cdf_pois( hL+w/2./lambda*(2.*(j+1.)-(1.-lambda)*(2.*i+1.)), mu0) - cdf_pois( hL+w/2./lambda*(2.*j-(1.-lambda)*(2.*i+1.)), mu0);
+ }
+
+ pmethod(N, a, &status, &rho, psi, &noofit);
+ 
+ for (i=0; i<N; i++) {
+   for (j=0; j<N; j++) a[j*N+i] = - ( cdf_pois( hL+w/2./lambda*(2.*(j+1.)-(1.-lambda)*(2.*i+1.)), mu) - cdf_pois( hL+w/2./lambda*(2.*j-(1.-lambda)*(2.*i+1.)), mu) );
+   ++a[i*N+i];
+ }
+
+ for (j=0; j<N; j++) arl[j] = 1.;
+ solve(&N, a, arl); 
+ 
+ ad = 0.;
+ norm = 0.;
+ for (j=0; j<N; j++) {
+   ad += arl[j] * psi[j];
+   norm += psi[j];
+ }
+ ad /= norm;
+ 
+ Free(psi);
+ Free(arl);
+ Free(a);
+
+ return ad;  
+}
+
+
 double cewma_2_arl_rando(double lambda, double AL, double AU, double gammaL, double gammaU, double mu0, double z0, double mu, int N)
 { double hL, hU, w, *a, *g, arl;
   int i, j;
@@ -21668,7 +21760,7 @@ double cewma_2_arl_rando(double lambda, double AL, double AU, double gammaL, dou
 
 
 double cewma_2_arl_new(double lambda, double AL, double AU, double mu0, double z0, double mu, int N)
-{ double hL, hU, w, *a, *g, arl, zi, zj, zi1, zi2, pj, px;
+{ double hL, hU, w, *a, *g, arl, zi, zj, zi1, zi2, pj, px, Li, Ui;
   int i, j, x, x0, x1;
 
  a = matrix(N,N);
@@ -21682,9 +21774,9 @@ double cewma_2_arl_new(double lambda, double AL, double AU, double mu0, double z
  
  for (i=0; i<N; i++) {
    zi = (1.-lambda) * ( hL + (2.*i+1.)/2.*w );
-   x0 = (int)floor( (hL-zi)/lambda );
+   x0 = (int)floor( (hL-zi)/lambda ) - 1;
    if ( x0 < 0 ) x0 = 0;
-   x1 =  (int)ceil( (hU-zi)/lambda );
+   x1 =  (int)ceil( (hU-zi)/lambda ) + 1;
    for (j=0; j<N; j++) a[j*N+i] = 0.;
    for (x=x0; x<=x1; x++) {
      px = pdf_pois((double)x, mu);  
@@ -21714,7 +21806,7 @@ double cewma_2_arl_new(double lambda, double AL, double AU, double mu0, double z
          /*printf("(i)\tshould not happen.\n");*/
        }
      }
-     /*printf("i = %d,\tx = %d,\tj = %d,\tmj = %.4f,\tpj = %.4f,\tzj = %.4f,\tzj-mj = %.4f\n", i, x, j, mj, pj, zj, zj-mj);*/
+     /*printf("i = %d,\tx = %d,\tj = %d,\tpj = %.4f,\tzj = %.4f\n", i, x, j, pj, zj);*/
    }
    /*printf("\n\n");*/
    ++a[i*N+i];
@@ -21725,40 +21817,291 @@ double cewma_2_arl_new(double lambda, double AL, double AU, double mu0, double z
 
  arl = 1.; 
  zi = (1.-lambda) * z0;     
- x0 = (int)floor( (hL-zi)/lambda );
+ x0 = (int)floor( (hL-zi)/lambda ) - 1;
  if ( x0 < 0 ) x0 = 0;
- x1 =  (int)ceil( (hU-zi)/lambda ); 
+ x1 =  (int)ceil( (hU-zi)/lambda ) + 1; 
  i = (int)ceil( (z0-hL)/w ) - 1;
+ /*printf("\ncrude solution g[i=%d] = %.6f\n\n", i, g[i]);*/
+ /*Li = hL + i*w;
+ Ui = hL + (i+1.)*w;*/
+ Li = z0 - w/2.;
+ Ui = z0 + w/2.;
  for (x=x0; x<=x1; x++) {
    px = pdf_pois((double)x, mu);  
-   zj = zi+(double)x*lambda;
+   zj = zi + (double)x*lambda;
    j = (int)ceil( (zj-hL)/w ) - 1;
    zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
-   zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
-   if ( zi1 <= hL + i*w ) {
-     if ( hL + (i+1.)*w <= zi2 ) {
+   zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);
+   if ( zi1 <= Li ) {
+     if ( Ui <= zi2 ) {
        pj = 1.;
        if ( j >= 0 && j < N ) arl += pj * px * g[j];
+       /*printf("(i)\tx = %d,\tj = %d\n", x, j);*/
      } else {
-       pj = ( zi2 - ( hL + i*w ) ) / w;
+       pj = ( zi2 - Li ) / w;
        if ( j >= 0  && j < N   ) arl += pj * px * g[j];
        if ( j >= -1 && j < N-1 ) arl += (1.-pj) * px * g[j+1];
+       /*printf("(ii)\tx = %d,\tj = %d,\tpj = %.4f\t(+)\n", x, j, pj);*/
      }
    } else {
-     if ( hL + (i+1.)*w <= zi2 ) {
-       pj = ( hL + (i+1.)*w - zi1 ) / w;
+     if ( Ui <= zi2 ) {
+       pj = ( Ui - zi1 ) / w;
        if ( j >= 0 && j < N  ) arl += pj * px * g[j];
        if ( j > 0  && j <= N ) arl += (1.-pj) * px * g[j-1];
+       /*printf("(iii)\tx = %d,\tj = %d,\tpj = %.4f\t(-)\n", x, j, pj);*/
      } else {
-       pj = 0.; /* should not be possible */  
+       pj = 0.; /* should not be possible */
+       /*printf("(iv)\tx = %d,\tj = %d\t---\tshould not happen.\n", x, j);*/
      }
    }
+   /*printf("\n");*/
  }
+ /*printf("\nfinal solution arl = %.6f\n\n", arl);*/
 
  Free(a);
  Free(g);
 
  return arl;  
+}
+
+
+double cewma_2_Warl_new(double lambda, double AL, double AU, double mu0, double z0, double mu, int N, int nmax)
+{ double hL, hU, w, *z, *Sm, *Pn, *p0, *ap, ratio, arl_minus=0., arl=1., arl_plus=0., mn_minus=1., mn_plus=0.,
+         zi, zj, zi1, zi2, pj, px, Li, Ui;
+  int i, j, n, x, x0, x1;
+
+ Sm = matrix(N,N);
+ z  = vector(N);
+ ap = vector(N);
+ Pn = matrix(nmax,N);
+ p0 = vector(nmax);
+
+ hL = mu0 - AL * sqrt( lambda*mu0 / (2.-lambda) );
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = (hU - hL)/N;
+ 
+ for (i=0; i<N; i++) {
+    z[i] = hL + i*w + w/2.;
+    ap[i] = 0.;
+ }
+
+ for (i=0; i<N; i++) {
+   zi = (1.-lambda) * ( hL + (2.*i+1.)/2.*w );
+   x0 = (int)floor( (hL-zi)/lambda ) - 3;
+   if ( x0 < 0 ) x0 = 0;
+   x1 =  (int)ceil( (hU-zi)/lambda ) + 3;
+   for (j=0; j<N; j++) Sm[j*N+i] = 0.;
+   for (x=x0; x<=x1; x++) {
+     px = pdf_pois((double)x, mu);  
+     zj = zi + (double)x*lambda;
+     j = (int)ceil( (zj-hL)/w ) - 1;     
+     zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+     zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+     if ( zi1 <= hL + i*w ) {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = 1.;
+         if ( j >= 0 && j < N ) Sm[i*N+j] += pj * px;
+       } else {
+         pj = ( zi2 - ( hL + i*w ) ) / w;
+         if ( j >= 0  && j < N  ) Sm[i*N+j] += pj * px;
+         if ( j >= -1 && j < N-1 ) Sm[(i+1)*N+j] += (1.-pj) * px;
+       }
+     } else {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = ( hL + (i+1.)*w - zi1 ) / w;
+         if ( j >= 0 && j < N  ) Sm[i*N+j] += pj * px;
+         if ( j > 0  && j <= N ) Sm[(i-1)*N+j] += (1.-pj) * px;           
+       } else {
+         pj = 0.; /* should not be possible */
+       }
+     }
+   }
+ }
+
+ /* 'assistant' vector */
+ zi = (1.-lambda) * z0;     
+ x0 = (int)floor( (hL-zi)/lambda ) - 3;
+ if ( x0 < 0 ) x0 = 0;
+ x1 =  (int)ceil( (hU-zi)/lambda ) + 3; 
+ i = (int)ceil( (z0-hL)/w ) - 1;
+ Li = z0 - w/2.;
+ Ui = z0 + w/2.;
+ for (x=x0; x<=x1; x++) {
+   px = pdf_pois((double)x, mu);  
+   zj = zi + (double)x*lambda;
+   j = (int)ceil( (zj-hL)/w ) - 1;
+   zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+   zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);
+   if ( zi1 <= Li ) {
+     if ( Ui <= zi2 ) {
+       pj = 1.;
+       if ( j >= 0 && j < N ) ap[j] += pj * px;
+     } else {
+       pj = ( zi2 - Li ) / w;
+       if ( j >= 0  && j < N   ) ap[j] += pj * px;
+       if ( j >= -1 && j < N-1 ) ap[j+1] += (1.-pj) * px;
+     }
+   } else {
+     if ( Ui <= zi2 ) {
+       pj = ( Ui - zi1 ) / w;
+       if ( j >= 0 && j < N  ) ap[j] += pj * px;
+       if ( j > 0  && j <= N ) ap[j-1] += (1.-pj) * px;
+     } else {
+       pj = 0.; /* should not be possible */  
+     }
+   }
+ }
+ 
+ arl = 1.;
+
+ for (n=1; n<=nmax; n++) {
+
+   if (n==1)
+     for (i=0; i<N; i++)
+       Pn[i] = cdf_pois( ceil((hU-(1-lambda)*z[i])/lambda), mu) - cdf_pois( floor((hL-(1-lambda)*z[i])/lambda), mu);
+       /*Pn[i] = cdf_pois( (hU-(1-lambda)*z[i])/lambda, mu) - cdf_pois( (hL-(1-lambda)*z[i])/lambda, mu);*/
+   else
+     for (i=0; i<N; i++) {
+       Pn[(n-1)*N+i] = 0.;
+       for (j=0; j<N; j++) Pn[(n-1)*N+i] += Sm[i*N+j] * Pn[(n-2)*N+j];
+     }
+
+   if (n==1)
+     p0[0] = cdf_pois( (hU-(1-lambda)*z0)/lambda, mu) - cdf_pois( (hL-(1-lambda)*z0)/lambda, mu);
+   else {
+     p0[n-1] = 0.;
+     for (j=0; j<N; j++) p0[n-1] += ap[j] * Pn[(n-2)*N+j];
+   }
+
+   mn_minus = 1.; mn_plus = 0.;
+   if (n>1) {
+     for (i=0; i<N; i++) {
+       if (Pn[(n-2)*N+i]==0)
+         if (Pn[(n-1)*N+i]==0) ratio = 0.;
+         else ratio = 1.;
+       else ratio = Pn[(n-1)*N+i]/Pn[(n-2)*N+i];
+      if ( ratio<mn_minus ) mn_minus = ratio;
+      if ( ratio>mn_plus ) mn_plus = ratio;
+     }
+
+     arl_minus = arl + p0[n-1]/(1.-mn_minus);
+     arl_plus = arl + p0[n-1]/(1.-mn_plus);
+   }
+   arl += p0[n-1];
+
+   if ( fabs( (arl_plus-arl_minus)/arl_minus )<FINALeps ) n = nmax+1;
+ }
+
+ Free(ap);
+ Free(p0);
+ Free(Pn);
+ Free(z);
+ Free(Sm);
+
+ return ( arl_plus + arl_minus ) / 2.;
+}
+
+
+double cewma_2_ad_new(double lambda, double AL, double AU, double mu0, double mu, int N)
+{ double hL, hU, w, zi, zj, zi1, zi2, pj, px, *a, *arl, *psi, rho, ad, norm;
+  int i, j, x, x0, x1, status, noofit;
+
+ a = matrix(N,N);
+ arl = vector(N);
+ psi = vector(N);
+
+ hL = mu0 - AL * sqrt( lambda*mu0 / (2.-lambda) );
+ hU = mu0 + AU * sqrt( lambda*mu0 / (2.-lambda) );
+ w  = (hU - hL)/N;
+ 
+ for (i=0; i<N; i++) {
+   zi = (1.-lambda) * ( hL + (2.*i+1.)/2.*w );
+   x0 = (int)floor( (hL-zi)/lambda );
+   if ( x0 < 0 ) x0 = 0;
+   x1 =  (int)ceil( (hU-zi)/lambda );
+   for (j=0; j<N; j++) a[j*N+i] = 0.;
+   for (x=x0; x<=x1; x++) {
+     px = pdf_pois((double)x, mu0);  
+     zj = zi + (double)x*lambda;
+     j = (int)ceil( (zj-hL)/w ) - 1;     
+     zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+     zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+     if ( zi1 <= hL + i*w ) {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = 1.;
+         if ( j >= 0 && j < N ) a[j*N+i] += pj * px;
+       } else {
+         pj = ( zi2 - ( hL + i*w ) ) / w;
+         if ( j >= 0  && j < N  ) a[j*N+i] += pj * px;
+         if ( j >= -1 && j < N-1 ) a[(j+1)*N+i] += (1.-pj) * px;
+       }
+     } else {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = ( hL + (i+1.)*w - zi1 ) / w;
+         if ( j >= 0 && j < N  ) a[j*N+i] += pj * px;
+         if ( j > 0  && j <= N ) a[(j-1)*N+i] += (1.-pj) * px;           
+       } else {
+         pj = 0.; /* should not be possible */
+       }
+     }
+   }
+ }
+
+ pmethod(N, a, &status, &rho, psi, &noofit);
+ 
+ norm = 0.;
+ for (j=0; j<N; j++) norm += psi[j];
+ 
+ /*printf("\n\nstatus = %d,\tnoofit = %d,\trho = %.9f,\tpsi[1] = %.9f\n", status, noofit, rho, psi[0]/norm);*/
+ 
+ for (i=0; i<N; i++) {
+   zi = (1.-lambda) * ( hL + (2.*i+1.)/2.*w );
+   x0 = (int)floor( (hL-zi)/lambda );
+   if ( x0 < 0 ) x0 = 0;
+   x1 =  (int)ceil( (hU-zi)/lambda );
+   for (j=0; j<N; j++) a[j*N+i] = 0.;
+   for (x=x0; x<=x1; x++) {
+     px = pdf_pois((double)x, mu);  
+     zj = zi + (double)x*lambda;
+     j = (int)ceil( (zj-hL)/w ) - 1;     
+     zi1 = ( hL + j*w - (double)x*lambda ) / (1.-lambda);
+     zi2 = ( hL + (j+1.)*w - (double)x*lambda ) / (1.-lambda);     
+     if ( zi1 <= hL + i*w ) {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = 1.;
+         if ( j >= 0 && j < N ) a[j*N+i] += - pj * px;
+       } else {
+         pj = ( zi2 - ( hL + i*w ) ) / w;
+         if ( j >= 0  && j < N  ) a[j*N+i] += - pj * px;
+         if ( j >= -1 && j < N-1 ) a[(j+1)*N+i] += - (1.-pj) * px;
+       }
+     } else {
+       if ( hL + (i+1.)*w <= zi2 ) {
+         pj = ( hL + (i+1.)*w - zi1 ) / w;
+         if ( j >= 0 && j < N  ) a[j*N+i] += - pj * px;
+         if ( j > 0  && j <= N ) a[(j-1)*N+i] += - (1.-pj) * px;           
+       } else {
+         pj = 0.; /* should not be possible */
+       }
+     }
+   }
+   ++a[i*N+i];
+ }
+ 
+ for (j=0; j<N; j++) arl[j] = 1.;
+ solve(&N, a, arl);
+ 
+ /* printf("\narl[1] = %.9f\n", arl[0]); */
+
+ ad = 0.;
+ for (j=0; j<N; j++) ad += arl[j] * psi[j];
+ ad /= norm;
+ 
+ Free(psi);
+ Free(arl);
+ Free(a);
+
+ return ad;  
 }
 
 
@@ -22407,6 +22750,7 @@ double cewma_2_crit_AL(double lambda, double L0, double AU, double mu0, double z
  ALmax = mu0 / sqrt( lambda*mu0 / (2.-lambda) ) - 0.00000000001; 
     
  A1 = AU;
+ A = A1;
  L1 = cewma_2_arl(lambda, A1, AU, mu0, z0, mu0, N);
 
  if ( L1 > L0 ) {
@@ -22450,6 +22794,7 @@ double cewma_2_crit_AL_new(double lambda, double L0, double AU, double mu0, doub
  ALmax = mu0 / sqrt( lambda*mu0 / (2.-lambda) ) - 0.00000000001;  
     
  A1 = AU;
+ A = A1;
  L1 = cewma_2_arl_new(lambda, A1, AU, mu0, z0, mu0, N);
 
  if ( L1 > L0 ) {
@@ -22493,6 +22838,7 @@ double cewma_2_crit_AU(double lambda, double L0, double AL, double mu0, double z
  /*printf("\n\nGet AU for AL = %.4f and L0 = %.1f\n\n", AL, L0); */
   
  A1 = AL;
+ A = A1;
  L1 = cewma_2_arl(lambda, AL, A1, mu0, z0, mu0, N);
  /*printf("\n***A1 = %.4f,\tL1 = %.6f\n\n", A1, L1);*/
 
@@ -22529,6 +22875,7 @@ double cewma_2_crit_AU_new(double lambda, double L0, double AL, double mu0, doub
   int j, dA;
   
  A1 = AL;
+ A = A1;
  L1 = cewma_2_arl_new(lambda, AL, A1, mu0, z0, mu0, N);
  /*printf("  A = %.4f,\tL1 = %.6f (L0=%.0f)\n\n", A1, L1, L0);*/
 
@@ -22564,6 +22911,9 @@ double cewma_2_crit_AU_new(double lambda, double L0, double AL, double mu0, doub
 int cewma_2_crit_unb(double lambda, double L0, double mu0, double z0, int N, int jmax, double *AL, double *AU)
 { double A1, Lp, Lm, eps=.1, slope, lAL, lAU;
   int j, dA;
+  
+  lAL = -1.;
+  lAU = -1.;
   
   A1 = cewma_2_crit_sym(lambda, L0, mu0, z0, N, jmax);
   Lp = cewma_2_arl(lambda, A1, A1, mu0, z0, mu0+eps, N);
@@ -22676,6 +23026,8 @@ double cewma_2_get_gL(double lambda, double L0, double mu0, double z0, double AL
  
  gL1 = 1.;   
  L1 = cewma_2_arl_rando_new(lambda, AL, AU, gL1, gU, mu0, z0, mu0, N);   
+ gL2 = .9;   
+ L2 = cewma_2_arl_rando_new(lambda, AL, AU, gL2, gU, mu0, z0, mu0, N);
  while ( L1 < L0 ) {
    gL2 = gL1;
    L2 = L1;
@@ -22699,6 +23051,8 @@ double cewma_2_get_gU(double lambda, double L0, double mu0, double z0, double AL
  
  gU1 = 1.;   
  L1 = cewma_2_arl_rando_new(lambda, AL, AU, gL, gU1, mu0, z0, mu0, N);
+ gU2 = .9;   
+ L2 = cewma_2_arl_rando_new(lambda, AL, AU, gL, gU2, mu0, z0, mu0, N);
  while ( L1 < L0 ) {
    gU2 = gU1;
    L2 = L1;
@@ -22731,6 +23085,12 @@ int cewma_2_crit_unb_rando_new(double lambda, double L0, double mu0, double z0, 
   lAL1 = symA;
   lAU1 = symA;
   A1 = symA;
+  lAL2 = symA;
+  lAU2 = symA;
+  lAU = symA;
+  lAL = symA;
+  u3 = -1.;
+  g3 = -1.;
   
   if ( slope > 0 ) {
     for (j=0; j<=jmax; j++) {
@@ -22922,9 +23282,9 @@ double tewma_arl(double lambda, int k, int lk, int uk, double z0, double mu)
      for (m=0; m<=M; m++) {
        km = k*m;  
        l0 = jl - km;
+       term = 0.;
        if ( l0 < 0 ) l0 = 0;
-       if ( l0 <= l1 ) {
-         term = 0.;  
+       if ( l0 <= l1 ) {           
          /*for (l=l0; l<=l1; l++) term += pdf_binom((double)(jl-l), km, lambda) * DELL[l];*/
          for (l=l0; l<=l1; l++) term += F2[m*kM+jl-l] * DELL[l];         
          term *= DM[m];
@@ -22985,9 +23345,9 @@ double tewma_arl_R(double lambda, int k, int lk, int uk, double gl, double gu, d
      for (m=0; m<=M; m++) {
        km = k*m;  
        l0 = jl - km;
+       term = 0.;
        if ( l0 < 0 ) l0 = 0;
        if ( l0 <= l1 ) {
-         term = 0.;  
          /*for (l=l0; l<=l1; l++) term += pdf_binom((double)(jl-l), km, lambda) * DELL[l];*/
          for (l=l0; l<=l1; l++) term += F2[m*kM+jl-l] * DELL[l];         
          term *= DM[m];
@@ -23167,10 +23527,13 @@ double ccusum_U_arl(double mu, int km, int hm, int m, int i0)
 
 int ccusum_U_crit(double A, double mu0, int km, int m, int i0)
 { int p10, hm, p;
-  double L1;
+  double L1, kBM;
     
   p10 = (int)ceil( log10((double)m) );
-  hm = 2 * (int)qf_pois(1.-1./A, mu0) * m; /* twice the Shewhart critical value */
+  /*hm = 2 * (int)qf_pois(1.-1./A, mu0) * m;*/ /* twice the Shewhart critical value */  
+  kBM = (km/m-mu0)/sqrt(mu0); /* deploy Brownian Motion approximation */
+  hm = (int)ceil( sqrt(mu0) * BM_xc_crit(kBM, A, 0.) ) * m;
+  
   L1 = ccusum_U_arl(mu0, km, hm, m, i0);
     
   for (p=p10; p>=0; p--) {
@@ -23416,6 +23779,8 @@ int ccusum_U_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
  lambda = ( 1. + zae ) / ( 1. - (1.-a[N1]) - nen );
  L1 = g[i0] + lambda*gx[i0];
  L2 = ccusum_U_arl(mu0, km, ihm, m, i0);
+ g2 = .9;
+ L2 = g[i0] + g2 * lambda * gx[i0];
  
  while ( L1 >= A ) {
    g2 = g1;  
@@ -23543,10 +23908,13 @@ double ccusum_L_arl(double mu, int km, int hm, int m, int i0)
 
 int ccusum_L_crit(double A, double mu0, int km, int m, int i0)
 { int p10, hm, p;
-  double L1;
+  double L1, kBM;
     
   p10 = (int)ceil( log10((double)m) );
-  hm = 2 * (int)qf_pois(1.-1./A, mu0) * m;  /* borrow upper starting value (Shewhart) */
+  /*hm = 2 * (int)qf_pois(1.-1./A, mu0) * m;*/  /* borrow upper starting value (Shewhart) */  
+  kBM = (mu0-km/m)/sqrt(mu0); /* deploy Brownian Motion approximation */
+  hm = (int)ceil( sqrt(mu0) * BM_xc_crit(kBM, A, 0.) ) * m;
+  
   L1 = ccusum_L_arl(mu0, km, hm, m, i0);  
     
   for (p=p10; p>=0; p--) {
@@ -23792,6 +24160,8 @@ int ccusum_L_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
  g1 = 1.;
  lambda = ( 1. + zae ) / ( 1. - (1.-a[N1]) - nen );
  L1 = g[i0] + lambda*gx[i0]; 
+ g2 = .9;
+ L2 = g[i0] + g2 * lambda * gx[i0]; 
  
  while ( L1 >= A ) {
    g2 = g1;  
