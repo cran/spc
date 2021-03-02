@@ -505,6 +505,13 @@ int ccusum_L_rando_crit(double A, double mu0, int km, int m, int i0, int *hm, do
 double ccusum_2_arl(double mu, int km1, int hm1, int m1, int i01, int km2, int hm2, int m2, int i02);
 double ccusum_2_arl_rando(double mu, int km1, int hm1, int m1, double gamma1, int i01, int km2, int hm2, int m2, double gamma2, int i02);
 
+/* IMR combos */
+
+double imr_arl_case01(double M, double R, double mu, double sigma, int N, int qm);
+double imr_arl_case02(double M, double R, double mu, double sigma, int N, int qm);
+double imr2_arl(double M, double Rl, double Ru, double mu, double sigma, int N, int qm);
+double imr2_arl_case03(double M, double Rl, double mu, double sigma, int N, int qm);
+
 
 /* tolerance intervals */
 
@@ -10351,9 +10358,9 @@ double seU_Wq(double l, double cu, double p, double hs, double sigma, int df, in
        q_minus = (double)n + enumerator/log(mn_minus);
        q_plus  = (double)n + enumerator/log(mn_plus);
        /*if ( fabs( (q_plus-q_minus)/q_minus )<FINALeps ) n = nmax+1;*/
-       if ( fabs( ceil(q_plus) - ceil(q_minus) ) < .5 ) {
-	 Wq = ceil(q_plus);
-	 n = nmax +1;
+       if ( fabs( ceil(q_plus) - ceil(q_minus) ) < .5 || n == nmax ) {
+         Wq = ceil(q_plus);
+         n = nmax + 1;
        }
      } /* n > 1 */
    } /* p0[n-1] >= 1.-p */
@@ -21261,7 +21268,9 @@ double ewma_pL_arl(double lambda, double lcl, int n, double p, double z0, int d_
   
  dr = (double)d_res; 
  l = (int)floor(lcl*d_res);
- u = (int)qf_binom(.999999, n, p);
+ /*u = (int)qf_binom(.999999, n, p);*/
+ /*u = (int)qf_binom(.999999, n, p) * d_res;*/
+ u = n * d_res;
  N = u - l;
  NN = N + 1;
  a = matrix(NN, NN);
@@ -24235,6 +24244,661 @@ double ccusum_2_arl_rando(double mu, int km1, int hm1, int m1, double gamma1, in
  return arl;
 }
 
+
+/* IMR combos, solving Crowder's (1987) integral equation */
+
+double imr_arl_case01(double M, double R, double mu, double sigma, int N, int qm)
+{ double *a, *g, *w, *z, L0, a1, b1, a2, b2, *zch1, *zch2, dN, zi, x0, x1, qi;
+  int i, j, k, NN;
+  
+ /*printf("\ncase 01\n\n");*/
+ 
+ NN = 2*N + 3;
+ dN = (double)N;
+ a1 = -M;
+ b1 = M-R;
+ a2 = R-M;
+ b2 = M;
+ 
+ a = matrix(NN, NN);
+ g = vector(NN);
+ zch1 = vector(N);
+ zch2 = vector(N);
+ w = vector(qm);
+ z = vector(qm);
+  
+ for (i=0; i<N; i++) {
+   zi = cos( PI*(2.*(i+1.)-1.)/2./dN )/2.; 
+   zch1[i] = (a1+b1)/2. + (b1-a1)*zi;
+   zch2[i] = (a2+b2)/2. + (b2-a2)*zi;
+ }
+ 
+ for (i=0; i<N; i++) {
+   zi = zch1[i];  
+   
+   for (j=0; j<N; j++) a[i*NN + j] = Tn( (2.*zi-a1-b1)/(b1-a1), j);
+
+   for (j=0; j<N; j++) {
+     x0 = R - M;
+     x1 = zi + R;
+     gausslegendre(qm, x0, x1, z, w);
+     qi = 0.;
+     for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;
+     a[i*NN + N+j] = -qi;
+   } 
+   
+   a[i*NN + 2*N] = -1.;
+   a[i*NN + 2*N+1] = - PHI( (R-M-mu)/sigma, 0) + PHI( (M-R-mu)/sigma, 0);
+   a[i*NN + 2*N+2] = 0.;
+ }
+ 
+ for (i=0; i<N; i++) {
+   zi = zch2[i];  
+   
+   for (j=0; j<N; j++) a[(N+i)*NN + N+j] = Tn( (2.*zi-a2-b2)/(b2-a2), j);
+
+   for (j=0; j<N; j++) {
+     x0 = zi - R;
+     x1 = M - R;
+     gausslegendre(qm, x0, x1, z, w);
+     qi = 0.;
+     for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;
+     a[(N+i)*NN + j] = -qi;
+   } 
+   
+   a[(N+i)*NN + 2*N] = 0.;
+   a[(N+i)*NN + 2*N + 1] = - PHI( (R-M-mu)/sigma, 0) + PHI( (M-R-mu)/sigma, 0);
+   a[(N+i)*NN + 2*N + 2] = -1.;
+ }
+ 
+ for (j=0; j<N; j++) {
+   a[(2*N)*NN + j] = 1.;     
+ }
+ a[(2*N)*NN + 2*N+1] = -1.;
+ 
+ a[(2*N+1)*NN + 2*N] = -1.;
+ a[(2*N+1)*NN + 2*N+1] = 1. - PHI( (R-M-mu)/sigma, 0) + PHI( (M-R-mu)/sigma, 0);
+ a[(2*N+1)*NN + 2*N+2] = -1.;
+ 
+  for (j=0; j<N; j++) {
+      if ( j % 2 == 0 ) a[(2*N+2)*NN + N+j] = 1.; else a[(2*N+2)*NN + N+j] = -1.;
+ }
+ a[(2*N+2)*NN + 2*N+1] = -1.;
+ 
+ for (j=0; j<NN; j++) g[j] = 1.;
+ g[2*N] = 0.;
+ g[2*N+2] = 0.;
+
+ LU_solve(a, g, NN);
+ 
+ L0 = g[2*N + 1];
+ 
+ Free(z);
+ Free(w);
+ Free(zch2);
+ Free(zch1);
+ Free(g);
+ Free(a);
+ 
+ return L0;
+}
+
+
+double imr_arl_case02(double M, double R, double mu, double sigma, int N, int qm)
+{ double *a, *g, *w, *z, L1, L2, L3, ET, a1, b1, a2, b2, a3, b3, *zch1, *zch2, *zch3, dN, zi, x0, x1, qi;
+  int i, j, k, NN;
+  
+ /*printf("\ncase 02\n\n");*/
+  
+ NN = 3*N;
+ dN = (double)N;
+ a1 = -M;
+ b1 = R-M;
+ a2 = R-M;
+ b2 = M-R;
+ a3 = M-R;
+ b3 = M;
+ 
+ a = matrix(NN, NN);
+ g = vector(NN);
+ zch1 = vector(N);
+ zch2 = vector(N);
+ zch3 = vector(N);
+ w = vector(qm);
+ z = vector(qm);
+  
+ for (i=0; i<N; i++) {
+   zi = cos( PI*(2.*(i+1.)-1.)/2./dN )/2.; 
+   zch1[i] = (a1+b1)/2. + (b1-a1)*zi;
+   zch2[i] = (a2+b2)/2. + (b2-a2)*zi;
+   zch3[i] = (a3+b3)/2. + (b3-a3)*zi;
+ }
+ 
+ for (i=0; i<N; i++) {
+   zi = zch1[i];
+   
+   x0 = zi - R;
+   if ( a1 > x0 ) x0 = a1;
+   x1 = zi + R;
+   if ( b1 < x1 ) x1 = b1;
+   
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;
+       a[i*NN + j] = Tn( (2.*zi-a1-b1)/(b1-a1), j) - qi;
+     }
+   }
+   
+   x0 = zi - R;
+   if ( a2 > x0 ) x0 = a2;
+   x1 = zi + R;
+   if ( b2 < x1 ) x1 = b2;   
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[i*NN + N+j] = - qi;
+     }
+   }
+
+   x0 = zi - R;
+   if ( a3 > x0 ) x0 = a3;
+   x1 = zi + R;
+   if ( b3 < x1 ) x1 = b3;   
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a3-b3)/(b3-a3), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[i*NN + 2*N+j] = - qi;
+     }
+   }
+ }
+ 
+ for (i=0; i<N; i++) {
+   zi = zch2[i];
+   
+   x0 = zi - R;
+   if ( a1 > x0 ) x0 = a1;
+   x1 = zi + R;
+   if ( b1 < x1 ) x1 = b1;   
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(N+i)*NN + j] = - qi;
+     }
+   }
+   
+   x0 = zi - R;
+   if ( a2 > x0 ) x0 = a2;
+   x1 = zi + R;
+   if ( b2 < x1 ) x1 = b2;   
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(N+i)*NN + N+j] = Tn( (2.*zi-a2-b2)/(b2-a2), j) - qi;
+     }
+   }
+
+   x0 = zi - R;
+   if ( a3 > x0 ) x0 = a3;
+   x1 = zi + R;
+   if ( b3 < x1 ) x1 = b3;   
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a3-b3)/(b3-a3), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(N+i)*NN + 2*N+j] = - qi;
+     }
+   }
+ }
+ 
+ for (i=0; i<N; i++) {
+   zi = zch3[i];
+   
+   x0 = zi - R;
+   if ( a1 > x0 ) x0 = a1;
+   x1 = zi + R;
+   if ( b1 < x1 ) x1 = b1;   
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(2*N+i)*NN + j] = - qi;
+     }
+   }
+   
+   x0 = zi - R;
+   if ( a2 > x0 ) x0 = a2;
+   x1 = zi + R;
+   if ( b2 < x1 ) x1 = b2;   
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(2*N+i)*NN + N+j] = - qi;
+     }
+   }
+
+   x0 = zi - R;
+   if ( a3 > x0 ) x0 = a3;
+   x1 = zi + R;
+   if ( b3 < x1 ) x1 = b3;   
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a3-b3)/(b3-a3), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(2*N+i)*NN + 2*N+j] = Tn( (2.*zi-a3-b3)/(b3-a3), j) - qi;
+     }
+   }
+ } 
+
+ for (j=0; j<NN; j++) g[j] = 1.;
+ 
+ LU_solve(a, g, NN);
+   
+ x0 = -M;
+ x1 = R-M;
+ gausslegendre(qm, x0, x1, z, w);
+ L1 = 0.;
+ for (k=0; k<qm; k++) {
+   qi = 0.;
+   for (j=0; j<N; j++) qi += g[j] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j);
+   L1 += w[k] * qi * phi( (z[k]-mu)/sigma, 0.)/sigma;
+ }
+ x0 = R-M;
+ x1 = M-R;
+ gausslegendre(qm, x0, x1, z, w);
+ L2 = 0.;
+ for (k=0; k<qm; k++) {
+   qi = 0.;
+   for (j=0; j<N; j++) qi += g[N+j] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j);
+   L2 += w[k] * qi * phi( (z[k]-mu)/sigma, 0.)/sigma;
+ }
+ x0 = M-R;
+ x1 = M;
+ gausslegendre(qm, x0, x1, z, w);
+ L3 = 0.;
+ for (k=0; k<qm; k++) {
+   qi = 0.;
+   for (j=0; j<N; j++) qi += g[2*N+j] * Tn( (2.*z[k]-a3-b3)/(b3-a3), j);
+   L3 += w[k] * qi * phi( (z[k]-mu)/sigma, 0.)/sigma;
+ }
+ ET = 1. + L1 + L2 + L3;
+ 
+ Free(z);
+ Free(w);
+ Free(zch3);
+ Free(zch2);
+ Free(zch1);
+ Free(g);
+ Free(a);
+ 
+ return ET;
+}
+
+
+double imr2_arl(double M, double Rl, double Ru, double mu, double sigma, int N, int qm)
+{ double *a, *g, *w, *z, L1, L2, L3, ET, a1, b1, a2, b2, a3, b3, *zch1, *zch2, *zch3, dN, zi, zim, zip, x0, x1, qi;
+  int i, j, k, m, NN;
+  
+ /*printf("\ntwo-sided\n\n");*/
+  
+ NN = 3*N;
+ dN = (double)N;
+ a1 = -M;
+ b3 = M;
+ if ( M <= Ru ) { 
+   b1 = M-Ru;
+   b2 = Ru-M;
+ } else {
+   b1 = Ru-M;
+   b2 = M-Ru;
+ }
+ a2 = b1;
+ a3 = b2;
+ 
+ a = matrix(NN, NN);
+ g = vector(NN);
+ zch1 = vector(N);
+ zch2 = vector(N);
+ zch3 = vector(N);
+ w = vector(qm);
+ z = vector(qm);
+  
+ for (i=0; i<N; i++) {
+   zi = cos( PI*(2.*(i+1.)-1.)/2./dN )/2.; 
+   zch1[i] = (a1+b1)/2. + (b1-a1)*zi;
+   zch2[i] = (a2+b2)/2. + (b2-a2)*zi;
+   zch3[i] = (a3+b3)/2. + (b3-a3)*zi;
+ }
+ 
+ for (m=0; m<3; m++) {
+   for (i=0; i<N; i++) {
+     if (m==0) {
+       zi = zch1[i];
+       for (j=0; j<N; j++) a[i*NN + j] = Tn( (2.*zi-a1-b1)/(b1-a1), j);
+     }
+     if (m==1) {
+       zi = zch2[i];
+       for (j=0; j<N; j++) a[(N+i)*NN + N+j] = Tn( (2.*zi-a2-b2)/(b2-a2), j);
+     }
+     if (m==2) {
+       zi = zch3[i];
+       for (j=0; j<N; j++) a[(2*N+i)*NN + 2*N+j] = Tn( (2.*zi-a3-b3)/(b3-a3), j);
+     }
+     zim = zi - Rl;
+     zip = zi + Rl;
+   
+     x0 = zi - Ru;
+     if ( a1 > x0 ) x0 = a1;
+     x1 = zi + Ru;
+     if ( b1 < x1 ) x1 = b1;
+     if ( zim < x1 ) x1 = zim;   
+     if ( x1 - x0 > 1e-10 ) { 
+       gausslegendre(qm, x0, x1, z, w);
+       for (j=0; j<N; j++) {
+         qi = 0.;
+         for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;
+         a[(m*N+i)*NN + j] -= qi;
+       }
+     }
+     if ( zip > x0 ) x0 = zip;
+     x1 = zi + Ru;
+     if ( b1 < x1 ) x1 = b1; 
+     if ( x1 - x0 > 1e-10 ) { 
+       gausslegendre(qm, x0, x1, z, w);
+       for (j=0; j<N; j++) {
+         qi = 0.;
+         for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;
+         a[(m*N+i)*NN + j] -= qi;
+       }
+     }
+     
+     x0 = zi - Ru;
+     if ( a2 > x0 ) x0 = a2;
+     x1 = zi + Ru;
+     if ( b2 < x1 ) x1 = b2;   
+     if ( zim < x1 ) x1 = zim;
+     if ( x1 - x0 > 1e-10 ) { 
+       gausslegendre(qm, x0, x1, z, w);
+       for (j=0; j<N; j++) {
+         qi = 0.;
+         for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+         a[(m*N+i)*NN + N+j] -= qi;
+       }
+     }
+     if ( zip > x0 ) x0 = zip;
+     x1 = zi + Ru;
+     if ( b2 < x1 ) x1 = b2;
+     if ( x1 - x0 > 1e-10 ) { 
+       gausslegendre(qm, x0, x1, z, w);
+       for (j=0; j<N; j++) {
+         qi = 0.;
+         for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+         a[(m*N+i)*NN + N+j] -= qi;
+       }
+     }     
+
+     x0 = zi - Ru;
+     if ( a3 > x0 ) x0 = a3;
+     x1 = zi + Ru;
+     if ( b3 < x1 ) x1 = b3;
+     if ( zim < x1 ) x1 = zim;
+     if ( x1 - x0 > 1e-10 ) { 
+       gausslegendre(qm, x0, x1, z, w);
+       for (j=0; j<N; j++) {
+         qi = 0.;
+         for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a3-b3)/(b3-a3), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+         a[(m*N+i)*NN + 2*N+j] -= qi;
+       }
+     }
+     if ( zip > x0 ) x0 = zip;
+     x1 = zi + Ru;
+     if ( b3 < x1 ) x1 = b3;
+     if ( x1 - x0 > 1e-10 ) { 
+       gausslegendre(qm, x0, x1, z, w);
+       for (j=0; j<N; j++) {
+         qi = 0.;
+         for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a3-b3)/(b3-a3), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+         a[(m*N+i)*NN + 2*N+j] -= qi;
+       }
+     }
+     
+   } /* i = 0,1,...,N-1 */
+ } /* m = 0,1,2 */
+
+ for (j=0; j<NN; j++) g[j] = 1.;
+ 
+ LU_solve(a, g, NN);
+   
+ gausslegendre(qm, a1, b1, z, w);
+ L1 = 0.;
+ for (k=0; k<qm; k++) {
+   qi = 0.;
+   for (j=0; j<N; j++) qi += g[j] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j);
+   L1 += w[k] * qi * phi( (z[k]-mu)/sigma, 0.)/sigma;
+ }
+ gausslegendre(qm, a2, b2, z, w);
+ L2 = 0.;
+ for (k=0; k<qm; k++) {
+   qi = 0.;
+   for (j=0; j<N; j++) qi += g[N+j] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j);
+   L2 += w[k] * qi * phi( (z[k]-mu)/sigma, 0.)/sigma;
+ }
+ gausslegendre(qm, a3, b3, z, w);
+ L3 = 0.;
+ for (k=0; k<qm; k++) {
+   qi = 0.;
+   for (j=0; j<N; j++) qi += g[2*N+j] * Tn( (2.*z[k]-a3-b3)/(b3-a3), j);
+   L3 += w[k] * qi * phi( (z[k]-mu)/sigma, 0.)/sigma;
+ }
+ ET = 1. + L1 + L2 + L3;
+ 
+ Free(z);
+ Free(w);
+ Free(zch3);
+ Free(zch2);
+ Free(zch1);
+ Free(g);
+ Free(a);
+ 
+ return ET;
+}
+
+
+double imr2_arl_case03(double M, double Rl, double mu, double sigma, int N, int qm)
+{ double *a, *g, *w, *z, L1, L2, L3, ET, a1, b1, a2, b2, a3, b3, *zch1, *zch2, *zch3, dN, zi, zim, zip, x0, x1, qi;
+  int i, j, k, m, NN;
+  
+ /*printf("\ntwo-sided, Ru far too large\n\n");*/
+  
+ NN = 3*N;
+ dN = (double)N;
+ a1 = -M;
+ b3 = M;
+ b1 = -M + Rl; 
+ a2 = b1;
+ b2 = M - Rl;
+ a3 = b2;
+ 
+ a = matrix(NN, NN);
+ g = vector(NN);
+ zch1 = vector(N);
+ zch2 = vector(N);
+ zch3 = vector(N);
+ w = vector(qm);
+ z = vector(qm);
+  
+ for (i=0; i<N; i++) {
+   zi = cos( PI*(2.*(i+1.)-1.)/2./dN )/2.; 
+   zch1[i] = (a1+b1)/2. + (b1-a1)*zi;
+   zch2[i] = (a2+b2)/2. + (b2-a2)*zi;
+   zch3[i] = (a3+b3)/2. + (b3-a3)*zi;
+ }
+ 
+ m = 0;
+ for (i=0; i<N; i++) {
+   zi = zch1[i];
+   for (j=0; j<N; j++) a[i*NN + j] = Tn( (2.*zi-a1-b1)/(b1-a1), j);
+   zim = zi - Rl;
+   zip = zi + Rl;
+   
+   x0 = zip;     
+   x1 = b2;
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(m*N+i)*NN + N+j] -= qi;
+     }
+   }     
+
+   x0 = a3;
+   x1 = b3;
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a3-b3)/(b3-a3), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(m*N+i)*NN + 2*N+j] -= qi;
+     }
+   }
+ }
+
+ m = 1;
+ for (i=0; i<N; i++) {
+   zi = zch2[i];
+   for (j=0; j<N; j++) a[(N+i)*NN + N+j] = Tn( (2.*zi-a2-b2)/(b2-a2), j);
+   zim = zi - Rl;
+   zip = zi + Rl;
+   
+   x0 = a1;     
+   x1 = b1;
+   if ( zim < x1 ) x1 = zim;
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(m*N+i)*NN + j] -= qi;
+     }
+   }
+   
+   x0 = a2;     
+   x1 = b2;
+   if ( zim < x1 ) x1 = zim;
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(m*N+i)*NN + N+j] -= qi;
+     }
+   }
+   x0 = zip;     
+   x1 = b2;
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(m*N+i)*NN + N+j] -= qi;
+     }
+   }   
+
+   x0 = a3;
+   if ( zip > x0 ) x0 = zip;
+   x1 = b3;
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a3-b3)/(b3-a3), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(m*N+i)*NN + 2*N+j] -= qi;
+     }
+   }
+ }
+
+ m = 2;
+ for (i=0; i<N; i++) {
+   zi = zch3[i];
+   for (j=0; j<N; j++) a[(2*N+i)*NN + 2*N+j] = Tn( (2.*zi-a3-b3)/(b3-a3), j);
+   zim = zi - Rl;
+   zip = zi + Rl;
+   
+   x0 = a1;     
+   x1 = b1;
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(m*N+i)*NN + j] -= qi;
+     }
+   }
+   
+   x0 = a2;     
+   x1 = zim;
+   if ( x1 - x0 > 1e-10 ) { 
+     gausslegendre(qm, x0, x1, z, w);
+     for (j=0; j<N; j++) {
+       qi = 0.;
+       for (k=0; k<qm; k++) qi += w[k] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j) * phi( (z[k]-mu)/sigma, 0.)/sigma;     
+       a[(m*N+i)*NN + N+j] -= qi;
+     }
+   }
+ }
+ 
+ for (j=0; j<NN; j++) g[j] = 1.;
+ 
+ LU_solve(a, g, NN);
+   
+ gausslegendre(qm, a1, b1, z, w);
+ L1 = 0.;
+ for (k=0; k<qm; k++) {
+   qi = 0.;
+   for (j=0; j<N; j++) qi += g[j] * Tn( (2.*z[k]-a1-b1)/(b1-a1), j);
+   L1 += w[k] * qi * phi( (z[k]-mu)/sigma, 0.)/sigma;
+ }
+ gausslegendre(qm, a2, b2, z, w);
+ L2 = 0.;
+ for (k=0; k<qm; k++) {
+   qi = 0.;
+   for (j=0; j<N; j++) qi += g[N+j] * Tn( (2.*z[k]-a2-b2)/(b2-a2), j);
+   L2 += w[k] * qi * phi( (z[k]-mu)/sigma, 0.)/sigma;
+ }
+ gausslegendre(qm, a3, b3, z, w);
+ L3 = 0.;
+ for (k=0; k<qm; k++) {
+   qi = 0.;
+   for (j=0; j<N; j++) qi += g[2*N+j] * Tn( (2.*z[k]-a3-b3)/(b3-a3), j);
+   L3 += w[k] * qi * phi( (z[k]-mu)/sigma, 0.)/sigma;
+ }
+ ET = 1. + L1 + L2 + L3;
+ 
+ Free(z);
+ Free(w);
+ Free(zch3);
+ Free(zch2);
+ Free(zch1);
+ Free(g);
+ Free(a);
+ 
+ return ET;
+}
 
 
 /* 2-sided tolerance limits factors */

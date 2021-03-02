@@ -21,6 +21,8 @@ export("xshewhartrunsrules.ad", "xshewhartrunsrules.arl", "xshewhartrunsrules.cr
        "p.ewma.arl", "tewma.arl", "euklid.ewma.arl",
        "pois.ewma.arl", "pois.ewma.crit", "pois.ewma.ad",
        "pois.cusum.arl", "pois.cusum.crit", "pois.cusum.crit.L0L1",
+       "imr.arl", "imr.Ru_Mgiven", "imr.Ru_Mgiven", "imr.Rl_Mgiven", "imr.MandRu",
+       "imr.MandRuRl", "imr.RuRl_alone_tail", "imr.RuRl_alone_s3", "imr.RuRl_alone", "imr.Ru_Rlgiven",
        "phat.ewma.arl", "phat.ewma.crit", "phat.ewma.lambda", "dphat", "pphat", "qphat",
        "s.res.ewma.arl", "x.res.ewma.arl", "xs.res.ewma.arl", "xs.res.ewma.pms",
        "quadrature.nodes.weights",   

@@ -16,6 +16,7 @@ extern void ewma_p_arl_be(void *, void *, void *, void *, void *, void *, void *
 extern void ewma_phat_arl_coll(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ewma_phat_crit_coll(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void ewma_phat_lambda_coll(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
+extern void imr_arl(void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void lns2ewma_arl(void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void lns2ewma_crit(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
 extern void mewma_ad(void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *, void *);
@@ -90,6 +91,7 @@ static const R_CMethodDef CEntries[] = {
     {"ewma_phat_arl_coll",       (DL_FUNC) &ewma_phat_arl_coll,       13},
     {"ewma_phat_crit_coll",      (DL_FUNC) &ewma_phat_crit_coll,      12},
     {"ewma_phat_lambda_coll",    (DL_FUNC) &ewma_phat_lambda_coll,    12},
+    {"imr_arl",                  (DL_FUNC) &imr_arl,                   9},
     {"lns2ewma_arl",             (DL_FUNC) &lns2ewma_arl,              9},
     {"lns2ewma_crit",            (DL_FUNC) &lns2ewma_crit,            11},
     {"mewma_ad",                 (DL_FUNC) &mewma_ad,                 12},
