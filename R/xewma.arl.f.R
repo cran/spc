@@ -18,7 +18,7 @@ xewma.arl.f <- function(l, c, mu, zr=0, sided="one", limits="fix", r=40) {
                             
   g <- zeug[1:r]                          
   w <- zeug[1:r + r]
-  z <- zeug[1:r + 2*r]  
+  z <- zeug[1:r + 2*r]
    
   arl <- Vectorize( function(x) 1 + sum( w * dnorm( ( z - (1-l)*x ) / l - mu)/l * g )  )
   

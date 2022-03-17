@@ -9753,13 +9753,12 @@ double seU_iglarl(double l, double cu, double hs, double sigma, int df, int N, i
      Hij = 0.;
      for (k=0;k<qm;k++) {
        v = (z[k] - za) / l;
-       if ( df==2 )
-         Hij += w[k] * Tn( (2.*z[k]-cu)/cu, j) * exp(-v/s2);
-       if ( df!=2 )
-         Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-cu)/cu ,j) * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+       if (df==1) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-cu)/cu ,j) * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+       if (df==2) Hij += w[k] * Tn( (2.*z[k]-cu)/cu, j) * exp(-v/s2);
+       if (df>2 ) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-cu)/cu, j) * ddf/s2/l * chi(ddf*z[k]*z[k]/s2/l,df) * 2*z[k]; 
      }
-     if (df==2) Hij /= s2*l;
-     else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+     if (df==1) Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+     if (df==2) Hij /= s2*l;     
      a[i*N+j] = Tn( (2.*xi-cu)/cu ,j) - Hij;
    }
  }
@@ -9768,8 +9767,7 @@ double seU_iglarl(double l, double cu, double hs, double sigma, int df, int N, i
  LU_solve(a,g,N);
 
  arl = g[0];
- for (j=1;j<N;j++)
-   arl += g[j] * Tn( (2.*hs-cu)/cu ,j);
+ for (j=1;j<N;j++) arl += g[j] * Tn( (2.*hs-cu)/cu ,j);
 
  Free(z);
  Free(w);
@@ -10595,15 +10593,12 @@ double se2_iglarl(double l, double cl, double cu, double hs, double sigma, int d
              gausslegendre(qm,x0,x1,z,w);
              Hij = 0.;
              for (k=0;k<qm;k++) {
-               if (df==2)
-                 Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) * 
-                        exp((za-z[k])/s2/l);
-               if (df!=2)
-                 Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) *
-                        2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+               if (df==1) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+               if (df==2) Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) * exp((za-z[k])/s2/l);
+               if (df>2 ) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) * ddf/s2/l * chi(ddf*z[k]*z[k]/s2/l, df) * 2*z[k];
              }
+             if (df==1) Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
              if (df==2) Hij /= s2*l;
-             else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
              a[ii*NN+jj] = -Hij;
            }
            else a[ii*NN+jj] = 0.;
@@ -10643,17 +10638,13 @@ double se2_iglarl(double l, double cl, double cu, double hs, double sigma, int d
            gausslegendre(qm,x0,x1,z,w);
            Hij = 0.;
            for (k=0;k<qm;k++) {
-             if (df==2)
-               Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) * 
-                      exp((za-z[k])/s2/l);
-             if (df!=2)
-               Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0),qj-1) *
-                      2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+             if (df==1) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0),qj-1) * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+             if (df==2) Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) * exp((za-z[k])/s2/l);
+             if (df>2 ) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) * ddf/s2/l * chi(ddf*z[k]*z[k]/s2/l, df) * 2*z[k];                      
            }
+           if (df==1) Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
            if (df==2) Hij /= s2*l;
-           else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
-           if (qi==i) a[ii*NN+jj] = Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1) - 
-                                        Hij;
+           if (qi==i) a[ii*NN+jj] = Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1) - Hij;
            else a[ii*NN+jj] = -Hij;
          }
        }
@@ -11610,32 +11601,43 @@ double se2lu_q_crit_prerun_SIGMA(double l, int L0, double alpha, double cl, doub
 
 
 double se2fu_crit(double l, double L0, double cu, double hs, double sigma,  int df, int N, int qm)
-{ double s1, s2, s3, ds, L1, L2, L3;
+{ double s1, s2, s3, ds, L1, L2, L3, rescale=1.1;
 
+ /*printf("\nse2fu_crit\n");*/
+ 
+ rescale = 1. + 1./(double)df;    
  s2 = 2. - cu;
  if ( s2 < 0.1 ) s2 = 0.1;
  L2 = se2_iglarl(l,s2,cu,hs,sigma,df,N,qm);
+ /*printf("(*) 0 :: cu = %.6f,\tcl = %.6f,\tL = %.6f\n\n", cu, s2, L2);*/
  if ( L2 < L0 ) {
    do {
      s1 = s2;
-     s2 *= 0.8;
+     s2 /= rescale;
      L2 = se2_iglarl(l,s2,cu,hs,sigma,df,N,qm);
+     /*printf("(*) 1 :: cu = %.6f,\tcl = %.6f,\tL = %.6f\n", cu, s2, L2);*/
    } while ( L2 < L0 );
  } else {
    do {
      s1 = s2;
-     s2 *= 1.2;
+     s2 *= rescale;
      L2 = se2_iglarl(l,s2,cu,hs,sigma,df,N,qm);
+     /*printf("(*) 1 :: cu = %.6f,\tcl = %.6f,\tL = %.6f\n", cu, s2, L2);*/
    } while ( L2 > L0 );
  }
 
+ /*printf("\n");*/
+ 
  L1 = se2_iglarl(l,s1,cu,hs,sigma,df,N,qm);
 
  do {
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
    L3 = se2_iglarl(l,s3,cu,hs,sigma,df,N,qm);
+   /*printf("(*) 3 :: cu = %.6f,\tcl = %.6f,\tL = %.6f\n", cu, s3, L3);*/
    ds = s3-s2; s1 = s2; L1 = L2; s2 = s3; L2 = L3;
  } while ( fabs(L0-L3)>1e-7 && fabs(ds)>1e-9 );
+ 
+ /*printf("\n\n");*/
  
  return s3;
 }
@@ -11850,30 +11852,90 @@ int se2_crit_prerun_SIGMA(double l, double L0, double *cl, double *cu, double hs
 
 
 int se2_crit_unbiased(double l, double L0, double *cl, double *cu, double hs, double sigma, int df, int N, int qm)
-{ double s1, s2, s3, ds, sl1, sl2, sl3, csl, Lm, Lp, step;
+{ double s1, s1b, s2, s3, ds, sl1, sl2, sl3, csl, Lm, Lp, step, cE;
 
-/* printf("\n\nse2_crit_unbiased\n\n");*/
+ /*printf("\n\nse2_crit_unbiased\n\n");*/
+ 
+ /* new */
+ cE = xe_crit(ewma2, l, L0, 0., 0., 0., fix, 100, 0.);
+ s1b = seU_crit(l,L0,hs,sigma,df,N,qm);
+ step = .1;
+ do {
+   s1 = 1. + (cE+step) * sqrt( 2.*l/(2.-l)/(double)df );
+   step += .1;
+ } while ( s1 < s1b );
+ s1 = 1. + (cE+step) * sqrt( 2.*l/(2.-l)/(double)df );
+ csl = se2fu_crit(l,L0,s1,hs,sigma,df,N,qm);
+ Lm = se2_iglarl(l,csl,s1,hs,sigma-lmEPS,df,N,qm);
+ Lp = se2_iglarl(l,csl,s1,hs,sigma+lmEPS,df,N,qm);
+ sl1 = (Lp-Lm)/(2.*lmEPS);
+ /*printf("0 :: cl = %.4f,\tcu = %.6f (%.6f),\tsl = %.6f\n\n", csl, s1, s1b, sl1);*/
 
- step = .1/sqrt(df); 
- s1 = seU_crit(l,L0,hs,sigma,df,N,qm);
+ /*s1 = seU_crit(l,L0,hs,sigma,df,N,qm);
  csl = 0.;
  Lm = seU_iglarl(l,s1,hs,sigma-lmEPS,df,N,qm);
  Lp = seU_iglarl(l,s1,hs,sigma+lmEPS,df,N,qm);
  sl1 = (Lp-Lm)/(2.*lmEPS);
-/* printf("0 :: cl = %.4f,\tcu = %.12f,\tsl = %.6f\n", csl, s1, sl1);*/
+ printf("0 :: cl = %.4f,\tcu = %.6f,\tsl = %.6f\n\n", csl, s1, sl1);*/
  
  s2 = s1;
  sl2 = sl1;
- do { 
-   s1 = s2;
-   sl1 = sl2;
-   s2 = s1 + step;
-   csl = se2fu_crit(l,L0,s2,hs,sigma,df,N,qm);
-   Lm = se2_iglarl(l,csl,s2,hs,sigma-lmEPS,df,N,qm);
-   Lp = se2_iglarl(l,csl,s2,hs,sigma+lmEPS,df,N,qm);
-   sl2 = (Lp-Lm)/(2.*lmEPS);
-/*   printf("1 :: cl = %.4f,\tcu = %.12f,\tsl = %.6f\n", csl, s2, sl2);*/
- } while ( sl2 < 0. );
+ /*step = 1./sqrt( (double)df );*/
+ step = (s2 - s1b)/2.;
+ if ( sl2 < 0 ) {
+   do { 
+     s1 = s2;
+     sl1 = sl2;
+     s2 = s1 + step;
+     csl = se2fu_crit(l,L0,s2,hs,sigma,df,N,qm);
+     Lm = se2_iglarl(l,csl,s2,hs,sigma-lmEPS,df,N,qm);
+     Lp = se2_iglarl(l,csl,s2,hs,sigma+lmEPS,df,N,qm);
+     sl2 = (Lp-Lm)/(2.*lmEPS);
+     /*printf("1a :: cl = %.4f,\tcu = %.6f,\tsl = %.6f\n", csl, s2, sl2);*/
+   } while ( sl2 < 0. );
+   step /= 5.;
+   do { 
+     s1 = s2;
+     sl1 = sl2;
+     s2 = s1 - step;
+     csl = se2fu_crit(l,L0,s2,hs,sigma,df,N,qm);
+     Lm = se2_iglarl(l,csl,s2,hs,sigma-lmEPS,df,N,qm);
+     Lp = se2_iglarl(l,csl,s2,hs,sigma+lmEPS,df,N,qm);
+     sl2 = (Lp-Lm)/(2.*lmEPS);
+     /*printf("1ab :: cl = %.4f,\tcu = %.6f,\tsl = %.6f\n", csl, s2, sl2);*/
+   } while ( sl2 > 0. ); 
+ } else {
+   /*step /= 10.;*/
+   step = (s2 - s1b)/10.;
+   do { 
+     s1 = s2;
+     sl1 = sl2;
+     s2 = s1 - step;
+     if ( s2 < s1b ) {
+       s2 = s1b;
+       csl = 0.;
+     } else {
+       csl = se2fu_crit(l,L0,s2,hs,sigma,df,N,qm);
+     }
+     Lm = se2_iglarl(l,csl,s2,hs,sigma-lmEPS,df,N,qm);
+     Lp = se2_iglarl(l,csl,s2,hs,sigma+lmEPS,df,N,qm);
+     sl2 = (Lp-Lm)/(2.*lmEPS);
+     /*printf("1b :: cl = %.4f,\tcu = %.6f,\tsl = %.6f\n", csl, s2, sl2);*/
+   } while ( sl2 > 0. );  
+   step /= 5.;
+   do { 
+     s1 = s2;
+     sl1 = sl2;
+     s2 = s1 + step;
+     csl = se2fu_crit(l,L0,s2,hs,sigma,df,N,qm);
+     Lm = se2_iglarl(l,csl,s2,hs,sigma-lmEPS,df,N,qm);
+     Lp = se2_iglarl(l,csl,s2,hs,sigma+lmEPS,df,N,qm);
+     sl2 = (Lp-Lm)/(2.*lmEPS);
+     /*printf("1ba :: cl = %.4f,\tcu = %.6f,\tsl = %.6f\n", csl, s2, sl2);*/
+   } while ( sl2 < 0. );
+ }    
+ 
+ /*printf("\n");*/
 
  do {
    s3 = s1 - sl1/(sl2-sl1) * (s2-s1);
@@ -11881,13 +11943,13 @@ int se2_crit_unbiased(double l, double L0, double *cl, double *cu, double hs, do
    Lm = se2_iglarl(l,csl,s3,hs,sigma-lmEPS,df,N,qm);
    Lp = se2_iglarl(l,csl,s3,hs,sigma+lmEPS,df,N,qm);
    sl3 = (Lp-Lm)/(2.*lmEPS);
-/*   printf("2 :: cl = %.4f,\tcu = %.12f,\tsl = %.6f\n", csl, s3, sl3);*/
+   /*printf("2 :: cl = %.4f,\tcu = %.6f,\tsl = %.6f\n", csl, s3, sl3);*/
    ds = s3-s2; s1 = s2; sl1 = sl2; s2 = s3; sl2 = sl3;
  } while ( fabs(sl3)>1e-6 && fabs(ds)>1e-12 );
 
  *cl = csl; *cu = s3;
 
-/* printf("\n\n");*/
+ /*printf("\n\n");*/
 
  return 0;
 }
@@ -12386,15 +12448,12 @@ double seUR_iglarl(double l, double cl, double cu, double hs, double sigma, int 
              gausslegendre(qm,x0,x1,z,w);
              Hij = 0.;
              for (k=0;k<qm;k++) {
-               if (df==2)
-                 Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) *
-                        exp((za-z[k])/s2/l);
-               if (df!=2)
-                 Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) *
-                        2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+               if (df==1) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+               if (df==2) Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) * exp((za-z[k])/s2/l);
+               if (df>2 ) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) * ddf/s2/l * chi(ddf*z[k]*z[k]/s2/l,df) * 2*z[k];
              }
-             if (df==2) Hij /= s2*l;
-             else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+             if (df==1) Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.); 
+             if (df==2) Hij /= s2*l;     
              a[ii*NN+jj] = -Hij;
            }
            else a[ii*NN+jj] = 0.;
@@ -12434,17 +12493,13 @@ double seUR_iglarl(double l, double cl, double cu, double hs, double sigma, int 
            gausslegendre(qm,x0,x1,z,w);
            Hij = 0.;
            for (k=0;k<qm;k++) {
-             if (df==2)
-               Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) *
-                      exp((za-z[k])/s2/l);
-             if (df!=2)
-               Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0),qj-1) *
-                      2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+             if (df==1) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0),qj-1) * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+             if (df==2) Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) * exp((za-z[k])/s2/l);
+             if (df>2 ) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) * ddf/s2/l * chi(ddf*z[k]*z[k]/s2/l,df) * 2*z[k];
            }
-           if (df==2) Hij /= s2*l;
-           else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
-           if (qi==i) a[ii*NN+jj] = Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1) -
-                                        Hij;
+           if (df==1) Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+           if (df==2) Hij /= s2*l;     
+           if (qi==i) a[ii*NN+jj] = Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1) - Hij;
            else a[ii*NN+jj] = -Hij;
          }
        }
@@ -13406,19 +13461,20 @@ double seUR_Wq(double l, double cl, double cu, double p, double hs, double sigma
 double seUR_crit(double l, double L0, double cl, double hs, double sigma, int df, int N, int qm)
 { double s1, s2, s3, ds, L1, L2, L3;
 
+ L2 = -1.;   
  s2 = hs;
  do {
    s1 = s2;
    L1 = L2;
    s2 += .2;
    L2 = seUR_iglarl(l, cl, s2, hs, sigma, df, N, qm);
- } while (L2<L0);
+ } while ( L2 < L0 );
  do {
    s1 = s2;
    L1 = L2;
    s2 -= .02;
    L2 = seUR_iglarl(l, cl, s2, hs, sigma, df, N, qm);
- } while (L2>L0);
+ } while ( L2 > L0 );
 
  do {
    s3 = s1 + (L0-L1)/(L2-L1) * (s2-s1);
@@ -13433,6 +13489,7 @@ double seUR_crit(double l, double L0, double cl, double hs, double sigma, int df
 double stdeUR_crit(double l, double L0, double cl, double hs, double sigma, int df, int N, int qm)
 { double s1, s2, s3, ds, L1, L2, L3;
 
+ L2 = -1.;
  s2 = hs;
  do {
    s1 = s2;
@@ -13631,15 +13688,12 @@ double seLR_iglarl(double l, double cl, double cu, double hs, double sigma, int 
              gausslegendre(qm,x0,x1,z,w);
              Hij = 0.;
              for (k=0;k<qm;k++) {
-               if (df==2)
-                 Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) *
-                        exp((za-z[k])/s2/l);
-               if (df!=2)
-                 Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0) ,qj-1) *
-                        2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+               if (df==1) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0), qj-1) * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+               if (df==2) Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) * exp((za-z[k])/s2/l);
+               if (df>2 ) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0), qj-1) * ddf/s2/l * chi(ddf*z[k]*z[k]/s2/l,df) * 2*z[k];
              }
-             if (df==2) Hij /= s2*l;
-             else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+             if (df==1) Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
+             if (df==2) Hij /= s2*l;     
              a[ii*NN+jj] = -Hij;
            }
            else a[ii*NN+jj] = 0.;
@@ -13679,15 +13733,12 @@ double seLR_iglarl(double l, double cl, double cu, double hs, double sigma, int 
            gausslegendre(qm,x0,x1,z,w);
            Hij = 0.;
            for (k=0;k<qm;k++) {
-             if (df==2)
-               Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) *
-                      exp((za-z[k])/s2/l);
-             if (df!=2)
-               Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0),qj-1) *
-                      2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+             if (df==1) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0),qj-1) * 2. * pow(z[k], ddf-1.) * exp(-ddf*z[k]*z[k]/2./s2/l);
+             if (df==2) Hij += w[k] * Tn( (2.*z[k]-t0-t1)/(t1-t0), qj-1) * exp((za-z[k])/s2/l);
+             if (df>2 ) Hij += w[k] * Tn( (2.*(z[k]*z[k]+za)-t0-t1)/(t1-t0),qj-1) * ddf/s2/l * chi(ddf*z[k]*z[k]/s2/l,df) * 2*z[k];
            }
+           if (df==1) Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
            if (df==2) Hij /= s2*l;
-           else       Hij /= gammafn(ddf/2.) * pow(2.*s2*l/ddf,ddf/2.);
            if (qi==i) a[ii*NN+jj] = Tn((2.*t[it]-t0-t1)/(t1-t0),qj-1) -
                                         Hij;
            else a[ii*NN+jj] = -Hij;
@@ -14057,16 +14108,31 @@ int lns2ewma2_crit_unbiased(double l, double L0, double *cl, double *cu, double 
  Lm = lns2ewma2_arl_igl(l,csl,s1,hs,sigma-lmEPS,df,N);
  Lp = lns2ewma2_arl_igl(l,csl,s1,hs,sigma+lmEPS,df,N);
  sl1 = (Lp-Lm)/(2.*lmEPS);
+ /*printf("\n(0)\tcL = %.6f,\tcU = %.6f,\tslope = %.6f\n", csl, s1, sl1);*/
  
- do {
-   s2 = s1;
-   sl2 = sl1;
-   s1 -= .1;
-   csl = lns2ewma2_crit_cufix(l,s1,L0,hs,sigma,df,N);
-   Lm = lns2ewma2_arl_igl(l,csl,s1,hs,sigma-lmEPS,df,N);
-   Lp = lns2ewma2_arl_igl(l,csl,s1,hs,sigma+lmEPS,df,N);
-   sl1 = (Lp-Lm)/(2.*lmEPS);
- } while ( sl1>0. );
+ if ( sl1 > 0 ) {
+   do {
+     s2 = s1;
+     sl2 = sl1;
+     s1 -= .05;
+     csl = lns2ewma2_crit_cufix(l,s1,L0,hs,sigma,df,N);
+     Lm = lns2ewma2_arl_igl(l,csl,s1,hs,sigma-lmEPS,df,N);
+     Lp = lns2ewma2_arl_igl(l,csl,s1,hs,sigma+lmEPS,df,N);
+     sl1 = (Lp-Lm)/(2.*lmEPS);
+     /*printf("(1a)\tcL = %.6f,\tcU = %.6f,\tslope = %.6f\n", csl, s1, sl1);*/
+   } while ( sl1>0. );
+ } else {
+   do {
+     s2 = s1;
+     sl2 = sl1;
+     s1 += .05;
+     csl = lns2ewma2_crit_cufix(l,s1,L0,hs,sigma,df,N);
+     Lm = lns2ewma2_arl_igl(l,csl,s1,hs,sigma-lmEPS,df,N);
+     Lp = lns2ewma2_arl_igl(l,csl,s1,hs,sigma+lmEPS,df,N);
+     sl1 = (Lp-Lm)/(2.*lmEPS);
+     /*printf("(1b)\tcL = %.6f,\tcU = %.6f,\tslope = %.6f\n", csl, s1, sl1);*/
+   } while ( sl1<0. );  
+ }    
 
  do {
    s3 = s1 - sl1/(sl2-sl1) * (s2-s1);
@@ -14075,6 +14141,7 @@ int lns2ewma2_crit_unbiased(double l, double L0, double *cl, double *cu, double 
    Lp = lns2ewma2_arl_igl(l,csl,s3,hs,sigma+lmEPS,df,N);
    sl3 = (Lp-Lm)/(2.*lmEPS);
    ds = s3-s2; s1 = s2; sl1 = sl2; s2 = s3; sl2 = sl3;
+   /*printf("(2)\tcL = %.6f,\tcU = %.6f,\tslope = %.6f\n", csl, s3, sl3);*/
  } while ( fabs(sl3)>1e-7 && fabs(ds)>1e-8 );
 
  *cl = csl; *cu = s3;
@@ -14090,6 +14157,8 @@ double lns2ewma2_crit_sym(double l, double L0, double hs, double sigma, int df, 
   /*mitte = -1./ddf - 1./3./ddf/ddf + 2./15./ddf/ddf/ddf/ddf;*/
   mitte = E_log_gamma(ddf);
   
+  /*printf("\nsym limits\n");*/
+  
   L2 = 1.;
   cl2 = mitte;
   do {
@@ -14098,6 +14167,7 @@ double lns2ewma2_crit_sym(double l, double L0, double hs, double sigma, int df, 
     cl2 -= .1;
     cu = 2.*mitte - cl2;
     L2 = lns2ewma2_arl_igl(l, cl2, cu, hs, sigma, df, N);
+    /*printf("(i)\tcl = %.6f,\tcu = %.6f,\tarl = %.4f\n", cl2, cu, L2);*/
   } while ( L2<L0 );
 
   do {
@@ -14105,6 +14175,7 @@ double lns2ewma2_crit_sym(double l, double L0, double hs, double sigma, int df, 
     cu = 2.*mitte - cl3;
     L3 = lns2ewma2_arl_igl(l, cl3, cu, hs, sigma, df, N);
     dl = cl3-cl2; cl1 = cl2; L1 = L2; cl2 = cl3; L2 = L3;
+    /*printf("(ii)\tcl = %.6f,\tcu = %.6f,\tarl = %.4f\n", cl3, cu, L3);*/
     if ( L3 < 1. ) error("invalid ARL value");
   } while ( (fabs(L0-L3)>1e-7) && (fabs(dl)>1e-8) ); 
 

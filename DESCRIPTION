@@ -1,6 +1,6 @@
 Package: spc
-Version: 0.6.5
-Date: 2021-02-18
+Version: 0.6.6
+Date: 2022-03-17
 Title: Statistical Process Control -- Calculation of ARL and Other
         Control Chart Performance Measures
 Author: Sven Knoth
@@ -16,6 +16,6 @@ Description: Evaluation of control charts by means of
 License: GPL (>= 2)
 URL: https://www.r-project.org
 NeedsCompilation: yes
-Packaged: 2021-03-02 11:14:43 UTC; knoth
+Packaged: 2022-03-17 09:40:55 UTC; knoth
 Repository: CRAN
-Date/Publication: 2021-03-02 12:00:03 UTC
+Date/Publication: 2022-03-17 12:30:02 UTC
