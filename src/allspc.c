@@ -847,7 +847,7 @@ void gausslegendre(int n, double x1, double x2, double *x, double *w)
 /* helper functions */
 
 
-double r8_epsilon ( )
+double r8_epsilon ( void )
 /*
   Purpose:  R8_EPSILON returns the R8 roundoff unit.
   
@@ -1114,7 +1114,7 @@ void matvec(int n, double *p, double *z, double y_[])
 void pmethod(int n, double *p, int *status, double *lambda, double x_[], int *noofit)
 { int count, i, newi, oldi;
   double newmu, oldmu, *z, *y_;
-  void matvec();
+/*  void matvec();*/
 
  z  = vector(n);
  y_ = vector(n);
@@ -1246,14 +1246,22 @@ double xsr1_crit(double k, double L0, double zr, double hs, double m0, int N, in
  do {
    c2 += .5;
    L2 = xsr1_iglarl(k, c2, zr, hs, m0, N, MPT);
+   /*printf("c2 = %.2f,\tL2 = %.6f\n", c2, L2);*/
  } while ( L2<L0 );
+ 
+ do {
+   c2 -= 0.05;
+   L2 = xsr1_iglarl(k, c2, zr, hs, m0, N, MPT);
+   /*printf("c2 = %.2f,\tL2 = %.6f\n", c2, L2);*/
+ } while ( L2>L0 );
 
- c1 = c2 - .5;
+ c1 = c2 + 0.05;
  L1 = xsr1_iglarl(k, c1, zr, hs, m0, N, MPT);
 
  do {
    c3 = c1 + (L0-L1)/(L2-L1) * (c2-c1);
    L3 = xsr1_iglarl(k, c3, zr, hs, m0, N, MPT);
+   /*printf("c3 = %.2f,\tL3 = %.6f\n", c3, L3);*/
    dc = c3-c2; c1 = c2; L1 = L2; c2 = c3; L2 = L3;
  } while ( (fabs(L0-L3)>1e-6) && (fabs(dc)>1e-9) );
  return c3;
@@ -1264,7 +1272,7 @@ double xe_crit(int ctyp, double l, double L0, double zr, double hs, double m0, i
 { double c1, c2, c3, L1=0., L2=0., L3=0., dc, norm, L2old=0., c2old=0.;
   int nmax=100000;
 
- if ( (ctyp==ewma1 && c0 < zr) || (ctyp==ewma2 && c0 < 0.) ) c2 = 1.; else c2 = c0;
+ if ( (ctyp==ewma1 && c0 < zr) || (ctyp==ewma2 && c0 < 0.) ) c2 = hs+1.; else c2 = c0;
 
  do {
    if ( ctyp==ewma1 ) {
@@ -2905,7 +2913,8 @@ double xsr1_iglarl(double k, double h, double zr, double hs, double mu, int N, i
  for (j=0;j<NN;j++) g[j] = 1.;
  LU_solve(a,g,NN);
 
- if (hs > h) {
+ /*if (hs > h) {*/
+ if ( hs > 10.*h ) {
    arl = 1. + PHI( zr/adjust + k, mu) * g[N];
    for (j=0;j<N;j++)
      arl += w[j] * phi( z[j]/adjust + k, mu)/adjust * g[j];

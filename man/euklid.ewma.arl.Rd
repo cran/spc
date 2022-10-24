@@ -20,7 +20,7 @@ It is highly recommended to read the corresponding paper (see below).
 \references{
 A. C. Rakitzis, P. Castagliola, P. E. Maravelakis (2015),
 A new memory-type monitoring technique for count data,
-Computers \& Industrial Engineering 85, 235-247.
+Computers and Industrial Engineering 85, 235-247.
 }
 \author{Sven Knoth}
 \seealso{later.}

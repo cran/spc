@@ -3,7 +3,7 @@ xgrsr.crit <- function(k, L0, mu0=0, zr=0, hs=NULL, sided="one", MPT=FALSE, r=30
   if ( k<0 )	stop("k has to be non-negative")
   if ( L0<1 )	stop("L0 is too small")
   if ( !is.null(hs) ) {
-    if ( hs>log(L0) )	stop("wrong headstart")
+    if ( hs>2*log(L0) )	stop("wrong headstart")
   } else {
     hs <- 2*L0
   }

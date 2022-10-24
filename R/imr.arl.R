@@ -11,8 +11,14 @@ imr.arl <- function(M, Ru, mu, sigma, vsided="upper", Rl=0, cmode="coll", N=30, 
   vtyp <- -1 + pmatch(vsided, c("upper", "two"))
   
   if ( Ru >= 2*M & vsided == "upper" ) {
-    Lu <- 1 / ( 2*pnorm(-M, mean=mu, sd=sigma) )
-    arl <- 1 + Lu * ( 2*pnorm(M, mean=mu, sd=sigma) - 1 )
+    # initial solution, which works only in the in-control case
+    #Lu <- 1 / ( 2*pnorm(-M, mean=mu, sd=sigma) )
+    #arl <- 1 + Lu * ( 2*pnorm(M, mean=mu, sd=sigma) - 1 )
+    # the complicated solution
+    #Lu <- 1 / ( pnorm(-M, mean=mu, sd=sigma) + pnorm(-M, mean=-mu, sd=sigma) )
+    #arl <- 1 + Lu * ( pnorm(M, mean=mu, sd=sigma) - pnorm(-M, mean=mu, sd=sigma) )
+    # the 'elegant' approach
+    arl <- 1 / ( pnorm(-M, mean=mu, sd=sigma) + pnorm(-M, mean=-mu, sd=sigma) )
   } else {
     arl <- -1
     if ( cmode == "coll" | vsided=="two" ) {
@@ -21,7 +27,7 @@ imr.arl <- function(M, Ru, mu, sigma, vsided="upper", Rl=0, cmode="coll", N=30, 
     }
     if ( cmode == "crowder" ) {
       if ( vsided == "two" ) warning("confirmed only for upper MR")
-      arl <- imr.arl.C1987b(M, Ru, mu/sigma, N=N)
+      arl <- imr.arl.C1987b(M, Ru, mu, sigma, N=N)
     }
     if ( cmode %in% c("gl", "rectangular", "trapezoid", "simpson", "simpson3_8") ) {
       if ( vsided == "two" ) warning("confirmed only for upper MR")

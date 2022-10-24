@@ -3,9 +3,11 @@ xgrsr.arl <- function(k, g, mu, zr=0, hs=NULL, sided="one", q=1, MPT=FALSE, r=30
   if ( k < 0 )			stop("k has to be non-negative")
   if ( g < 0 )			stop("g has to be positive")
   if ( !is.null(hs) ) {
-    if ( hs > g )		stop("wrong headstart")
+    #if ( hs > g )		stop("wrong headstart")
+    hs <- hs
   } else {
-    hs <- 2*g
+    hs <- 11*g # mimics -infinity
+    #hs <- inf
   }
   q <- round(q)
   if ( q < 1 )			stop("wrong change point position (q)")

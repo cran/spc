@@ -1,4 +1,4 @@
-b11f9a3b566ca5390fa61711e94c25c3 *DESCRIPTION
+5ac3acd8be3e0c91c6d3de8d4ead7096 *DESCRIPTION
 1c31ccc48b322affe4d83548723b8d6b *NAMESPACE
 938e63b937546368d2a3ad73dbc1a749 *R/dphat.R
 a794896e1669243395c72444bff75161 *R/euklid.ewma.arl.R
@@ -11,9 +11,9 @@ d5e45588b0eec071148da20288a4a117 *R/imr.RuRl_alone_s3.R
 97917cdc6847d428fc81072561ee9d3f *R/imr.RuRl_alone_tail.R
 701618bc929388eb6c3cc01b24bb5552 *R/imr.Ru_Mgiven.R
 c18f45c7b5b1e91913d63974adc64024 *R/imr.Ru_Rlgiven.R
-7e9cc30c3fca61099b3b4da9c451defd *R/imr.arl.C1987b.R
+ef3aa55a5db94a9f4210fd68a0d93a3a *R/imr.arl.C1987b.R
 b9789db921781461f63d3f51b841f34d *R/imr.arl.Ny.R
-929999be77d0f15feecc44f3e00054fc *R/imr.arl.R
+c4a742446ab481048b67a5cbf3f0cd47 *R/imr.arl.R
 46823b56986ca3813c49e4fc8eb421eb *R/lns2ewma.arl.R
 0e2143506950183c7381613da155171f *R/lns2ewma.crit.R
 746a7e799163c0af0a01bb418655531e *R/mewma.ad.R
@@ -76,8 +76,8 @@ f6a968ae9d298c40c5585b00db74b8f3 *R/xewma.q.crit.prerun.R
 63bc340f0e5f72bd03910aac54b87dc8 *R/xewma.sf.R
 b84367be01626eb8912c9fb3cf3aa12b *R/xewma.sf.prerun.R
 3266bb62646ca179fbda8b5d98e155f6 *R/xgrsr.ad.R
-f94cb6ba4c3c528b98b09e3d53e95846 *R/xgrsr.arl.R
-ef4268f136ee02ccadc72b02e66759ff *R/xgrsr.crit.R
+67bc1cedce86beb0c139c027eebadcb8 *R/xgrsr.arl.R
+ff71e4117307ee60de84ba58bbec0b7a *R/xgrsr.crit.R
 30199f064e29b335f1cf70fb054d148b *R/xs.res.ewma.arl.R
 48049b56879a2d94d06d60ad44a2f440 *R/xs.res.ewma.pms.R
 3bd74fbfc2191fedce471f23d056bb17 *R/xsewma.arl.R
@@ -98,7 +98,7 @@ ed29d98eef38e0ae9c70d81016ef3a4b *R/xtewma.q.R
 a4f288e5b90e0ad70393a46f64c89695 *R/xtewma.sf.R
 27f5d1c16f5223dedff8cb312414bc92 *R/xtshewhart.ar1.arl.R
 08424d9ece6e6b1be221fdda65e878d0 *man/dphat.Rd
-8c60247d1603e1fc1acab037e2169c89 *man/euklid.ewma.arl.Rd
+c75877f64b5297c35a4f6e43fd24b24b *man/euklid.ewma.arl.Rd
 b84f50b0c3bc6f46e16dc9b4b68f2eb9 *man/imr.RuRl_alone.Rd
 5d277b6ae3042a4b93e56755d4bca54d *man/imr.arl.Rd
 d50a13c09994b01089ea76669c609346 *man/lns2ewma.crit.Rd
@@ -165,7 +165,7 @@ a0761716e88359aaced32bc28b90f70c *man/xtewma.arl.Rd
 ff3072d7d7328bec15ae828ba355df3d *man/xtewma.sf.Rd
 2473c0960a56af19d8f417ce4fe9eb98 *man/xtshewhart.ar1.arl.Rd
 2a6f9e9e044a78154d3cfda5936d6f48 *src/Makevars
-cf576321e0dcdd08301e7bb05e309976 *src/allspc.c
+8d17f2ea1a3188d3c2d5c63bc5e61ef4 *src/allspc.c
 e6acfcdb0acd56c9476000d0c538486b *src/ccusum_arl_be.c
 1ef607ffc93eb93a13d3a6c166cc0e9c *src/ccusum_crit_be.c
 669db61a1b0c2ccabcbc19f235f809b8 *src/cewma_ad_be.c
@@ -214,7 +214,7 @@ f644f5fd1ac85c5843a9886c31f36e36 *src/xcusum_arl.c
 eeb348dfb7c4f3b49786d5c77a56029a *src/xcusum_crit.c
 5159145d823621d789a60d0f9afcd8f0 *src/xcusum_q.c
 c80a83da167cb4812d40b0ea4dce8f4e *src/xcusum_sf.c
-1b6f3cec1ed5ea28994866e17286baef *src/xewma_ad.c
+f292e971ef92ca88b66ba558c596d64e *src/xewma_ad.c
 5a6d1a5d91f3a56b4eee28cb9d9fbba2 *src/xewma_arl.c
 678c15cd432c3022bde490a496cedc04 *src/xewma_arl_f.c
 07fc786c9edbae9df4f6a405b644c0bb *src/xewma_arl_prerun.c
