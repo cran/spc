@@ -3,7 +3,7 @@
 \title{Compute critical values of EWMA control charts}
 \description{Computation of the critical values (similar to alarm limits)
 for different types of EWMA control charts monitoring normal mean.}
-\usage{xewma.crit(l,L0,mu0=0,zr=0,hs=0,sided="one",limits="fix",r=40,c0=NULL)}
+\usage{xewma.crit(l,L0,mu0=0,zr=0,hs=0,sided="one",limits="fix",r=40,c0=NULL,nmax=10000)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
 \item{L0}{in-control ARL.}
@@ -18,6 +18,7 @@ respectively.}
 equation system is equal to \code{r+1} (one-sided) or \code{r}
 (two-sided).}
 \item{c0}{starting value for iteration rule.}
+\item{nmax}{maximum number of individual control limit factors for \code{"cfar"}.}
 }
 \details{
 \code{xewma.crit} determines the critical values (similar to alarm limits)

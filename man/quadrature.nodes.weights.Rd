@@ -20,7 +20,7 @@ H. Brass and K. Petras (2011),
 Mathematical Surveys and Monographs, American Mathematical Society.
 
 John Burkardt (2015),
-\url{https://people.sc.fsu.edu/~jburkardt/f_src/quadrule/quadrule.html}
+\url{https://people.math.sc.edu/Burkardt/c_src/quadrule/quadrule.c}
 }
 \author{Sven Knoth}
 \seealso{

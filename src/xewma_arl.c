@@ -11,7 +11,7 @@
 #define both 3
 #define steiner 4
 #define stat 5
-#define fink 6
+#define cfar 6
 #define elimit 7
 #define waldmann 8
 #define collocation 9
@@ -33,6 +33,8 @@ double xe2_Carl(double l, double c, double hs, double mu, int N, int qm);
 double xe2_arlm(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
 double xe2_arlmc(double l, double c, double hs, int q, double mu0, double mu1, int mode, int N, int nmax);
 double xe2_arlm_hom(double l, double c, double hs, int q, double mu0, double mu1, int N, double *ced);
+
+double xe2fr_arlm(double l, int nc, double *cn, double cinf, double mu1, int q, int N, int nmax);
 
 void xewma_arl(int *ctyp, double *l, double *c, double *zr, double *hs, double *mu, int *ltyp, int *r, int *q, int *styp, double *arl)
 { int nmax=100000, i, result=0;
@@ -69,6 +71,8 @@ void xewma_arl(int *ctyp, double *l, double *c, double *zr, double *hs, double *
                      arl1 = xe2_Warl(*l,*c,*hs,*mu,*r,nmax);
  if (*ctyp==ewma2 && *ltyp==collocation)
                      arl1 = xe2_Carl(*l,*c,*hs,*mu,*r,50);
+  
+ if (*ltyp==cfar) arl1 = xe2fr_arlm(*l, *ctyp, c, *hs, *mu, *q, *r, nmax);
  
  if ( result != 0 ) warning("trouble in xewma_arl [package spc]");
  

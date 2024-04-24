@@ -22,7 +22,6 @@
 #define both 3
 #define steiner 4
 #define stat 5
-#define fink 6
 
 #define FINALeps 1e-12
 #define lmEPS 1e-4
@@ -143,6 +142,10 @@ double xe2_iglarl_drift(double l, double c, double hs, double delta, int m, int 
 double xe2_iglarl_drift_wo_m(double l, double c, double hs, double delta, int *m, int N, int with0);
 double xe2_iglarlm_drift(double l, double c, double hs, int q, double delta, int N, int nmax, int with0);
 double xe2_Warl_drift(double l, double c, double hs, double delta, int N, int nmax, int with0);
+
+/* fixed false alarm rate */
+int xe2fr_crit(double l, double L0, double cinf, int N, int nmax, double *cn);
+double xe2fr_arlm(double l, int nc, double *cn, double cinf, double mu1, int q, int N, int nmax);
 
 /* functions based on Srivastava & Wu (1997) */
 double xe2_SrWu_crit(double l, double L0);
@@ -7027,7 +7030,7 @@ double xe2_arlm(double l, double c, double hs, int q, double mu0, double mu1, in
 
  gausslegendre(N,-c,c,z,w);
 
- rn = 1.; cn = 0.; rn0 = 1., cn0 = 0.;
+ rn = 1.; cn = 0.; rn0 = 1.; cn0 = 0.;
 
  /* in-control, i. e. n<=q-1 */
  for (n=1;n<=q-1;n++) {
@@ -7728,6 +7731,186 @@ double xe2_arlm_hom(double l, double c, double hs, int q, double mu0, double mu1
   return 0;
 }
 
+int xe2fr_crit(double l, double L0, double cinf, int N, int nmax, double *cn)
+{ double *Smatrix, *fn, *w, *z, oa, oa2, rn, rn0, cn0, cn1, cn2, farn0, farn1, farn2, mu0;
+  int i, j, n, nm;
+
+ mu0 = 0.; 
+ oa2 = 1. - 1./(2.*L0); 
+ oa  = 1. - 1./L0;
+  
+ Smatrix = matrix(N,N);
+ w       = vector(N);
+ z       = vector(N);
+ fn      = matrix(nmax,N);
+
+ gausslegendre(N, -cinf, cinf, z, w);
+
+ rn = 1; rn0 = 1.; nm = 0;
+
+ for (n=1; n<=nmax; n++) {
+   /*printf("n = %d\n", n);*/
+   if (n==1) {
+     cn[n] = l * qPHI(oa2);
+     rn = cn[n] / cinf;
+     for (i=0; i<N; i++) fn[0*N+i] = rn/l * phi( rn*z[i]/l, mu0);
+     /*printf("cn = %.6f\n", cn[n]);*/
+   } else {
+     /* first guess */
+     cn0 = cn[n-1];
+     rn = cn0 / cinf;    
+     for (i=0; i<N; i++) {
+       fn[(n-1)*N+i] = 0.;
+       for (j=0; j<N; j++) fn[(n-1)*N+i] += w[j] * fn[(n-2)*N+j] * rn/l * phi( (rn*z[i]-(1.-l)*(rn0*z[j]))/l, mu0);
+     }
+     farn0 = 0.;
+     for (i=0; i<N; i++) farn0 += w[i] * fn[(n-1)*N+i];
+     /*printf("cn0 = %.6f,\tfarn0 = %.6f\n", cn0, farn0);*/     
+     /* find embracing pair of starting values */
+     while ( farn0 < oa ) {
+       cn1 = cn0;
+       farn1 = farn0;
+       cn0 *= 1.05;
+       rn = cn0 / cinf;
+       for (i=0; i<N; i++) {
+         fn[(n-1)*N+i] = 0.;
+         for (j=0; j<N; j++) fn[(n-1)*N+i] += w[j] * fn[(n-2)*N+j] * rn/l * phi( (rn*z[i]-(1.-l)*(rn0*z[j]))/l, mu0);
+       }
+       farn0 = 0.;
+       for (i=0; i<N; i++) farn0 += w[i] * fn[(n-1)*N+i];
+       /*printf("cn1 = %.6f,\tfarn1 = %.6f\n", cn0, farn0);*/
+     }     
+     /* secant rule */
+     do {
+       cn2 = cn0 + (oa-farn0)/(farn1-farn0) * (cn1-cn0);
+       rn = cn2 / cinf;
+       for (i=0; i<N; i++) {
+         fn[(n-1)*N+i] = 0.;
+         for (j=0; j<N; j++) fn[(n-1)*N+i] += w[j] * fn[(n-2)*N+j] * rn/l * phi( (rn*z[i]-(1.-l)*(rn0*z[j]))/l, mu0);
+       }
+       farn2 = 0.;
+       for (i=0; i<N; i++) farn2 += w[i] * fn[(n-1)*N+i];
+       /*printf("cn2 = %.6f,\tfarn2 = %.6f\n", cn2, farn2);*/
+       cn0 = cn1; cn1 = cn2;
+       farn0 = farn1; farn1 = farn2;
+     } while ( fabs(cn1-cn0)>1e-12 && fabs(farn2-oa)>1e-12 );
+     cn[n] = cn2;
+   } /* n > 1 */
+   rn0 = rn;
+   for (i=0; i<N; i++) fn[(n-1)*N+i] /= oa;
+   if ( n > 1 ) {
+     if ( fabs( cn[n] - cn[n-1] ) < 1e-12 ) {
+       nm = n;
+       break;
+     }
+   }
+ } /* n = 1,2,...nmax */
+
+ cn[0] = (double)nm;
+ 
+ Free(Smatrix);
+ Free(w);
+ Free(z);
+ Free(fn);
+
+ return nm;
+}
+
+double xe2fr_arlm(double l, int nc, double *cn, double cinf, double mu1, int q, int N, int nmax)
+{ double *Smatrix, *p0, *fn, *w, *z, arl0, rho, rn, rn0, arl_minus=0., arl, arl_plus=0., mn_minus, mn_plus, ratio, mu0;
+  int i, j, n;
+
+ mu0 = 0.; 
+
+ Smatrix = matrix(N,N);
+ w       = vector(N);
+ z       = vector(N);
+ fn      = matrix(nmax,N);
+ p0      = vector(nmax);
+
+ gausslegendre(N, -cinf, cinf, z, w);
+
+ rn0 = 1.;
+
+ /* in-control, i. e. n<=q-1 */
+ for (n=1; n<=q-1; n++) {
+   rn = 1.;
+   if ( n <= nc ) rn = cn[n-1] / cinf;   
+   /* determine f_n, n=1,2,...,q-1 */
+   if (n==1) {
+     for (i=0; i<N; i++) fn[0*N+i] = rn/l * phi( rn*z[i]/l, mu0);
+   } 
+   else {
+     for (i=0; i<N; i++) {
+       fn[(n-1)*N+i] = 0.;
+       for (j=0; j<N; j++) fn[(n-1)*N+i] += w[j]*fn[(n-2)*N+j] * rn/l * phi((rn*z[i]-(1.-l)*(rn0*z[j]))/l, mu0);
+     }
+   }
+   /* determine P(L>n), n=1,2,...,q-1 */
+   p0[n-1] = 0.;
+   for (i=0; i<N; i++) p0[n-1] += w[i] * fn[(n-1)*N+i];
+   /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+   rn0 = rn;
+ }
+
+ /* out-of-control, i.e. t>=q */
+ arl0 = 1.; rho = 0.;
+
+ for (n=q; n<=nmax; n++) {
+   rn = 1.;
+   if ( n <= nc ) rn = cn[n-1] / cinf;
+   /* determine f_n, n=q,q+1,... */
+   if (n==1) {
+     for (i=0; i<N; i++) fn[0*N+i] = rn/l * phi( rn*z[i]/l, mu1);
+   }
+   else {
+     for (i=0; i<N; i++) {
+       fn[(n-1)*N+i] = 0.;
+       for (j=0; j<N; j++) fn[(n-1)*N+i] += w[j] * fn[(n-2)*N+j] * rn/l * phi( (rn*z[i]-(1.-l)*(rn0*z[j]))/l, mu1);
+       if (n==q && q>1) fn[(n-1)*N+i] /= p0[q-2];
+     }
+   }
+   /* determine P(L>n), n=1,2,...,q-1 */
+   p0[n-1] = 0.;
+   for (i=0; i<N; i++) p0[n-1] += w[i] * fn[(n-1)*N+i];
+   /* weights and nodes w.r.t. O_n become w. a. n. w.r.t. O_n-1 */
+   rn0 = rn;
+
+   /* computation of m_n+1^- and m_n+1^+, n=m-1,m,... */
+   mn_minus = 1.; mn_plus = 0.;
+   if ( n > q ) {
+     for (i=0; i<N; i++) {
+       if (fn[(n-2)*N+i]==0)
+         if (fn[(n-1)*N+i]==0) ratio = 0.; else ratio = 1.;
+       else ratio = fn[(n-1)*N+i]/fn[(n-2)*N+i];
+       if ( ratio<mn_minus ) mn_minus = ratio;
+       if ( ratio>mn_plus ) mn_plus = ratio;
+     }
+   }
+ 
+   if ( n>q ) rho = p0[n-1]/p0[n-2];
+
+  /* computation of ARL, ARL^-, and ARL^+ */
+    arl = arl0 + p0[n-1]/(1.-rho);
+    if (mn_minus<1.) arl_minus = arl0 + p0[n-1]/(1.-mn_minus);
+    else             arl_minus = -1.;
+    if (mn_plus<1.) arl_plus = arl0 + p0[n-1]/(1.-mn_plus);
+    else            arl_plus = -1.;
+    arl0 += p0[n-1]; 
+
+    if ( fabs((arl_plus-arl_minus)) < 1e-12 ) n = nmax+1;
+ }
+
+ arl = (arl_plus+arl_minus)/2; rho0 = rho;
+
+ Free(Smatrix);
+ Free(w);
+ Free(z);
+ Free(fn);
+ Free(p0);
+
+ return arl;
+}
 
 double xte2_arlm_hom(double l, double c, double hs, int df, int q, double mu0, double mu1, int N, double *ced, int subst)
 { double *fn, *w, *z, *a, *arl, nenner=1., norm=1., arg=0., korr=1.;

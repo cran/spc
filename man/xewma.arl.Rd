@@ -3,11 +3,11 @@
 \title{Compute ARLs of EWMA control charts}
 \description{Computation of the (zero-state) Average Run Length (ARL)
 for different types of EWMA control charts monitoring normal mean.}
-\usage{xewma.arl(l,c,mu,zr=0,hs=0,sided="one",limits="fix",q=1,
+\usage{xewma.arl(l,cE,mu,zr=0,hs=0,sided="one",limits="fix",q=1,
 steady.state.mode="conditional",r=40)}
 \arguments{
 \item{l}{smoothing parameter lambda of the EWMA control chart.}
-\item{c}{critical value (similar to alarm limit) of the EWMA control chart.}
+\item{cE}{critical value (similar to alarm limit) of the EWMA control chart.}
 \item{mu}{true mean.}
 \item{zr}{reflection border for the one-sided chart.}
 \item{hs}{so-called headstart (enables fast initial response).}
@@ -34,7 +34,7 @@ If \code{limits} is not \code{"fix"}, then the method presented in Knoth (2003) 
 Note that for one-sided EWMA charts (\code{sided}=\code{"one"}), only
 \code{"vacl"} and \code{"stat"} are deployed, while for two-sided ones
 (\code{sided}=\code{"two"}) also \code{"fir"}, \code{"both"}
-(combination of \code{"fir"} and \code{"vacl"}), and \code{"Steiner"} are implemented.
+(combination of \code{"fir"} and \code{"vacl"}), \code{"Steiner"} and \code{"cfar"} are implemented.
 For details see Knoth (2004).
 }
 \value{Except for the fixed limits EWMA charts it returns a single value which resembles the ARL.
@@ -98,10 +98,10 @@ round(xewma.arl(l,2*sqrt((2-l)/l),0,sided="two"),digits=1)
 ## Crowder (1987), two-sided EWMA with fixed control limits
 l1 <- .5
 l2 <- .05
-c <- 2
+cE <- 2
 mu <- (0:16)/4
-arl1 <- sapply(mu,l=l1,c=c,sided="two",xewma.arl)
-arl2 <- sapply(mu,l=l2,c=c,sided="two",xewma.arl)
+arl1 <- sapply(mu,l=l1,cE=cE,sided="two",xewma.arl)
+arl2 <- sapply(mu,l=l2,cE=cE,sided="two",xewma.arl)
 round(cbind(mu,arl1,arl2),digits=2)
 
 ## original results are (in Table 1)
@@ -132,8 +132,8 @@ l2 <- .03
 c1 <- 3.071
 c2 <- 2.437
 mu <- c(0,.25,.5,.75,1,1.5,2,2.5,3,3.5,4,5)
-arl1 <- sapply(mu,l=l1,c=c1,sided="two",xewma.arl)
-arl2 <- sapply(mu,l=l2,c=c2,sided="two",xewma.arl)
+arl1 <- sapply(mu,l=l1,cE=c1,sided="two",xewma.arl)
+arl2 <- sapply(mu,l=l2,cE=c2,sided="two",xewma.arl)
 round(cbind(mu,arl1,arl2),digits=2)
 
 ## original results are (in Table 3)
@@ -159,8 +159,8 @@ c2 <- 2.437
 hs1 <- c1/2
 hs2 <- c2/2
 mu <- c(0,.5,1,2,3,5)
-arl1 <- sapply(mu,l=l1,c=c1,hs=hs1,sided="two",limits="fir",xewma.arl)
-arl2 <- sapply(mu,l=l2,c=c2,hs=hs2,sided="two",limits="fir",xewma.arl)
+arl1 <- sapply(mu,l=l1,cE=c1,hs=hs1,sided="two",limits="fir",xewma.arl)
+arl2 <- sapply(mu,l=l2,cE=c2,hs=hs2,sided="two",limits="fir",xewma.arl)
 round(cbind(mu,arl1,arl2),digits=2)
 
 ## original results are (in Table 5)
@@ -181,10 +181,10 @@ c1n <- 3.0042
 c2s <- 2.8159
 c2n <- 2.8452
 mu <- c(0,.25,.5,.75,1,2)
-arl1s <- sapply(mu,l=l1,c=c1s,sided="two",xewma.arl)
-arl1n <- sapply(mu,l=l1,c=c1n,sided="two",limits="vacl",xewma.arl)
-arl2s <- sapply(mu,l=l2,c=c2s,sided="two",xewma.arl)
-arl2n <- sapply(mu,l=l2,c=c2n,sided="two",limits="vacl",xewma.arl)
+arl1s <- sapply(mu,l=l1,cE=c1s,sided="two",xewma.arl)
+arl1n <- sapply(mu,l=l1,cE=c1n,sided="two",limits="vacl",xewma.arl)
+arl2s <- sapply(mu,l=l2,cE=c2s,sided="two",xewma.arl)
+arl2n <- sapply(mu,l=l2,cE=c2n,sided="two",limits="vacl",xewma.arl)
 round(cbind(mu,arl1s,arl1n,arl2s,arl2n),digits=2)
 
 ## original results are (in Table 2)
@@ -203,10 +203,10 @@ c1n <- xewma.crit(l1,500,sided="two",limits="vacl")
 c2s <- xewma.crit(l2,500,sided="two")
 c2n <- xewma.crit(l2,500,sided="two",limits="vacl")
 mu <- c(0,.25,.5,.75,1,2)
-arl1s <- sapply(mu,l=l1,c=c1s,sided="two",xewma.arl)
-arl1n <- sapply(mu,l=l1,c=c1n,sided="two",limits="vacl",xewma.arl)
-arl2s <- sapply(mu,l=l2,c=c2s,sided="two",xewma.arl)
-arl2n <- sapply(mu,l=l2,c=c2n,sided="two",limits="vacl",xewma.arl)
+arl1s <- sapply(mu,l=l1,cE=c1s,sided="two",xewma.arl)
+arl1n <- sapply(mu,l=l1,cE=c1n,sided="two",limits="vacl",xewma.arl)
+arl2s <- sapply(mu,l=l2,cE=c2s,sided="two",xewma.arl)
+arl2n <- sapply(mu,l=l2,cE=c2n,sided="two",limits="vacl",xewma.arl)
 round(cbind(mu,arl1s,arl1n,arl2s,arl2n),digits=2)
 
 ## which demonstrate the abilities of the variance-adjusted limits
@@ -217,13 +217,13 @@ round(cbind(mu,arl1s,arl1n,arl2s,arl2n),digits=2)
 ## with fir and both features
 
 l <- .03
-c <- 2.437
+cE <- 2.437
 mu <- c(0,.5,1,1.5,2,3,4)
 sl <- sqrt(l*(2-l))
-arlfix  <- sapply(mu,l=l,c=c,sided="two",xewma.arl)
-arlvacl <- sapply(mu,l=l,c=c,sided="two",limits="vacl",xewma.arl)
-arlfir  <- sapply(mu,l=l,c=c,hs=c/2,sided="two",limits="fir",xewma.arl)
-arlboth <- sapply(mu,l=l,c=c,hs=c/2*sl,sided="two",limits="both",xewma.arl)
+arlfix  <- sapply(mu,l=l,cE=cE,sided="two",xewma.arl)
+arlvacl <- sapply(mu,l=l,cE=cE,sided="two",limits="vacl",xewma.arl)
+arlfir  <- sapply(mu,l=l,cE=cE,hs=c/2,sided="two",limits="fir",xewma.arl)
+arlboth <- sapply(mu,l=l,cE=cE,hs=c/2*sl,sided="two",limits="both",xewma.arl)
 round(cbind(mu,arlfix,arlvacl,arlfir,arlboth),digits=1)
 
 ## original results are (in Table 1)
@@ -242,10 +242,10 @@ round(cbind(mu,arlfix,arlvacl,arlfir,arlboth),digits=1)
 ## fixed vs. variance adjusted limits
 
 l <- .05
-c <- 3
+cE <- 3
 mu <- c(0,.25,.5,.75,1,1.5,2,2.5,3,3.5,4)
-arlfix <- sapply(mu,l=l,c=c,sided="two",xewma.arl)
-arlvacl <- sapply(mu,l=l,c=c,sided="two",limits="vacl",xewma.arl)
+arlfix <- sapply(mu,l=l,cE=cE,sided="two",xewma.arl)
+arlvacl <- sapply(mu,l=l,cE=cE,sided="two",limits="vacl",xewma.arl)
 round(cbind(mu,arlfix,arlvacl),digits=1)
 
 ## original results are (in Table 2)
@@ -270,9 +270,9 @@ cstein <- 2.55
 hsfir <- cfir/2
 hsboth <- cboth/2*sqrt(l*(2-l))
 mu <- c(0,.5,1,1.5,2,3,4)
-arlfir <- sapply(mu,l=l,c=cfir,hs=hsfir,sided="two",limits="fir",xewma.arl)
-arlboth <- sapply(mu,l=l,c=cboth,hs=hsboth,sided="two",limits="both",xewma.arl)
-arlstein <- sapply(mu,l=l,c=cstein,sided="two",limits="Steiner",xewma.arl)
+arlfir <- sapply(mu,l=l,cE=cfir,hs=hsfir,sided="two",limits="fir",xewma.arl)
+arlboth <- sapply(mu,l=l,cE=cboth,hs=hsboth,sided="two",limits="both",xewma.arl)
+arlstein <- sapply(mu,l=l,cE=cstein,sided="two",limits="Steiner",xewma.arl)
 round(cbind(mu,arlfir,arlboth,arlstein),digits=1)
 
 ## original values are (in Table 5)
@@ -288,9 +288,9 @@ round(cbind(mu,arlfir,arlboth,arlstein),digits=1)
 ## two-sided EWMA control charts with fixed limits
 
 l <- .25
-c <- 3
+cE <- 3
 mu <- 1
-print(xewma.arl(l,c,mu,sided="two"),digits=11)
+print(xewma.arl(l,cE,mu,sided="two"),digits=11)
 
 # original value is 11.154267016.
 
@@ -314,10 +314,10 @@ L0 <- 500
 
 zr <- -6
 r <- 50
-c <- xewma.crit(lambda, L0, zr=zr, limits="vacl", r=r)
+cE <- xewma.crit(lambda, L0, zr=zr, limits="vacl", r=r)
 Mxewma.arl <- Vectorize(xewma.arl, "mu")
 mus <- (0:6)/2
-arls <- round(Mxewma.arl(lambda, c, mus, zr=zr, limits="vacl", r=r), digits=4)
+arls <- round(Mxewma.arl(lambda, cE, mus, zr=zr, limits="vacl", r=r), digits=4)
 data.frame(mus, arls)
 
 # 2. stationary mode, i. e. limits = "stat"
@@ -332,8 +332,8 @@ data.frame(mus, arls)
 # 2.5   1.7983   0.0000
 # 3     1.4029   0.0000
 
-c <- xewma.crit(lambda, L0, zr=zr, limits="stat", r=r)
-arls <- round(Mxewma.arl(lambda, c, mus, zr=zr, limits="stat", r=r), digits=4)
+cE <- xewma.crit(lambda, L0, zr=zr, limits="stat", r=r)
+arls <- round(Mxewma.arl(lambda, cE, mus, zr=zr, limits="stat", r=r), digits=4)
 data.frame(mus, arls)
 }
 }

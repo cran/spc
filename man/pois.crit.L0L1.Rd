@@ -45,7 +45,8 @@ An approximate CUSUM procedure for surveillance of health events,
 La <- 500 # in-control ARL
 Lr <- 7 # out-of-control ARL
 m_a <- 0.52 # in-control mean of the Poisson variate
-\dontrun{kh <- xcusum.crit.L0L1(La, Lr, sided="one")} # instead of deploying EK1960, one could use more accurate numbers
+\dontrun{kh <- xcusum.crit.L0L1(La, Lr, sided="one")}
+# kh <- ...: instead of deploying EK1960, one could use more accurate numbers
 EK_k <- 0.60 # EK1960 results in
 EK_h <- 3.80 # Table 2 on p. 372
 eZR <- 2*EK_h # reproduce normal ooc mean from reference value k

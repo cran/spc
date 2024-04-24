@@ -33,7 +33,7 @@ attain a fixed in-control ARL. Typically this is needed to calibrate the chart.
 With \code{xshewhartrunsrules.ad} the steady-state ARL is calculated.
 With the argument \code{type} certain runs rules could be set. The following list gives an overview.
 
-\itemize{
+\describe{
 \item{"1"}{ The classical Shewhart chart with \code{+/- 3 c sigma} control limits (\code{c} is typically
 equal to 1 and can be changed by the argument \code{c}).}
 \item{"12"}{ The classic and the following runs rule: 2 of 3 are beyond \code{+/- 2 c sigma} on the same

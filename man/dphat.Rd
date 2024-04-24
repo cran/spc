@@ -1,4 +1,5 @@
 \name{dphat}
+\encoding{utf-8}
 \alias{dphat}
 \alias{pphat}
 \alias{qphat}
@@ -22,7 +23,7 @@ qphat(p, n, mu=0, sigma=1, type="known", LSL=-3, USL=3, nodes=30)}
 }
 \details{Bruhn-Suhr/Krumbholz (1990) derived the cumulative distribution function
 of the sample percent defective calculated on normal samples to applying them for a new variables sampling plan.
-These results were heavily used in Krumbholz/Z\"{o}ller (1995) for Shewhart and in Knoth/Steinmetz (2013) for EWMA control charts.
+These results were heavily used in Krumbholz/Zöller (1995) for Shewhart and in Knoth/Steinmetz (2013) for EWMA control charts.
 For algorithmic details see, essentially, Bruhn-Suhr/Krumbholz (1990).
 Two design variants are treated: The simple case, \code{type="known"}, with known normal variance and the presumably much
 more relevant and considerably intricate case, \code{type="estimated"}, where both parameters of
@@ -35,8 +36,8 @@ M. Bruhn-Suhr and W. Krumbholz (1990),
 A new variables sampling plan for normally distributed lots with unknown standard deviation and double specification limits,
 \emph{Statistical Papers} 31(1), 195-207.
 
-W. Krumbholz and A. Z\"{o}ller (1995),
-\code{p}-Karten vom Shewhartschen Typ f\"{u}r die messende Pr\"{u}fung,
+W. Krumbholz and A. Zöller (1995),
+\code{p}-Karten vom Shewhartschen Typ für die messende Prüfung,
 \emph{Allgemeines Statistisches Archiv} 79, 347-360.
 
 S. Knoth and S. Steinmetz (2013),
