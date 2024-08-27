@@ -25,6 +25,6 @@ void quadrature_nodes_weights(int *n, double *x1, double *x2, int *type, double 
    nodes_weights[i+*n] = gewichte[i];
  }
  
- Free(gewichte);
- Free(knoten);
+ free(gewichte);
+ free(knoten);
 }

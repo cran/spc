@@ -39,5 +39,5 @@ void sewma_sf
 
  for (i=0; i<*n; i++) sf[i] = p0[i];
  
- Free(p0);
+ free(p0);
 }

@@ -29,7 +29,7 @@ void mewma_psi(double *l, double *c, int *p, int *type, double *hs, int *r, doub
    zeug[i + *r + *r] = z[i-1];
  }
  
- Free(z);
- Free(w);
- Free(PSI);
+ free(z);
+ free(w);
+ free(PSI);
 }

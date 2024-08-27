@@ -81,9 +81,9 @@ void mewma_arl_f(double *l, double *c, int *p, double *delta, int *r, int *qtype
      zeug[i + *r + *r] = z[i];
    }
    
-   Free(z);
-   Free(w);
-   Free(ARL);
+   free(z);
+   free(w);
+   free(ARL);
  }
  else {
    r2 = (*r) * (*r);
@@ -128,11 +128,11 @@ void mewma_arl_f(double *l, double *c, int *p, double *delta, int *r, int *qtype
      for (i=0; i < dQ; i++) zeug[i] = ARL[i]; 
    } */ 
    
-   Free(z1);
-   Free(w1);
-   Free(z);
-   Free(w);
-   Free(ARL);
+   free(z1);
+   free(w1);
+   free(z);
+   free(w);
+   free(ARL);
  }
  
  if ( fabs(zahl) > 1e-9 ) warning("trouble in mewma_arl_f [package spc]");

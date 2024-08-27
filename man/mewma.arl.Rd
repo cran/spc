@@ -50,11 +50,9 @@ Here, the Gauss-Legendre (more powerful), Radau (used by Rigdon, 1995a), Clensha
 Simpson rule (which is really bad) are provided.
 Additionally, the collocation approach is offered as well, because it is much better for small odd values for \code{p}.
 FORTRAN code for the Radau quadrature based Nystroem of Rigdon (1995a)
-was published in Bodden and Rigdon (1999) -- see also \url{http://lib.stat.cmu.edu/jqt/31-1}.
+was published in Bodden and Rigdon (1999) -- see also \url{https://lib.stat.cmu.edu/jqt/31-1}.
 Furthermore, FORTRAN code for the Markov chain approximation (in- and out-ot-control)
-could be found at
-%\url{http://lib.stat.cmu.edu/jqt/33-4}.
-http://lib.stat.cmu.edu/jqt/33-4.
+could be found at \url{https://lib.stat.cmu.edu/jqt/33-4/}.
 The related papers are Runger and Prabhu (1996) and Molnau et al. (2001).
 The idea of the Clenshaw-Curtis quadrature was taken from
 Capizzi and Masarotto (2010), who successfully deployed a modified Clenshaw-Curtis quadrature

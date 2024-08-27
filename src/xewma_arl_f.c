@@ -38,9 +38,9 @@ void xewma_arl_f(int *ctyp, double *l, double *c, double *zr, double *mu, int *l
    zeug[i + *r + *r] = z[i];
  }
    
- Free(z);
- Free(w);
- Free(ARL);
+ free(z);
+ free(w);
+ free(ARL);
  
  if ( fabs(zahl) > 1e-9 ) warning("trouble in xewma_arl [package spc]"); 
 }  
