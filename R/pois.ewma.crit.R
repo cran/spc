@@ -1,5 +1,5 @@
 # Computation of Poisson EWMA control limits
-pois.ewma.crit <- function(lambda, L0, mu0, z0, AU=3, sided="two", design="sym", rando=FALSE, mcdesign="transfer", N=101, jmax=4) {
+pois.ewma.crit <- function(lambda, L0, mu0, z0, AU=3, sided="two", design="sym", rando=FALSE, mcdesign="transfer", N=101, jmax=4, OLD=FALSE) {
   if ( lambda <= 0 | lambda > 1 )       stop("lambda has to be between 0 and 1")
   if ( L0 < 1 )                         stop("L0 has to be larger")
   if ( mu0 < 0 )     	                stop("wrong value for mu0")
@@ -12,8 +12,9 @@ pois.ewma.crit <- function(lambda, L0, mu0, z0, AU=3, sided="two", design="sym",
   LL <- ifelse(dtyp==0, 1, 2)
   if (dtyp==1 & rando) LL <- 4
   crit <- .C("cewma_crit_be",
-             as.integer(ctyp), as.integer(dtyp), as.integer(mcd), as.integer(rando), as.double(lambda), as.double(L0), as.double(AU),
-             as.double(mu0), as.double(z0), as.integer(N), as.integer(jmax),
+             as.integer(ctyp), as.integer(dtyp), as.integer(mcd), as.integer(rando),
+             as.double(lambda), as.double(L0), as.double(AU), as.double(mu0),
+             as.double(z0), as.integer(N), as.integer(jmax), as.integer(OLD),
              ans=double(length=LL), PACKAGE="spc")$ans
   if (dtyp==1 & rando) {
     names(crit) <- c("AL", "AU", "gL", "gU")

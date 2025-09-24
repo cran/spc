@@ -1,5 +1,5 @@
 # Computation of Poisson EWMA steady-state ARLs
-pois.ewma.ad <- function(lambda, AL, AU, mu0, mu, sided="two", rando=FALSE, gL=0, gU=0, mcdesign="classic", N=101) {
+pois.ewma.ad <- function(lambda, AL, AU, mu0, mu, sided="two", rando=FALSE, gL=0, gU=0, mcdesign="classic", N=101, OLD=FALSE) {
   if ( lambda <= 0 | lambda > 1 )       stop("lambda has to be between 0 and 1")
   if ( AL < 0 | AU < 0 )                stop("control limit factors must be positive")
   if ( mu0 < 0 )     	                stop("wrong value for mu0")
@@ -17,7 +17,7 @@ pois.ewma.ad <- function(lambda, AL, AU, mu0, mu, sided="two", rando=FALSE, gL=0
   ad <- .C("cewma_ad_be",
            as.integer(ctyp), as.integer(mcd), as.integer(rando), as.double(lambda),
            as.double(AL), as.double(AU), as.double(gL), as.double(gU),
-           as.double(mu0), as.double(mu), as.integer(N),
+           as.double(mu0), as.double(mu), as.integer(N), as.integer(OLD),
            ans=double(length=1), PACKAGE="spc")$ans 
   names(ad) <- "ad"
   ad

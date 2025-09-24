@@ -3,7 +3,7 @@
 \title{Compute steady-state ARLs of Poisson EWMA control charts}
 \description{Computation of the steady-state Average Run Length (ARL) at given mean \code{mu}.}
 \usage{pois.ewma.ad(lambda, AL, AU, mu0, mu, sided="two", rando=FALSE, gL=0, gU=0,
-mcdesign="classic", N=101)}
+mcdesign="classic", N=101, OLD=FALSE)}
 \arguments{
 \item{lambda}{smoothing parameter of the EWMA p control chart.}
 \item{AL, AU}{factors to build the lower and upper control limit, respectively, of the Poisson EWMA control chart.}
@@ -20,6 +20,7 @@ If randomisation is used, then set the corresponding probailities, \code{gL} and
 sophisticated \code{"transfer"} which improves the accuracy heavily.}
 \item{N}{number of states of the approximating Markov chain; is equal to the dimension of the
 resulting linear equation system.}
+\item{OLD}{Switch between the original implemenation, used in Morais and Knoth (2020), and a slightly modified new one (more accurate).}
 }
 \details{
 The monitored data follow a Poisson distribution with \code{mu}.
@@ -61,8 +62,8 @@ gU <- 0.000765
 mu2  <- c(16, 18, 19.99, mu0, 20.01, 22, 24)
 ARL2 <- AD2 <- rep(NA, length(mu2))
 for ( i in 1:length(mu2) ) {
-  ARL2[i] <- round(pois.ewma.arl(lambda,AL,AU,mu0,mu0,mu2[i],rando=FALSE), digits=1)
-  AD2[i] <- round(pois.ewma.ad(lambda,AL,AU,mu0,mu2[i],rando=FALSE), digits=1)
+  ARL2[i] <- round(pois.ewma.arl(lambda,AL,AU,mu0,mu0,mu2[i],rando=FALSE,OLD=TRUE), digits=1)
+  AD2[i] <- round(pois.ewma.ad(lambda,AL,AU,mu0,mu2[i],rando=FALSE,OLD=TRUE), digits=1)
 }
 print( cbind(mu2, ARL2, AD2) )
 }

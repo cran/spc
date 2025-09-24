@@ -1,4 +1,4 @@
-3f284adb553d5f201c002059a8cc38fd *DESCRIPTION
+186e1e8f2ad9f6b13261cdd020a9afbc *DESCRIPTION
 344a101d2ffc88f932917b080c4d3edf *NAMESPACE
 938e63b937546368d2a3ad73dbc1a749 *R/dphat.R
 a794896e1669243395c72444bff75161 *R/euklid.ewma.arl.R
@@ -28,9 +28,9 @@ cde50d6572735dec15253ac814d1294b *R/phat.ewma.lambda.R
 9b71bc5d60bf0458dea4f8ce4c7c4253 *R/pois.cusum.arl.R
 b9f28e220769a0c9fa13ed5a68687fe7 *R/pois.cusum.crit.L0L1.R
 dc876f2fb0a968778a8fd54df31a5e6d *R/pois.cusum.crit.R
-fcfa29faa7aa63fbe7d9576f4c0484d8 *R/pois.ewma.ad.R
-0fd0980aee8dde8e2ed120e7502ff2d4 *R/pois.ewma.arl.R
-85d621f4c0f8f1e2a959023f73e13df2 *R/pois.ewma.crit.R
+0a226cac71bbbdd50c692a7d85a27941 *R/pois.ewma.ad.R
+b7e48c53a40675c78493cc5c8958b873 *R/pois.ewma.arl.R
+e9bd01a60f3f93f50fe37065098d637b *R/pois.ewma.crit.R
 8493c6ffe635deab1f9b9120b14e7330 *R/pphat.R
 76dbd6c5db0fb64dfe91f76b9aab6312 *R/qphat.R
 85f5c1605413c07024e732ffc33fb789 *R/quadrature.nodes.weights.R
@@ -111,9 +111,9 @@ a77a8fefe5e96f6546c18ef78fd0e8bc *man/mewma.psi.Rd
 a1493c124660b3e0aec72c9b2ac6face *man/pois.crit.L0L1.Rd
 a68f5059fe3cce9b8b08974ae1102c8c *man/pois.cusum.arl.Rd
 406c02a17f01d98cd9fca7a8d64fa2ef *man/pois.cusum.crit.Rd
-a5827c7b4936c8e3c7cad6124116e484 *man/pois.ewma.ad.Rd
-9469df22aa04c65a319b8c126861081e *man/pois.ewma.arl.Rd
-e59fa07d0824736ddbab19f6ab8d386a *man/pois.ewma.crit.Rd
+b88fcd7feb6f5939f485c781c91c4a08 *man/pois.ewma.ad.Rd
+017cdb2e1e24dcaa7f35afbbe7290b35 *man/pois.ewma.arl.Rd
+03eef0a335a8a6d95d2d992c8083bea3 *man/pois.ewma.crit.Rd
 fbd84e97e2522b0624bde87bc1e23052 *man/quadrature.nodes.weights.Rd
 0d471bf118ec7405bbdc4fd8106c70c9 *man/scusum.arl.Rd
 686d334f1eeb578afbdeb7f56ccb9249 *man/scusum.crit.Rd
@@ -165,12 +165,12 @@ a0761716e88359aaced32bc28b90f70c *man/xtewma.arl.Rd
 ff3072d7d7328bec15ae828ba355df3d *man/xtewma.sf.Rd
 2473c0960a56af19d8f417ce4fe9eb98 *man/xtshewhart.ar1.arl.Rd
 2a6f9e9e044a78154d3cfda5936d6f48 *src/Makevars
-b78a82c75ad232d1cf3787d5e33f15ac *src/allspc.c
+dad24d42c431c4fc047882fff603dc39 *src/allspc.c
 e6acfcdb0acd56c9476000d0c538486b *src/ccusum_arl_be.c
 1ef607ffc93eb93a13d3a6c166cc0e9c *src/ccusum_crit_be.c
-669db61a1b0c2ccabcbc19f235f809b8 *src/cewma_ad_be.c
-4bbe896e4efd81a019dc82bf19655064 *src/cewma_arl_be.c
-ddf3f313f099b55042c223311aea49f4 *src/cewma_crit_be.c
+eecf6660b799acd4b065dc380bb48484 *src/cewma_ad_be.c
+49aa7dc6a33906b73f4c505bb9c770cf *src/cewma_arl_be.c
+c98ba8efad9d81336f2946ae2ab03f81 *src/cewma_crit_be.c
 8525af4609163c65dc141383c5c5ad55 *src/euklid_ewma_arl.c
 924d6277d6a13466ccf8de90faf3204b *src/ewma_p_arl_be.c
 13a4e7af8e9d8ae22430511758649191 *src/ewma_phat_arl_coll.c
@@ -202,7 +202,7 @@ ee07b1626cb4f42144ffcfc29ff3ca39 *src/sewma_q_crit_prerun.c
 dfa00954609e5b3a509a286ed48501e3 *src/sewma_res_arl.c
 f3b6ab455901ebf336b65555c0f87ecc *src/sewma_sf.c
 df8e9c91ce841335e4538292f8510f50 *src/sewma_sf_prerun.c
-a39976452102e4467dfaff39aedaee9a *src/spc_init.c
+234c0c4d7d1ea965c3313c29601e999d *src/spc_init.c
 0e076161ec39bcafc09d16ec7085f6ce *src/tewma_arl_wowR.c
 7d5d3b5fb77da4bc0112145513e70b07 *src/tol_lim_fac.c
 2c0242acb16834c65e2b2af668d193c8 *src/tshewhart_ar1_arl.c

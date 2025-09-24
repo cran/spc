@@ -3,7 +3,7 @@
 \title{Compute ARLs of Poisson EWMA control charts}
 \description{Computation of the (zero-state) Average Run Length (ARL) at given mean \code{mu}.}
 \usage{pois.ewma.crit(lambda, L0, mu0, z0, AU=3, sided="two", design="sym", rando=FALSE,
-mcdesign="transfer", N=101, jmax=4)}
+mcdesign="transfer", N=101, jmax=4, OLD=FALSE)}
 \arguments{
 \item{lambda}{smoothing parameter of the EWMA p control chart.}
 \item{L0}{value of the so-called in-control Average Run Length (ARL) for the Poisson EWMA control chart.}
@@ -20,6 +20,7 @@ If randomisation is used, then the corresponding probailities, \code{gL} and \co
 sophisticated \code{"transfer"} which improves the accuracy heavily.}
 \item{N}{number of states of the approximating Markov chain; is equal to the dimension of the resulting linear equation system.}
 \item{jmax}{number of digits for the to be calculated factors \code{A} (sort of accuracy).}
+\item{OLD}{Switch between the original implemenation, used in Morais and Knoth (2020), and a slightly modified new one (more accurate).}
 }
 \details{
 The monitored data follow a Poisson distribution with \code{mu}.
@@ -51,7 +52,7 @@ print(round(A, digits=4))
 ## Morais and Knoth (2020), Table 2, lambda = 0.27 column
 lambda <- 0.27
 L0 <- 1233.4
-ccgg <- pois.ewma.crit(lambda,1233.4,mu0,mu0,design="unb",rando=TRUE,mcdesign="transfer")
+ccgg <- pois.ewma.crit(lambda,1233.4,mu0,mu0,design="unb",rando=TRUE,mcdesign="transfer",OLD=TRUE)
 print(ccgg, digits=3)
 }
 \keyword{ts}

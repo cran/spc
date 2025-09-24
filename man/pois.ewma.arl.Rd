@@ -3,7 +3,7 @@
 \title{Compute ARLs of Poisson EWMA control charts}
 \description{Computation of the (zero-state) Average Run Length (ARL) at given mean \code{mu}.}
 \usage{pois.ewma.arl(lambda, AL, AU, mu0, z0, mu, sided="two", rando=FALSE, gL=0, gU=0,
-mcdesign="transfer", N=101)}
+mcdesign="transfer", N=101, OLD=FALSE)}
 \arguments{
 \item{lambda}{smoothing parameter of the EWMA p control chart.}
 \item{AL, AU}{factors to build the lower and upper control limit, respectively, of the Poisson EWMA control chart.}
@@ -21,6 +21,7 @@ If randomisation is used, then set the corresponding probailities, \code{gL} and
 sophisticated \code{"transfer"} which improves the accuracy heavily.}
 \item{N}{number of states of the approximating Markov chain; is equal to the dimension of the
 resulting linear equation system.}
+\item{OLD}{Switch between the original implemenation, used in Morais and Knoth (2020), and a slightly modified new one (more accurate).}
 }
 \details{
 The monitored data follow a Poisson distribution with \code{mu}.
@@ -68,7 +69,7 @@ mu0 <- 20
 mu1  <- c(16, 18, 19.99, mu0, 20.01, 22, 24)
 ARL3 <- rep(NA, length(mu1))
 for ( i in 1:length(mu1) )
-  ARL3[i] <- pois.ewma.arl(lambda,AL,AU,mu0,mu0,mu1[i],rando=TRUE,gL=gL,gU=gU, N=101)
+  ARL3[i] <- pois.ewma.arl(lambda,AL,AU,mu0,mu0,mu1[i],rando=TRUE,gL=gL,gU=gU, N=101, OLD=TRUE)
 print(cbind(mu1, round(ARL3, digits=1)))
 }
 \keyword{ts}
